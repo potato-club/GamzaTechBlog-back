@@ -108,3 +108,10 @@ Delete: [Java] 감자 구조 이해하기
 - 삭제 시 `.md` 파일 역시 삭제되며, GitHub에서도 기록이 반영됩니다.
 - 현재는 **감자테크 블로그 → GitHub 방향**의 동기화만 제공되며,
   추후 GitHub에서의 수정사항을 감기블로 반영하는 기능도 고려 중입니다.
+
+---
+  
+## 초 ERD
+
+<img src="https://github.com/user-attachments/assets/8fa22484-186f-4e86-bd7a-5a9225c1db24" width="90%" alt="image" />
+
