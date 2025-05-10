@@ -59,4 +59,13 @@ public class User extends BaseTime {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Project> projects = new ArrayList<>();
+
+    @Builder
+    public User(String githubId, String name, String email, Integer gamjaBatch) {
+        this.githubId   = githubId;
+        this.name       = name;
+        this.email      = email;
+        this.role       = UserRole.USER;
+        this.gamjaBatch = gamjaBatch;
+    }
 }
