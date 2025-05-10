@@ -1,0 +1,38 @@
+package org.gamja.gamzatechblog.core.auth.oauth.model;
+
+import java.util.Map;
+
+public class GithubUser implements OAuthUserInfo {
+    private final Map<String, Object> attributes;
+
+    public GithubUser(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String getProviderId() {
+        return "g_" + attributes.get("id");
+    }
+
+    @Override
+    public String getProvider() {
+        return OAuthProvider.GITHUB;
+    }
+
+    @Override
+    public String getEmail() {
+        return (String) attributes.get("email");
+    }
+
+    @Override
+    public String getName() {
+        Object name = attributes.get("name");
+        return name != null ? name.toString() : (String) attributes.get("login");
+    }
+
+    @Override
+    public String getProfileImageUrl()  {
+        return (String) attributes.get("avatar_url");
+    }
+}
+
