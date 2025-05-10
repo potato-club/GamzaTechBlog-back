@@ -33,7 +33,7 @@ public class JwtProvider {
     private static final String REFRESH_HEADER = "REFRESH";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String CLAIM_GITHUB_ID = "githubId";
-    private static final String TOKEN_SUBJECT = "감자테크블로그";
+    private static final String TOKEN_SUBJECT = "GamjaTech";
 
     private static final long ACCESS_TOKEN_VALIDITY_MS  = 30 * 60 * 1000L;
     private static final long REFRESH_TOKEN_VALIDITY_MS = 7L * 24 * 60 * 60 * 1000L;
