@@ -6,6 +6,7 @@ import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
+import org.gamja.gamzatechblog.domain.profile.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.gamja.gamzatechblog.domain.repository.model.entity.Repository;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
@@ -59,6 +60,10 @@ public class User extends BaseTime {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Project> projects = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_image_id")
+    private ProfileImage profileImage;
 
     @Builder
     public User(String githubId, String name, String email, Integer gamjaBatch) {
