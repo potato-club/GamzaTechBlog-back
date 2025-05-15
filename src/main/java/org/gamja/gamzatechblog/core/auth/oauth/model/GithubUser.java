@@ -3,6 +3,13 @@ package org.gamja.gamzatechblog.core.auth.oauth.model;
 import java.util.Map;
 
 public class GithubUser implements OAuthUserInfo {
+
+    public static final String[] GITHUB_OAUTH_SCOPES = {
+            "read:user",
+            "user:email",
+            "repo"
+    };
+
     private final Map<String, Object> attributes;
 
     public GithubUser(Map<String, Object> attributes) {
@@ -31,8 +38,7 @@ public class GithubUser implements OAuthUserInfo {
     }
 
     @Override
-    public String getProfileImageUrl()  {
+    public String getProfileImageUrl() {
         return (String) attributes.get("avatar_url");
     }
 }
-

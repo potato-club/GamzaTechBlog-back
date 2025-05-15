@@ -5,9 +5,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
+import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,7 +38,7 @@ public class JwtProvider {
     private static final String CLAIM_GITHUB_ID = "githubId";
     private static final String TOKEN_SUBJECT = "GamjaTech";
 
-    private static final long ACCESS_TOKEN_VALIDITY_MS  = 30 * 60 * 1000L;
+    private static final long ACCESS_TOKEN_VALIDITY_MS = 30 * 60 * 1000L;
     private static final long REFRESH_TOKEN_VALIDITY_MS = 7L * 24 * 60 * 60 * 1000L;
 
     @PostConstruct
@@ -133,9 +136,40 @@ public class JwtProvider {
         }
     }
 
+    public Claims parseClaimsOrThrow(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw new BusinessException(ErrorCode.EXPIRED_JWT);
+        } catch (UnsupportedJwtException | MalformedJwtException e) {
+            throw new BusinessException(ErrorCode.UNSUPPORTED_JWT);
+        } catch (SignatureException e) {
+            throw new BusinessException(ErrorCode.SIGNATURE_INVALID_JWT);
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(ErrorCode.JWT_NOT_FOUND);
+        }
+    }
+
     public Authentication getAuthentication(String token) {
         String githubId = getGithubId(token);
         UserDetails ud = userDetailsService.loadUserByUsername(githubId);
         return new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+    }
+
+    public String extractGithubIdFromRefreshToken(String refreshToken) {
+        if (!validateRefreshToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.AUTHENTICATION_FAILED, "리프레시 토큰이 유효하지 않습니다.");
+        }
+        Claims claims = parseClaimsOrThrow(refreshToken);
+        return claims.get(CLAIM_GITHUB_ID, String.class);
+    }
+
+    public void addTokenHeaders(HttpServletResponse response, TokenResponse tokens) {
+        response.setHeader(ACCESS_HEADER, BEARER_PREFIX + tokens.getAccessToken());
+        response.setHeader(REFRESH_HEADER, BEARER_PREFIX + tokens.getRefreshToken());
     }
 }

@@ -1,8 +1,9 @@
-package org.gamja.gamzatechblog.core.error;
+package org.gamja.gamzatechblog.core.error.handler;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
