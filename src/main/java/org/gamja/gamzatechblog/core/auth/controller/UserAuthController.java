@@ -1,49 +1,49 @@
 package org.gamja.gamzatechblog.core.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
+import org.gamja.gamzatechblog.core.auth.dto.CodeRequest;
 import org.gamja.gamzatechblog.core.auth.dto.RefreshRequest;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
-import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
-import org.gamja.gamzatechblog.core.auth.oauth.service.OAuthService;
-import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
+import org.gamja.gamzatechblog.core.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserAuthController {
-    private final OAuthService oAuthService;
-    private final UserAuthService userAuthService;
+    private final AuthService authService;
     private final JwtProvider jwtProvider;
 
-    @GetMapping("/login/github/callback")
-    public ResponseEntity<TokenResponse> loginWithGithub(@RequestParam String code) {
-        OAuthUserInfo info = oAuthService.getUserInfoFromGithub(code);
-
-        if (!userAuthService.existsByProviderId(info.getProviderId())) {
-            userAuthService.registerWithProvider(info);
-        }
-
-        String access  = jwtProvider.createAccessToken(info.getProviderId());
-        String refresh = jwtProvider.createRefreshToken(info.getProviderId());
-
-        return ResponseEntity.ok(new TokenResponse(access, refresh));
+    @Operation(summary = "깃허브 로그인",tags = {"인증,인가"})
+    @PostMapping("/login/github")
+    public void loginWithGithub(
+            @RequestBody CodeRequest req,
+            HttpServletResponse response
+    ) {
+        TokenResponse tokens = authService.loginWithGithub(req.getCode());
+        jwtProvider.addTokenHeaders(response, tokens);
     }
 
+    @Operation(summary = "토큰 재발급",tags = {"인증,인가"})
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@RequestBody RefreshRequest req) {
-        String refreshToken = req.getRefreshToken();
+    public void reissue(@RequestBody RefreshRequest req, HttpServletResponse response) {
+        TokenResponse tokens = authService.reissueRefreshToken(req.getRefreshToken());
+        jwtProvider.addTokenHeaders(response, tokens);
+    }
 
-        if (!jwtProvider.validateRefreshToken(refreshToken)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        String providerId  = jwtProvider.getGithubId(refreshToken);
-        String newAccess   = jwtProvider.createAccessToken(providerId);
-        String newRefresh  = jwtProvider.createRefreshToken(providerId);
-
-        return ResponseEntity.ok(new TokenResponse(newAccess, newRefresh));
+    @Operation(summary = "깃허브 로그인",tags = {"인증,인가"})
+    @GetMapping("/login/github/callback")
+    public void githubCallback(
+            @RequestParam("code") String code,
+            HttpServletResponse response
+    ) {
+        TokenResponse tokens = authService.loginWithGithub(code);
+        jwtProvider.addTokenHeaders(response, tokens);
     }
 }

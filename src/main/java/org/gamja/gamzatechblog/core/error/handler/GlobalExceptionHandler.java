@@ -1,6 +1,7 @@
-package org.gamja.gamzatechblog.core.error;
+package org.gamja.gamzatechblog.core.error.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

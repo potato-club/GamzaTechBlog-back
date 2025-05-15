@@ -22,7 +22,11 @@ public enum ErrorCode {
 
     // User
     USER_NOT_FOUND           (404, "U001", "사용자를 찾을 수 없습니다."),
-    GITHUB_USER_NOT_FOUND    (404, "U002", "깃허브 사용자를 찾을 수 없습니다.");
+    GITHUB_USER_NOT_FOUND    (404, "U002", "깃허브 사용자를 찾을 수 없습니다."),
+
+
+    // 500 Internal Server Error: 서비스/서버 오류
+    OAUTH_PROVIDER_ERROR    (500, "S5001", "OAuth 프로바이더 오류입니다.");
 
     private final String code;
     private final String message;
