@@ -12,6 +12,7 @@ public class GithubUser implements OAuthUserInfo {
 
     private final Map<String, Object> attributes;
 
+    private String email;
     public GithubUser(Map<String, Object> attributes) {
         this.attributes = attributes;
     }
@@ -41,4 +42,6 @@ public class GithubUser implements OAuthUserInfo {
     public String getProfileImageUrl() {
         return (String) attributes.get("avatar_url");
     }
+
+    public void setEmail(String email) {this.email = email;}
 }

@@ -32,11 +32,11 @@ public class User extends BaseTime {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "email", length = 100, nullable = false, unique = true)
+    @Column(name = "email", length = 100, unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", length = 10, nullable = false)
+    @Column(name = "role", length = 10)
     private UserRole role;
 
     @Column(name = "gamja_batch")
