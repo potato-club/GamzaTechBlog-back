@@ -25,13 +25,13 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "GitHub code가 누락되었습니다.");
         }
         OAuthUserInfo info = oAuthService.getUserInfoFromGithub(code);
-        // 신규 회원이면 바로 가입 처리
+
         if (!userAuthService.existsByProviderId(info.getProviderId())) {
             userAuthService.registerWithProvider(info);
         }
-        String accessToken = jwtProvider.createAccessToken(info.getProviderId());
-        String refreshToken = jwtProvider.createRefreshToken(info.getProviderId());
 
+        String accessToken  = jwtProvider.createAccessToken(info.getProviderId());
+        String refreshToken = jwtProvider.createRefreshToken(info.getProviderId());
         return new TokenResponse(accessToken, refreshToken);
     }
 

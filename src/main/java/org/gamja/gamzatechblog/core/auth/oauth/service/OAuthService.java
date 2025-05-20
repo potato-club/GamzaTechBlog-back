@@ -2,6 +2,7 @@ package org.gamja.gamzatechblog.core.auth.oauth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
+import org.gamja.gamzatechblog.core.auth.oauth.mapper.GithubUserMapper;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
@@ -15,11 +16,10 @@ import java.util.Map;
 @Service
 public class OAuthService {
 
-    private final GithubApiClient githubApiClient;
+    private final GithubUserMapper githubUserMapper;
 
     public OAuthUserInfo getUserInfoFromGithub(String code) {
-        Map<String, Object> profile = githubApiClient.fetchProfile(code);
-        return getUserByProvider(profile, OAuthProvider.GITHUB);
+        return githubUserMapper.toOAuthUserInfo(code);
     }
 
     public OAuthUserInfo getUserByProvider(Map<String, Object> data, String provider) {
@@ -41,4 +41,6 @@ public class OAuthService {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
     }
+
+
 }
