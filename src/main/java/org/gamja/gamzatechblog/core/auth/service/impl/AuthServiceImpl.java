@@ -1,46 +1,56 @@
 package org.gamja.gamzatechblog.core.auth.service.impl;
 
-import lombok.RequiredArgsConstructor;
+import java.time.Duration;
+
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
+import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.core.auth.oauth.service.OAuthService;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
+import org.gamja.gamzatechblog.core.error.exception.OAuthException;
 import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final OAuthService oAuthService;
-    private final UserAuthService userAuthService;
-    private final JwtProvider jwtProvider;
-    @Override
-    public TokenResponse loginWithGithub(String code) {
-        if (!StringUtils.hasText(code)) {
-            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "GitHub code가 누락되었습니다.");
-        }
-        OAuthUserInfo info = oAuthService.getUserInfoFromGithub(code);
+	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
 
-        if (!userAuthService.existsByProviderId(info.getProviderId())) {
-            userAuthService.registerWithProvider(info);
-        }
+	private final OAuthService oAuthService;
+	private final UserAuthService userAuthService;
+	private final JwtProvider jwtProvider;
+	private final RefreshTokenDao refreshTokenDao;
 
-        String accessToken  = jwtProvider.createAccessToken(info.getProviderId());
-        String refreshToken = jwtProvider.createRefreshToken(info.getProviderId());
-        return new TokenResponse(accessToken, refreshToken);
-    }
+	@Override
+	public TokenResponse loginWithGithub(String code) {
+		if (!StringUtils.hasText(code)) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "GitHub code가 누락되었습니다.");
+		}
+		OAuthUserInfo info = oAuthService.getUserInfoFromGithub(code);
+		if (!userAuthService.existsByProviderId(info.getProviderId())) {
+			userAuthService.registerWithProvider(info);
+		}
+		return issueTokens(info.getProviderId());
+	}
 
-    @Override
-    public TokenResponse reissueRefreshToken(String refreshToken) {
-        String providerId = jwtProvider.extractGithubIdFromRefreshToken(refreshToken);
-        String newAccess  = jwtProvider.createAccessToken(providerId);
-        String newRefresh = jwtProvider.createRefreshToken(providerId);
-        return new TokenResponse(newAccess, newRefresh);
-    }
+	@Override
+	public TokenResponse reissueRefreshToken(String oldRefreshToken) {
+		String userId = refreshTokenDao.findUserIdByRefreshToken(oldRefreshToken)
+			.orElseThrow(() -> new OAuthException(ErrorCode.JWT_NOT_FOUND));
+		return issueTokens(userId);
+	}
 
+	private TokenResponse issueTokens(String userId) {
+		String accessToken = jwtProvider.createAccessToken(userId);
+		String refreshToken = jwtProvider.createRefreshToken(userId);
+		refreshTokenDao.rotateRefreshToken(userId, refreshToken, REFRESH_TOKEN_TTL);
+		return new TokenResponse(accessToken, refreshToken);
+	}
 }

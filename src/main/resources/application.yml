@@ -21,14 +21,19 @@ spring:
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ENC(CE6Jp9s6E8WC7GlhL/eSfQ==)
 
   security:
     oauth2:
       client:
         registration:
           github:
-            client-id:  ENC(QH8tNKQ5kr4GfpPzZ2ySbScdv+/mwfy46uy57iggQjA=)
-            client-secret:  ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
+            client-id: ENC(QH8tNKQ5kr4GfpPzZ2ySbScdv+/mwfy46uy57iggQjA=)
+            client-secret: ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
             redirect-uri: ENC(3DTDoxCqRJQifbuCIgNMwglodsVoaBber465+VUXtELiIZmBKa6gbJVDr2x6O/iboEyQzIzHur0=)
             authorization-grant-type: ENC(SXz2VlgX1PMd1fqPSOvSveQBpZoD0eHFJoOQWS4YeUw=)
             scope: ENC(nWg6ThSDEF+d2U5UClrr6nlznqFlfoqkYOvf2dX8tWc=)
@@ -36,8 +41,8 @@ spring:
         provider:
           github:
             authorization-uri: ENC(MLHd4dw6yjFa3QaYj/BYoZqfXlt9zSurpHUN2ckoN9ivLTIylZ/JhrL4fuB+y6aeV1bY9y0Gfng=)
-            token-uri:         ENC(1bZRymZ06qfnBNyoqr+yLwInANmF2v3J/dMbQzEDUAhEZkLnC9Ns3LN0zoxeJqqfnTJJWYBwIJs=)
-            user-info-uri:     ENC(gQOYYEX2X3LLg7uNv88rHqH2EWKcNb6C1745Tc/Ft6vY2G8J/vyA5w==)
+            token-uri: ENC(1bZRymZ06qfnBNyoqr+yLwInANmF2v3J/dMbQzEDUAhEZkLnC9Ns3LN0zoxeJqqfnTJJWYBwIJs=)
+            user-info-uri: ENC(gQOYYEX2X3LLg7uNv88rHqH2EWKcNb6C1745Tc/Ft6vY2G8J/vyA5w==)
             user-name-attribute: ENC(+sX3q06WzbxlcrQG5AJLCw==)
 
 jwt:
