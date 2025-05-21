@@ -32,11 +32,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final GithubApiClient               githubApiClient;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest  request,
-                                        HttpServletResponse response,
-                                        Authentication      authentication)
-            throws IOException, ServletException {
-
+    public void onAuthenticationSuccess(HttpServletRequest  request, HttpServletResponse response, Authentication      authentication) throws IOException, ServletException {
         OAuth2User oauth2User  = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attr = oauth2User.getAttributes();
         GithubUser gitUser = new GithubUser(attr);
