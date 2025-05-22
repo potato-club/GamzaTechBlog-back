@@ -11,7 +11,7 @@ public class UserMapper {
 			.githubId(info.getGithubId())
 			.name(info.getName())
 			.email(info.getEmail())
-			// gamjaBatch는 필요에 따라 info에 포함시키거나, 기본값 0으로 처리
+			.nickname(info.getNickname())
 			.gamjaBatch(0)
 			.build();
 	}

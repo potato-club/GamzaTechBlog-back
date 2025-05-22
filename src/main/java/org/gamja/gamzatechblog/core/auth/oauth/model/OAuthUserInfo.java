@@ -8,6 +8,8 @@ public interface OAuthUserInfo {
 
 	String getEmail();
 
+	String getNickname();
+
 	String getName();
 
 	String getProfileImageUrl();  // 이름 변경

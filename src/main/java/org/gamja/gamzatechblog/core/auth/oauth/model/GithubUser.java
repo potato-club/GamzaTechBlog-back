@@ -29,6 +29,11 @@ public class GithubUser implements OAuthUserInfo {
 	}
 
 	@Override
+	public String getNickname() {
+		return (String)attributes.get("login");
+	}
+
+	@Override
 	public String getEmail() {
 		return (String)attributes.get("email");
 	}

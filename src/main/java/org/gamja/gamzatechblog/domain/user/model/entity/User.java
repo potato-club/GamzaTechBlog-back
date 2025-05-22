@@ -52,6 +52,9 @@ public class User extends BaseTime {
 	@Column(name = "email", length = 100, unique = true)
 	private String email;
 
+	@Column(nullable = false, unique = true)
+	private String nickname;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role", length = 10)
 	private UserRole role;
@@ -83,10 +86,11 @@ public class User extends BaseTime {
 	private ProfileImage profileImage;
 
 	@Builder
-	public User(String githubId, String name, String email, Integer gamjaBatch) {
+	public User(String githubId, String name, String email, Integer gamjaBatch, String nickname) {
 		this.githubId = githubId;
 		this.name = name;
 		this.email = email;
+		this.nickname = nickname;
 		this.role = UserRole.USER;
 		this.gamjaBatch = gamjaBatch;
 	}
