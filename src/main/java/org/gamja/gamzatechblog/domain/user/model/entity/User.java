@@ -94,4 +94,13 @@ public class User extends BaseTime {
 		this.nickname = nickname;
 		this.gamjaBatch = gamjaBatch;
 	}
+
+	public void setNickname(String newNickname) {
+		this.nickname = newNickname;
+	}
+
+	public void setEmail(String newEmail) {
+		this.email = newEmail;
+	}
+
 }

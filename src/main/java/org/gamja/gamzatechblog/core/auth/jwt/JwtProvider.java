@@ -1,6 +1,8 @@
 package org.gamja.gamzatechblog.core.auth.jwt;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -8,11 +10,14 @@ import javax.crypto.SecretKey;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -27,6 +32,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,14 +42,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 public class JwtProvider {
-	private final UserDetailsService userDetailsService;
+	private final UserRepository userRepository;
 
 	@Value("${jwt.secret}")
 	private String secretKeyString;
 	private SecretKey secretKey;
 
-	private static final String ACCESS_HEADER = "ACCESS";
-	private static final String REFRESH_HEADER = "REFRESH";
 	private static final String BEARER_PREFIX = "Bearer ";
 	private static final String CLAIM_GITHUB_ID = "githubId";
 	private static final String TOKEN_SUBJECT = "GamjaTech";
@@ -82,11 +86,21 @@ public class JwtProvider {
 	}
 
 	public String resolveAccessToken(HttpServletRequest req) {
-		return resolveToken(req.getHeader(ACCESS_HEADER));
+		String token = resolveToken(req.getHeader("ACCESS"));
+		if (token != null)
+			return token;
+		return resolveToken(req.getHeader("Authorization"));
 	}
 
 	public String resolveRefreshToken(HttpServletRequest req) {
-		return resolveToken(req.getHeader(REFRESH_HEADER));
+		if (req.getCookies() == null)
+			return null;
+		for (Cookie c : req.getCookies()) {
+			if ("refreshToken".equals(c.getName())) {
+				return resolveToken(c.getValue());
+			}
+		}
+		return null;
 	}
 
 	private String resolveToken(String header) {
@@ -166,8 +180,11 @@ public class JwtProvider {
 
 	public Authentication getAuthentication(String token) {
 		String githubId = getGithubId(token);
-		UserDetails ud = userDetailsService.loadUserByUsername(githubId);
-		return new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+		User user = userRepository.findByGithubId(githubId)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found: " + githubId));
+		Collection<GrantedAuthority> auths = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+
+		return new UsernamePasswordAuthenticationToken(user, null, auths);
 	}
 
 	public String extractGithubIdFromRefreshToken(String refreshToken) {
@@ -178,7 +195,8 @@ public class JwtProvider {
 		return claims.get(CLAIM_GITHUB_ID, String.class);
 	}
 
-	public void addTokenHeaders(HttpServletResponse response, TokenResponse tokens) {
-		response.setHeader(ACCESS_HEADER, BEARER_PREFIX + tokens.getAccessToken());
+	public void addTokenHeaders(HttpServletResponse res, TokenResponse tokens) {
+		String bearer = BEARER_PREFIX + tokens.getAccessToken();
+		res.setHeader("Authorization", bearer);
 	}
 }

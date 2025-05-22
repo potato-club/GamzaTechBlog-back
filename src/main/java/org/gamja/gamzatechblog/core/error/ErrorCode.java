@@ -24,6 +24,8 @@ public enum ErrorCode {
 	USER_NOT_FOUND(404, "U001", "사용자를 찾을 수 없습니다."),
 	GITHUB_USER_NOT_FOUND(404, "U002", "깃허브 사용자를 찾을 수 없습니다."),
 	USER_ALREADY_REGISTERED(409, "U003", "이미 가입된 사용자입니다."),
+	EMAIL_ALREADY_EXISTS(409, "U004", "이미 사용 중인 이메일입니다."),
+	NICKNAME_ALREADY_EXISTS(409, "U005", "이미 사용 중인 닉네임입니다."),
 
 	// 500 Internal Server Error: 서비스/서버 오류
 	OAUTH_PROVIDER_ERROR(500, "S5001", "OAuth 프로바이더 오류입니다.");
