@@ -55,9 +55,10 @@ public class User extends BaseTime {
 	@Column(nullable = false, unique = true)
 	private String nickname;
 
+	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role", length = 10)
-	private UserRole role;
+	@Column(name = "role", length = 10, nullable = false)
+	private UserRole role = UserRole.USER;
 
 	@Column(name = "gamja_batch")
 	private Integer gamjaBatch;
@@ -91,7 +92,6 @@ public class User extends BaseTime {
 		this.name = name;
 		this.email = email;
 		this.nickname = nickname;
-		this.role = UserRole.USER;
 		this.gamjaBatch = gamjaBatch;
 	}
 }
