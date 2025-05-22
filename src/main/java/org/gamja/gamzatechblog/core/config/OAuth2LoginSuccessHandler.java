@@ -10,6 +10,7 @@ import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -65,6 +66,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		refreshTokenDao.rotateRefreshToken(userId, refreshToken, Duration.ofDays(30));
 		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, refreshToken));
+
+		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+			.httpOnly(true)
+			.secure(false)               // 배포 시 HTTPS면 true 로 변경
+			.path("/")
+			.maxAge(Duration.ofDays(30))
+			.sameSite("Lax")
+			.build();
+		response.addHeader("Set-Cookie", cookie.toString());
 
 		response.setContentType("application/json;charset=UTF-8");
 		response.getWriter().write("{}");
