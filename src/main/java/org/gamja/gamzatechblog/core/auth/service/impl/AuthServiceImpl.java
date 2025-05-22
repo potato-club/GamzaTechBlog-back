@@ -34,10 +34,10 @@ public class AuthServiceImpl implements AuthService {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "GitHub code가 누락되었습니다.");
 		}
 		OAuthUserInfo info = oAuthService.getUserInfoFromGithub(code);
-		if (!userAuthService.existsByProviderId(info.getProviderId())) {
+		if (!userAuthService.existsByGithubId(info.getGithubId())) {
 			userAuthService.registerWithProvider(info);
 		}
-		return issueTokens(info.getProviderId());
+		return issueTokens(info.getGithubId());
 	}
 
 	@Override

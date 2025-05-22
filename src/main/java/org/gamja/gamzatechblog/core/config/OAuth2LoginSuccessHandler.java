@@ -55,11 +55,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
 			}
 		}
-		if (!userAuthService.existsByProviderId(gitUser.getProviderId())) {
+		if (!userAuthService.existsByGithubId(gitUser.getGithubId())) {
 			userAuthService.registerWithProvider(gitUser);
 		}
 
-		String userId = gitUser.getProviderId();
+		String userId = gitUser.getGithubId();
 		String accessToken = jwtProvider.createAccessToken(userId);
 		String refreshToken = jwtProvider.createRefreshToken(userId);
 
