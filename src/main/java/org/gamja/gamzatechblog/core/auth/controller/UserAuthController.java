@@ -35,6 +35,7 @@ public class UserAuthController {
 		jwtProvider.addTokenHeaders(resp, token);
 	}
 
+	@Operation(summary = "로그아웃", tags = {"인증,인가"})
 	@PostMapping("/me/logout")
 	public ResponseEntity<ResponseDto<String>> logout(@CurrentUser User user) {
 		authService.logout(user.getGithubId());
