@@ -8,6 +8,7 @@ import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.core.auth.oauth.service.OAuthService;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
+import org.gamja.gamzatechblog.core.auth.service.BlacklistService;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.core.error.exception.OAuthException;
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
 	private final UserAuthService userAuthService;
 	private final JwtProvider jwtProvider;
 	private final RefreshTokenDao refreshTokenDao;
+	private final BlacklistService blacklistService;
 
 	@Override
 	public TokenResponse loginWithGithub(String code) {
@@ -45,6 +47,11 @@ public class AuthServiceImpl implements AuthService {
 		String userId = refreshTokenDao.findUserIdByRefreshToken(oldRefreshToken)
 			.orElseThrow(() -> new OAuthException(ErrorCode.JWT_NOT_FOUND));
 		return issueTokens(userId);
+	}
+
+	@Override
+	public void logout(String githubId) {
+		blacklistService.blacklistTokens(githubId);
 	}
 
 	private TokenResponse issueTokens(String userId) {

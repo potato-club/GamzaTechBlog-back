@@ -29,8 +29,7 @@ public class UserController {
 	@GetMapping("/me/get/profile")
 	public ResponseEntity<ResponseDto<UserProfileDto>> getMyProfile(@CurrentUser User user) {
 		UserProfileDto profile = userAuthService.getMyProfile(user);
-		ResponseDto<UserProfileDto> body = ResponseDto.of(HttpStatus.OK, "프로필 조회 성공", profile);
-		return ResponseEntity.status(HttpStatus.OK).body(body);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "프로필 조회 성공", profile));
 	}
 
 	@Operation(summary = "정보 업데이트", tags = "유저 기능")
@@ -38,15 +37,13 @@ public class UserController {
 	public ResponseEntity<ResponseDto<UserProfileDto>> updateProfile(@CurrentUser User user,
 		@RequestBody UpdateProfileRequest profileRequest) {
 		UserProfileDto updated = userAuthService.updateProfile(user, profileRequest);
-		ResponseDto<UserProfileDto> body = ResponseDto.of(HttpStatus.OK, "프로필이 수정되었습니다", updated);
-		return ResponseEntity.status(HttpStatus.OK).body(body);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "프로필이 수정되었습니다", updated));
 	}
 
 	@Operation(summary = "계정 삭제", tags = "유저 기능")
 	@DeleteMapping("/me/withdraw")
 	public ResponseEntity<ResponseDto<String>> withdraw(@CurrentUser User user) {
 		userAuthService.withdraw(user);
-		ResponseDto<String> body = ResponseDto.of(HttpStatus.OK, "삭제되었습니다");
-		return ResponseEntity.ok(body);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "삭제되었습니다"));
 	}
 }

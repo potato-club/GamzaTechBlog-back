@@ -1,9 +1,14 @@
 package org.gamja.gamzatechblog.core.auth.controller;
 
+import org.gamja.gamzatechblog.common.annotation.CurrentUser;
+import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.auth.dto.RefreshRequest;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +33,11 @@ public class UserAuthController {
 	public void reissue(@RequestBody RefreshRequest req, HttpServletResponse resp) {
 		TokenResponse token = authService.reissueRefreshToken(req.getRefreshToken());
 		jwtProvider.addTokenHeaders(resp, token);
+	}
+
+	@PostMapping("/me/logout")
+	public ResponseEntity<ResponseDto<String>> logout(@CurrentUser User user) {
+		authService.logout(user.getGithubId());
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다."));
 	}
 }

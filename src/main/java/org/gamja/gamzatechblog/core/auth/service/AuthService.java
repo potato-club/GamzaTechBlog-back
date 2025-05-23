@@ -7,4 +7,5 @@ public interface AuthService {
 
 	TokenResponse reissueRefreshToken(String refreshToken);
 
+	void logout(String githubId);
 }

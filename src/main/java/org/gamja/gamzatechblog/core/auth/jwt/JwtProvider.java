@@ -3,6 +3,7 @@ package org.gamja.gamzatechblog.core.auth.jwt;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -10,6 +11,7 @@ import javax.crypto.SecretKey;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
+import org.gamja.gamzatechblog.core.error.exception.UnauthorizedException;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +21,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -189,7 +193,7 @@ public class JwtProvider {
 
 	public String extractGithubIdFromRefreshToken(String refreshToken) {
 		if (!validateRefreshToken(refreshToken)) {
-			throw new BusinessException(ErrorCode.AUTHENTICATION_FAILED, "리프레시 토큰이 유효하지 않습니다.");
+			throw new UnauthorizedException(ErrorCode.AUTHENTICATION_FAILED);
 		}
 		Claims claims = parseClaimsOrThrow(refreshToken);
 		return claims.get(CLAIM_GITHUB_ID, String.class);
@@ -198,5 +202,29 @@ public class JwtProvider {
 	public void addTokenHeaders(HttpServletResponse res, TokenResponse tokens) {
 		String bearer = BEARER_PREFIX + tokens.getAccessToken();
 		res.setHeader("Authorization", bearer);
+	}
+
+	public String resolveAccessTokenFromHeader() {
+		ServletRequestAttributes attrs = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+		if (attrs == null)
+			return null;
+		HttpServletRequest req = attrs.getRequest();
+		String raw = Optional.ofNullable(req.getHeader("ACCESS")).orElse(req.getHeader("Authorization"));
+		if (raw != null && raw.startsWith("Bearer ")) {
+			return raw.substring(7);
+		}
+		return null;
+	}
+
+	public long getRemainingAccessTokenValidity(String token) {
+		Claims body = Jwts.parser()
+			.setSigningKey(secretKey)
+			.build()
+			.parseClaimsJws(token)
+			.getBody();
+
+		Date exp = body.getExpiration();
+		long secondsLeft = (exp.getTime() - System.currentTimeMillis()) / 1000;
+		return Math.max(secondsLeft, 0L);
 	}
 }
