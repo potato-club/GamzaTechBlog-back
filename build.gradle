@@ -90,9 +90,15 @@ dependencies {
     //OAuth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    // MapStruct 런타임
+    // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    //Github
+    implementation 'org.kohsuke:github-api:1.315'
+
+    //WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {

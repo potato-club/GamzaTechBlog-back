@@ -27,6 +27,10 @@ public enum ErrorCode {
 	EMAIL_ALREADY_EXISTS(409, "U004", "이미 사용 중인 이메일입니다."),
 	NICKNAME_ALREADY_EXISTS(409, "U005", "이미 사용 중인 닉네임입니다."),
 
+	// GitHub OAuth Token
+	GITHUB_OAUTH_TOKEN_NOT_FOUND(404, "G001", "깃허브 OAuth 토큰을 찾을 수 없습니다."),
+	GITHUB_OAUTH_TOKEN_INVALID(401, "G002", "유효하지 않은 깃허브 OAuth 토큰입니다."),
+
 	// 500 Internal Server Error: 서비스/서버 오류
 	OAUTH_PROVIDER_ERROR(500, "S5001", "OAuth 프로바이더 오류입니다.");
 

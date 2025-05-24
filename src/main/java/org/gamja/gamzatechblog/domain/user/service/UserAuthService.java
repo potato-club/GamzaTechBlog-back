@@ -1,6 +1,5 @@
 package org.gamja.gamzatechblog.domain.user.service;
 
-import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileDto;
@@ -9,7 +8,6 @@ import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
 import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +21,6 @@ public class UserAuthService {
 	private final UserMapper userMapper;
 	private final UserValidator userValidator;
 	private final UserProfileMapper userProfileMapper;
-	private final RedisTemplate<String, String> redisTemplate;
-	private final JwtProvider jwtProvider;
 
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {

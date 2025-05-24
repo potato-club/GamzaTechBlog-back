@@ -7,6 +7,7 @@ import java.util.Map;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
+import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
@@ -34,6 +35,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final GithubApiClient githubApiClient;
 	private final RefreshTokenDao refreshTokenDao;
+	private final GithubOAuthTokenDao githubTokenDao;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -41,30 +43,30 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
 		Map<String, Object> attr = oauth2User.getAttributes();
 		GithubUser gitUser = new GithubUser(attr);
+		String githubId = gitUser.getGithubId();
 
-		OAuth2AuthorizedClient client =
-			authorizedClientService.loadAuthorizedClient(
-				"github",
-				authentication.getName());
+		OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient("github",
+			authentication.getName());
 
-		String email = null;
 		if (client != null && client.getAccessToken() != null) {
-			String tokenValue = client.getAccessToken().getTokenValue();
+			String githubAccessToken = client.getAccessToken().getTokenValue();
+			githubTokenDao.saveOrUpdateByGithubId(githubId, githubAccessToken);
 			try {
-				email = githubApiClient.fetchPrimaryEmail(tokenValue);
+				String email = githubApiClient.fetchPrimaryEmail(githubAccessToken);
+				gitUser.setEmail(email);
 			} catch (Exception e) {
 				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
 			}
 		}
+
 		if (!userAuthService.existsByGithubId(gitUser.getGithubId())) {
 			userAuthService.registerWithProvider(gitUser);
 		}
 
-		String userId = gitUser.getGithubId();
-		String accessToken = jwtProvider.createAccessToken(userId);
-		String refreshToken = jwtProvider.createRefreshToken(userId);
+		String accessToken = jwtProvider.createAccessToken(githubId);
+		String refreshToken = jwtProvider.createRefreshToken(githubId);
 
-		refreshTokenDao.rotateRefreshToken(userId, refreshToken, Duration.ofDays(30));
+		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
 		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, refreshToken));
 
 		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
