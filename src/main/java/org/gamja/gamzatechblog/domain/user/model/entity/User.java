@@ -9,7 +9,7 @@ import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.profile.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
-import org.gamja.gamzatechblog.domain.repository.model.entity.Repository;
+import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 
 import jakarta.persistence.CascadeType;
@@ -76,7 +76,7 @@ public class User extends BaseTime {
 	private List<Like> likes = new ArrayList<>();
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Repository repository;
+	private GitHubRepo githubRepo;
 
 	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default

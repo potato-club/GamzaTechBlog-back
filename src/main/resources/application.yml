@@ -36,7 +36,7 @@ spring:
             client-secret: ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
             redirect-uri: ENC(3DTDoxCqRJQifbuCIgNMwglodsVoaBber465+VUXtELiIZmBKa6gbJVDr2x6O/iboEyQzIzHur0=)
             authorization-grant-type: ENC(SXz2VlgX1PMd1fqPSOvSveQBpZoD0eHFJoOQWS4YeUw=)
-            scope: ENC(nWg6ThSDEF+d2U5UClrr6nlznqFlfoqkYOvf2dX8tWc=)
+            scope: repo, read:user, user:email
 
         provider:
           github:
