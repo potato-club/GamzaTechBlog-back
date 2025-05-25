@@ -15,7 +15,7 @@ public class PostUtil {
 
 	public void syncToGitHub(String token, String oldTitle, List<String> oldTags,
 		Post post, List<String> tags, String action) {
-		String repoName = "GamjaTechBlog";
+		String repoName = "GamzaTechBlog";
 		String owner = post.getUser().getNickname();
 		githubApiClient.createRepositoryIfNotExists(token, repoName);
 
