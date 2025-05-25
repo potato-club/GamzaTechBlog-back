@@ -9,7 +9,6 @@ import org.gamja.gamzatechblog.domain.image.model.entity.Image;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
-import org.gamja.gamzatechblog.domain.tag.model.entity.Tag;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 
 import jakarta.persistence.CascadeType;
@@ -79,22 +78,8 @@ public class Post extends BaseTime {
 	@Builder.Default
 	private List<PostTag> postTags = new ArrayList<>();
 
-	public void update(String title, String content, List<String> tags) {
+	public void update(String title, String content) {
 		this.title = title;
 		this.content = content;
-		this.postTags.clear();
-
-		for (String tagName : tags) {
-			Tag tagEntity = Tag.builder()
-				.tagName(tagName)
-				.build();
-
-			PostTag postTag = PostTag.builder()
-				.post(this)
-				.tag(tagEntity)
-				.build();
-
-			this.postTags.add(postTag);
-		}
 	}
 }

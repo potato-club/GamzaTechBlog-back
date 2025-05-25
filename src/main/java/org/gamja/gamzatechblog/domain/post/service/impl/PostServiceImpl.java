@@ -35,7 +35,7 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		// 1. 개인 레포지토리 없으면 생성 (이름: GamjaTechBlog)
+		//개인 레포지토리 없으면 생성 GamjaTechBlog
 		String repoName = "GamjaTechBlog";
 		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
 			.orElseGet(() ->
@@ -49,8 +49,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
-		// 3. GitHub에 Add
-		postUtil.syncToGitHub(token, currentUser.getNickname(), post, request.getTags(), "Add");
+		postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add");
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -58,12 +57,15 @@ public class PostServiceImpl implements PostService {
 	public PostResponse revisePost(User currentUser, Long postId, PostRequest request) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
-		post.update(request.getTitle(), request.getContent(), request.getTags());
+		List<String> prevTags = post.getPostTags().stream()
+			.map(pt -> pt.getTag().getTagName())
+			.toList();
+		String prevTitle = post.getTitle();
+		post.update(request.getTitle(), request.getContent());
 		postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
-		// GitHub 동기화 (Update)
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		postUtil.syncToGitHub(token, currentUser.getNickname(), post, request.getTags(), "Update");
+		postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update");
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -71,12 +73,12 @@ public class PostServiceImpl implements PostService {
 	public void removePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
-		// GitHub 동기화 (Delete)
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		List<String> tags = post.getPostTags().stream()
+		String prevTitle = post.getTitle();
+		List<String> prevTags = post.getPostTags().stream()
 			.map(pt -> pt.getTag().getTagName())
 			.toList();
-		postUtil.syncToGitHub(token, currentUser.getNickname(), post, tags, "Delete");
+		postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete");
 		postRepository.delete(post);
 	}
 }
