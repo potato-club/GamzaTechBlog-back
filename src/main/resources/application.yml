@@ -24,18 +24,15 @@ spring:
   data:
     redis:
       auth:
-        host: localhost
+        host: ENC(v9i5p0xaJ7+u28wHCnse/VnJrhOjZVRd)
         port: 6379
         password: ENC(CE6Jp9s6E8WC7GlhL/eSfQ==)
         database: 0
       cache:
-        host: localhost
+        host: ENC(v9i5p0xaJ7+u28wHCnse/VnJrhOjZVRd)
         port: 6380
-        password: ""
+        password: ENC(kG1tHNByAOetzzKVZGieIQ==)
         database: 1
-
-  session:
-    store-type: none
 
   security:
     oauth2:
