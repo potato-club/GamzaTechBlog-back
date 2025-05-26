@@ -3,7 +3,7 @@ package org.gamja.gamzatechblog.domain.user.controller;
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
-import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileDto;
+import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -27,16 +27,16 @@ public class UserController {
 
 	@Operation(summary = "정보 조회", tags = "유저 기능")
 	@GetMapping("/me/get/profile")
-	public ResponseEntity<ResponseDto<UserProfileDto>> getMyProfile(@CurrentUser User user) {
-		UserProfileDto profile = userService.getMyProfile(user);
+	public ResponseEntity<ResponseDto<UserProfileResponse>> getMyProfile(@CurrentUser User user) {
+		UserProfileResponse profile = userService.getMyProfile(user);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "프로필 조회 성공", profile));
 	}
 
 	@Operation(summary = "정보 업데이트", tags = "유저 기능")
 	@PutMapping("/me/update/profile")
-	public ResponseEntity<ResponseDto<UserProfileDto>> updateProfile(@CurrentUser User user,
+	public ResponseEntity<ResponseDto<UserProfileResponse>> updateProfile(@CurrentUser User user,
 		@RequestBody UpdateProfileRequest profileRequest) {
-		UserProfileDto updated = userService.updateProfile(user, profileRequest);
+		UserProfileResponse updated = userService.updateProfile(user, profileRequest);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "프로필이 수정되었습니다", updated));
 	}
 

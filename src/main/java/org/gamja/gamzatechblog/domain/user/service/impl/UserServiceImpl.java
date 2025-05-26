@@ -2,7 +2,7 @@ package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
-import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileDto;
+import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
@@ -35,12 +35,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public UserProfileDto getMyProfile(User currentUser) {
+	public UserProfileResponse getMyProfile(User currentUser) {
 		return userProfileMapper.toUserProfileDto(currentUser);
 	}
 
 	@Transactional
-	public UserProfileDto updateProfile(User currentUser, UpdateProfileRequest req) {
+	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		userProfileMapper.applyProfileUpdates(req, user);
 		return userProfileMapper.toUserProfileDto(user);

@@ -1,7 +1,7 @@
 package org.gamja.gamzatechblog.domain.user.model.mapper;
 
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
-import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileDto;
+import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -15,7 +15,7 @@ public interface UserProfileMapper {
 	@Mapping(source = "role", target = "role")
 	@Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
 	@Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
-	UserProfileDto toUserProfileDto(User user);
+	UserProfileResponse toUserProfileDto(User user);
 
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 	void applyProfileUpdates(UpdateProfileRequest dto, @MappingTarget User user);

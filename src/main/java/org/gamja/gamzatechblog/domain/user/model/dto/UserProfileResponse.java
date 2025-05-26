@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserProfileDto {
+public class UserProfileResponse {
 	private final String githubId;
 	private final String nickname;
 	private final String name;
