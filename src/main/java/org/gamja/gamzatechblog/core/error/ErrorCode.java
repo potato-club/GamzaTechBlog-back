@@ -34,6 +34,11 @@ public enum ErrorCode {
 	// Post
 	POST_NOT_FOUND(404, "P001", "게시물을 찾을 수 없습니다."),
 
+	// Comment
+	COMMENT_NOT_FOUND(404, "CM001", "댓글을 찾을 수 없습니다."),
+	COMMENT_FORBIDDEN(403, "CM002", "댓글 작성자만 수정/삭제할 수 있습니다."),
+	PARENT_COMMENT_NOT_FOUND(404, "CM003", "상위 댓글을 찾을 수 없습니다."),
+
 	// 500 Internal Server Error: 서비스/서버 오류
 	OAUTH_PROVIDER_ERROR(500, "S5001", "OAuth 프로바이더 오류입니다.");
 
