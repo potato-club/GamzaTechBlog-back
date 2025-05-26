@@ -3,17 +3,24 @@ package org.gamja.gamzatechblog.core.auth.jwt.validator;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.JwtAuthenticationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class JwtTokenValidator {
 	private final JwtProvider jwtProvider;
-	private final RedisTemplate<String, String> redisTemplate;
+
+	@Autowired
+	@Qualifier("authStringRedisTemplate")
+	private RedisTemplate<String, String> redisTemplate;
+
+	public JwtTokenValidator(JwtProvider jwtProvider) {
+		this.jwtProvider = jwtProvider;
+	}
 
 	public String resolveAndValidate(HttpServletRequest request) {
 		String token = jwtProvider.resolveAccessToken(request);

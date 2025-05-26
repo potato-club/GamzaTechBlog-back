@@ -3,6 +3,7 @@ package org.gamja.gamzatechblog.core.auth.oauth.dao;
 import java.time.Duration;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ public class RefreshTokenDao {
 	private static final String USER_TOKEN_KEY = "userRefresh:";
 	private final RedisTemplate<String, Object> redis;
 
-	public RefreshTokenDao(RedisTemplate<String, Object> redis) {
+	public RefreshTokenDao(@Qualifier("authRedisTemplate") RedisTemplate<String, Object> redis) {
 		this.redis = redis;
 	}
 

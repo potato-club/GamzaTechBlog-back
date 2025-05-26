@@ -12,7 +12,7 @@ import org.gamja.gamzatechblog.core.auth.service.BlacklistService;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.core.error.exception.OAuthException;
-import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
+import org.gamja.gamzatechblog.domain.user.service.impl.UserServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
 	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
 
 	private final OAuthService oAuthService;
-	private final UserAuthService userAuthService;
+	private final UserServiceImpl userAuthService;
 	private final JwtProvider jwtProvider;
 	private final RefreshTokenDao refreshTokenDao;
 	private final BlacklistService blacklistService;

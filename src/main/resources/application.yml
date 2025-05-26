@@ -23,9 +23,19 @@ spring:
     suffix: .html
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: ENC(CE6Jp9s6E8WC7GlhL/eSfQ==)
+      auth:
+        host: localhost
+        port: 6379
+        password: ENC(CE6Jp9s6E8WC7GlhL/eSfQ==)
+        database: 0
+      cache:
+        host: localhost
+        port: 6380
+        password: ""
+        database: 1
+
+  session:
+    store-type: none
 
   security:
     oauth2:
@@ -36,7 +46,7 @@ spring:
             client-secret: ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
             redirect-uri: ENC(3DTDoxCqRJQifbuCIgNMwglodsVoaBber465+VUXtELiIZmBKa6gbJVDr2x6O/iboEyQzIzHur0=)
             authorization-grant-type: ENC(SXz2VlgX1PMd1fqPSOvSveQBpZoD0eHFJoOQWS4YeUw=)
-            scope: repo, read:user, user:email
+            scope: ENC(AFDNpXI3FLzrpYrT254eP1xjp4TavPENBTIV1zLvRVl+Jrl5Mh0ELg==)
 
         provider:
           github:

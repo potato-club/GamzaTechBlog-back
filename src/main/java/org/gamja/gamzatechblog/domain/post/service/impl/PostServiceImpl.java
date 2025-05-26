@@ -35,7 +35,7 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		//개인 레포지토리 없으면 생성 GamjaTechBlog
+		//개인 레포지토리 없으면 생성 GamzaTechBlog
 		String repoName = "GamzaTechBlog";
 		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
 			.orElseGet(() ->

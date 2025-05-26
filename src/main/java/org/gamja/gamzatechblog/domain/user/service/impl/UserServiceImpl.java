@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.user.service;
+package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
@@ -7,6 +7,7 @@ import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
 import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
+import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class UserAuthService {
+public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;

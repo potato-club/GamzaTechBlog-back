@@ -4,16 +4,20 @@ import java.util.concurrent.TimeUnit;
 
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.service.BlacklistService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
-
 @Component
-@RequiredArgsConstructor
 public class BlacklistServiceImpl implements BlacklistService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final JwtProvider jwtProvider;
+
+	public BlacklistServiceImpl(
+		@Qualifier("authStringRedisTemplate") RedisTemplate<String, String> redisTemplate, JwtProvider jwtProvider) {
+		this.redisTemplate = redisTemplate;
+		this.jwtProvider = jwtProvider;
+	}
 
 	/*
 	로그아웃 로직입니다. 로그아웃시, 액세스토큰을 블랙리스트 합니다.

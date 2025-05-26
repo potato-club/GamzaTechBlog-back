@@ -10,7 +10,7 @@ import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
-import org.gamja.gamzatechblog.domain.user.service.UserAuthService;
+import org.gamja.gamzatechblog.domain.user.service.impl.UserServiceImpl;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final UserAuthService userAuthService;
+	private final UserServiceImpl userAuthService;
 	private final JwtProvider jwtProvider;
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final GithubApiClient githubApiClient;
