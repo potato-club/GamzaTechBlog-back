@@ -18,7 +18,7 @@ public class PostUtil {
 		String repoName = "GamzaTechBlog";
 		String sha;
 		String owner = post.getUser().getNickname();
-		githubApiClient.createRepositoryIfNotExists(token, repoName);
+		githubApiClient.createRepositoryIfNotExists(token, repoName, owner);
 
 		String tag = (tags != null && !tags.isEmpty()) ? tags.get(0) : "etc";
 		String safeTitle = post.getTitle().replaceAll("[^\\w가-힣]", "_");
