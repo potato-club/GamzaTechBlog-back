@@ -34,9 +34,13 @@ public class UserServiceImpl implements UserService {
 		return userRepository.existsByGithubId(githubId);
 	}
 
+	/*
+	필터로 유효성검사를 하지만, 서비스코드에서 한번 더 실행합니다.
+	 */
 	@Transactional(readOnly = true)
 	public UserProfileResponse getMyProfile(User currentUser) {
-		return userProfileMapper.toUserProfileDto(currentUser);
+		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
+		return userProfileMapper.toUserProfileDto(user);
 	}
 
 	@Transactional
@@ -48,6 +52,7 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	public void withdraw(User currentUser) {
-		userRepository.delete(currentUser);
+		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
+		userRepository.delete(user);
 	}
 }
