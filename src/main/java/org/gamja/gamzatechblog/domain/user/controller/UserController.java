@@ -2,6 +2,7 @@ package org.gamja.gamzatechblog.domain.user.controller;
 
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
+import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -12,14 +13,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequestMapping("/api/v1/user")
+@ApiController("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 

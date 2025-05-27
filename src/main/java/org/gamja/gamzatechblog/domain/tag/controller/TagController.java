@@ -3,19 +3,17 @@ package org.gamja.gamzatechblog.domain.tag.controller;
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
+import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.tag.model.dto.TagResponse;
 import org.gamja.gamzatechblog.domain.tag.service.TagService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequestMapping("/api/v1/tags")
+@ApiController("/api/v1/tags")
 @RequiredArgsConstructor
 public class TagController {
 	private final TagService tagService;

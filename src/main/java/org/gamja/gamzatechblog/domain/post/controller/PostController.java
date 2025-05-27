@@ -5,6 +5,7 @@ import java.util.List;
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
+import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
@@ -22,15 +23,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequestMapping("/api/v1/posts")
+@ApiController("/api/v1/posts")
 @RequiredArgsConstructor
 public class PostController {
 
