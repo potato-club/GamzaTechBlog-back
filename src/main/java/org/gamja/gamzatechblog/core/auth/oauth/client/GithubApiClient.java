@@ -146,14 +146,13 @@ public class GithubApiClient {
 	}
 
 	// 파일 생성 또는 업데이트
-	public void createOrUpdateFile(String token, String owner, String repoName,
+	public String createOrUpdateFile(String token, String owner, String repoName,
 		String path, String commitMessage, String content) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-		// 1) 기존 SHA 조회 (404 무시)
 		String sha = null;
 		try {
 			URI getUri = UriComponentsBuilder
@@ -167,7 +166,6 @@ public class GithubApiClient {
 		} catch (HttpClientErrorException.NotFound ignored) {
 		}
 
-		// 2) 요청 본문 구성
 		ObjectNode body = JsonNodeFactory.instance.objectNode();
 		body.put("message", commitMessage);
 		body.put("content", Base64.getEncoder()
@@ -175,18 +173,19 @@ public class GithubApiClient {
 		if (sha != null)
 			body.put("sha", sha);
 
-		// 3) 생성·업데이트
 		URI putUri = UriComponentsBuilder
 			.fromHttpUrl("https://api.github.com/repos/{owner}/{repo}/contents/{+path}")
 			.buildAndExpand(owner, repoName, path)
 			.encode(StandardCharsets.UTF_8)
 			.toUri();
-		restTemplate.exchange(putUri, HttpMethod.PUT,
+		ResponseEntity<JsonNode> putResp = restTemplate.exchange(putUri, HttpMethod.PUT,
 			new HttpEntity<>(body, headers), JsonNode.class);
+
+		return putResp.getBody().get("commit").get("sha").asText();
 	}
 
 	// 파일 삭제
-	public void deleteFile(String token,
+	public String deleteFile(String token,
 		String owner,
 		String repoName,
 		String path,
@@ -219,6 +218,9 @@ public class GithubApiClient {
 			.encode(StandardCharsets.UTF_8)
 			.toUri();
 
-		restTemplate.exchange(delUri, HttpMethod.DELETE, new HttpEntity<>(body, headers), JsonNode.class);
+		ResponseEntity<JsonNode> delResp = restTemplate.exchange(delUri, HttpMethod.DELETE,
+			new HttpEntity<>(body, headers), JsonNode.class);
+
+		return delResp.getBody().get("commit").get("sha").asText();
 	}
 }

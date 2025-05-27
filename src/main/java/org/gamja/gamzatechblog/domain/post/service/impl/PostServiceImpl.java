@@ -6,6 +6,7 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
+import org.gamja.gamzatechblog.domain.commithistory.service.impl.CommitHistoryServiceImpl;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
@@ -45,6 +46,7 @@ public class PostServiceImpl implements PostService {
 	private final CommentService commentService;
 	private final PostDetailMapper postDetailMapper;
 	private final PostRepositoryCustom postRepositoryCustom;
+	private final CommitHistoryServiceImpl commitHistoryService;
 
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
@@ -63,7 +65,9 @@ public class PostServiceImpl implements PostService {
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
-		postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add", request.getCommitMessage());
+		String sha = postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add",
+			request.getCommitMessage());
+		commitHistoryService.registerCommitHistory(post, repo, request, sha);
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -79,8 +83,9 @@ public class PostServiceImpl implements PostService {
 		postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update",
+		String sha = postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update",
 			request.getCommitMessage());
+		commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), request, sha);
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 

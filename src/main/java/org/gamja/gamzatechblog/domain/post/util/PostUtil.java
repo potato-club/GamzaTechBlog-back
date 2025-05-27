@@ -13,9 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class PostUtil {
 	private final GithubApiClient githubApiClient;
 
-	public void syncToGitHub(String token, String oldTitle, List<String> oldTags,
+	public String syncToGitHub(String token, String oldTitle, List<String> oldTags,
 		Post post, List<String> tags, String action, String commitMessage) {
 		String repoName = "GamzaTechBlog";
+		String sha;
 		String owner = post.getUser().getNickname();
 		githubApiClient.createRepositoryIfNotExists(token, repoName);
 
@@ -39,11 +40,12 @@ public class PostUtil {
 		}
 
 		if ("Delete".equals(action)) {
-			githubApiClient.deleteFile(token, owner, repoName, path, msg);
+			sha = githubApiClient.deleteFile(token, owner, repoName, path, msg);
 		} else {
 			String markdown = buildMarkdownWithFrontmatter(post, tags);
-			githubApiClient.createOrUpdateFile(token, owner, repoName, path, msg, markdown);
+			sha = githubApiClient.createOrUpdateFile(token, owner, repoName, path, msg, markdown);
 		}
+		return sha;
 	}
 
 	private String buildMarkdownWithFrontmatter(Post post, List<String> tags) {

@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(
 	componentModel = "spring",
-	imports = java.util.stream.Collectors.class   // ← 이 라인 추가
+	imports = java.util.stream.Collectors.class
 )
 public interface PostListMapper {
 
