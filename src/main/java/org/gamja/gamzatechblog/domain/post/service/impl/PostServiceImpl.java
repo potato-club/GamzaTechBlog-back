@@ -63,7 +63,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
-		postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add");
+		postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add", request.getCommitMessage());
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -79,7 +79,8 @@ public class PostServiceImpl implements PostService {
 		postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update");
+		postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update",
+			request.getCommitMessage());
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -92,7 +93,7 @@ public class PostServiceImpl implements PostService {
 		List<String> prevTags = post.getPostTags().stream()
 			.map(pt -> pt.getTag().getTagName())
 			.toList();
-		postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete");
+		postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete", post.getCommitMessage());
 		postRepository.delete(post);
 	}
 

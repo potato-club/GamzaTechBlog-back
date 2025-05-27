@@ -9,6 +9,7 @@ public class PostRequest {
 	private String title;
 	private String content;
 	private List<String> tags;
+	private String commitMessage;
 
 	public void setTitle(String title) {
 		this.title = title;
@@ -20,6 +21,10 @@ public class PostRequest {
 
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	public void setCommitMessage(String commitMessage) {
+		this.commitMessage = commitMessage;
 	}
 }
 

@@ -17,7 +17,7 @@ public class PostMapperImpl implements PostMapper {
 			.githubRepo(repo)
 			.title(request.getTitle())
 			.content(request.getContent())
-			.commitMessage("")
+			.commitMessage(request.getCommitMessage())
 			.build();
 	}
 

@@ -14,7 +14,7 @@ public class PostUtil {
 	private final GithubApiClient githubApiClient;
 
 	public void syncToGitHub(String token, String oldTitle, List<String> oldTags,
-		Post post, List<String> tags, String action) {
+		Post post, List<String> tags, String action, String commitMessage) {
 		String repoName = "GamzaTechBlog";
 		String owner = post.getUser().getNickname();
 		githubApiClient.createRepositoryIfNotExists(token, repoName);
@@ -23,9 +23,11 @@ public class PostUtil {
 		String safeTitle = post.getTitle().replaceAll("[^\\w가-힣]", "_");
 		String fileName = post.getId() + "-" + safeTitle + ".md";
 		String path = "PotatoStudy/" + tag + "/" + fileName;
-		String msg = action + ": [" + tag + "] " + post.getTitle();
+		String msg = (commitMessage != null && !commitMessage.isBlank())
+			? commitMessage
+			: action + ": [" + tag + "] " + post.getTitle();
 
-		if ("Update".equals(action) && oldTitle != null && oldTags != null) {
+		if (oldTitle != null && oldTags != null) {
 			String oldTag = (!oldTags.isEmpty()) ? oldTags.get(0) : "etc";
 			String oldSafeTitle = oldTitle.replaceAll("[^\\w가-힣]", "_");
 			String oldFileName = post.getId() + "-" + oldSafeTitle + ".md";
