@@ -2,12 +2,20 @@ package org.gamja.gamzatechblog.domain.post.service.impl;
 
 import java.util.List;
 
+import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
+import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
+import org.gamja.gamzatechblog.domain.comment.service.CommentService;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
+import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
+import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostListMapper;
 import org.gamja.gamzatechblog.domain.post.repository.PostRepository;
+import org.gamja.gamzatechblog.domain.post.repository.PostRepositoryCustom;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
@@ -15,6 +23,8 @@ import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.repository.GitHubRepoRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +41,10 @@ public class PostServiceImpl implements PostService {
 	private final GitHubRepoRepository githubRepoRepository;
 	private final PostUtil postUtil;
 	private final PostTagUtil postTagUtil;
+	private final PostListMapper postListMapper;
+	private final CommentService commentService;
+	private final PostDetailMapper postDetailMapper;
+	private final PostRepositoryCustom postRepositoryCustom;
 
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
@@ -80,5 +94,21 @@ public class PostServiceImpl implements PostService {
 			.toList();
 		postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete");
 		postRepository.delete(post);
+	}
+
+	@Override
+	public PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags) {
+		Page<PostListResponse> page = postRepositoryCustom
+			.findAllPosts(pageable, filterTags)
+			.map(postListMapper::toListResponse);
+
+		return PagedResponse.pagedFrom(page);
+	}
+
+	@Override
+	public PostDetailResponse getPostDetail(Long postId) {
+		Post post = postValidator.validatePostExists(postId);
+		List<CommentResponse> comments = commentService.getCommentsByPostId(postId);
+		return postDetailMapper.toDetailResponse(post, comments);
 	}
 }

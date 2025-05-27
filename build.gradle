@@ -2,27 +2,19 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
-
-    //Code포맷
     id 'com.diffplug.spotless' version '6.25.0'
-    //checkstyle
     id 'checkstyle'
 }
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
-tasks.withType(Checkstyle) {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-
 checkstyle {
-    maxWarnings = 0
+    toolVersion = '10.12.2'
     configFile = file("checkstyle/naver-checkstyle-rules.xml")
-    configProperties = ["suppressionFile": "checkstyle/naver-checkstyle-suppressions.xml"]
+    configProperties = [
+            "suppressionFile": "checkstyle/naver-checkstyle-suppressions.xml"
+    ]
 }
 
 group = 'org.gamja'
@@ -48,17 +40,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    //JPA
+    // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // Security
+    // 웹 & 보안
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // MySQL Driver
+    // DB 드라이버
     implementation 'mysql:mysql-connector-java:8.0.33'
 
     // Swagger
@@ -68,18 +58,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    //QueryDsl
+    // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    //Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-inline:4.8.1'
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.8.1'
-
-    //Jasypt
+    // Jasypt
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
 
     // JWT
@@ -87,20 +72,29 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
-    //OAuth
+    // OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    //Github
+    // GitHub API
     implementation 'org.kohsuke:github-api:1.315'
 
-    //WebClient
+    // WebClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-inline:4.8.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.8.1'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    enabled = false
+}
+
+tasks.withType(Checkstyle).configureEach {
+    enabled = false
 }

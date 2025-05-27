@@ -10,4 +10,5 @@ public interface PostMapper {
 	Post buildPostEntityFromRequest(User currentUser, GitHubRepo repo, PostRequest request);
 
 	PostResponse buildPostResponseFromEntity(Post post);
+
 }
