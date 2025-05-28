@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
+import org.gamja.gamzatechblog.core.auth.oauth.model.entity.GithubOauthToken;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
@@ -85,6 +86,9 @@ public class User extends BaseTime {
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "profile_image_id")
 	private ProfileImage profileImage;
+
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private GithubOauthToken oauthToken;
 
 	@Builder
 	public User(String githubId, String name, String email, Integer gamjaBatch, String nickname) {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
-@ApiController("/api/posts/commits")
+@ApiController("/api/v1/posts/commits")
 @RequiredArgsConstructor
 public class CommitHistoryController {
 	private final CommitHistoryService commitHistoryService;

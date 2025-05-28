@@ -48,6 +48,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient("github",
 			authentication.getName());
 
+		if (!userAuthService.existsByGithubId(gitUser.getGithubId())) {
+			userAuthService.registerWithProvider(gitUser);
+		}
+
 		if (client != null && client.getAccessToken() != null) {
 			String githubAccessToken = client.getAccessToken().getTokenValue();
 			githubTokenDao.saveOrUpdateByGithubId(githubId, githubAccessToken);
@@ -59,15 +63,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			}
 		}
 
-		if (!userAuthService.existsByGithubId(gitUser.getGithubId())) {
-			userAuthService.registerWithProvider(gitUser);
-		}
-
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
-		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, refreshToken));
+		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
 
 		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)

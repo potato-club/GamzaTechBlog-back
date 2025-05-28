@@ -1,8 +1,13 @@
 package org.gamja.gamzatechblog.domain.repository.model.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.gamja.gamzatechblog.common.entity.BaseTime;
+import org.gamja.gamzatechblog.domain.commithistory.model.entity.CommitHistory;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -43,4 +49,8 @@ public class GitHubRepo extends BaseTime {
 
 	@Column(name = "github_url", length = 255)
 	private String githubUrl;
+
+	@OneToMany(mappedBy = "githubRepo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<CommitHistory> commitHistories = new ArrayList<>();
 }

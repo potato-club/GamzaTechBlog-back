@@ -165,10 +165,9 @@ public class GithubApiClient {
 				Powered by GamzaTechBlog
 				""".formatted(repoName, java.time.LocalDate.now());
 
-			// 약간의 delay가 필요하면 Thread.sleep(1000); 추가
 			createOrUpdateFile(
 				token,
-				owner,      // 깃허브 닉네임
+				owner,
 				repoName,
 				"README.md",
 				"Initialize repository with README",
