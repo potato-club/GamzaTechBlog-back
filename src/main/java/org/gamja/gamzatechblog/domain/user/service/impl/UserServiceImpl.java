@@ -7,7 +7,6 @@ import org.gamja.gamzatechblog.domain.user.model.dto.response.UserProfileRespons
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
-import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapperV2;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
@@ -25,7 +24,6 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 	private final UserValidator userValidator;
 	private final UserProfileMapper userProfileMapper;
-	private final UserProfileMapperV2 userProfileMapperV2;
 
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
@@ -44,7 +42,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public UserProfileResponse getMyProfile(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
-		return userProfileMapper.toUserProfileDto(user);
+		return userProfileMapper.toUserProfileResponse(user);
 	}
 
 	@Override
@@ -52,17 +50,17 @@ public class UserServiceImpl implements UserService {
 	public UserProfileResponse completeProfile(String githubId, UserProfileRequest userProfileRequest) {
 		userValidator.validateProfileRequest(userProfileRequest);
 		User user = userValidator.validateAndGetUserByGithubId(githubId);
-		userProfileMapperV2.updateFromDto(userProfileRequest, user);
+		userProfileMapper.completeProfile(userProfileRequest, user);
 		user.setUserRole(UserRole.USER);
 		User saved = userRepository.save(user);
-		return userProfileMapperV2.toResponse(saved);
+		return userProfileMapper.toUserProfileResponse(saved);
 	}
 
 	@Transactional
 	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		userProfileMapper.applyProfileUpdates(req, user);
-		return userProfileMapper.toUserProfileDto(user);
+		return userProfileMapper.toUserProfileResponse(user);
 	}
 
 	@Transactional

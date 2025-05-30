@@ -1,13 +1,17 @@
 package org.gamja.gamzatechblog.domain.user.model.dto.request;
 
-import lombok.AllArgsConstructor;
+import org.gamja.gamzatechblog.domain.user.model.type.Position;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class UpdateProfileRequest {
-	private String nickname;
+
 	private String email;
+
+	private String studentNumber;
+
+	private Integer gamjaBatch;
+
+	private Position position;
 }
