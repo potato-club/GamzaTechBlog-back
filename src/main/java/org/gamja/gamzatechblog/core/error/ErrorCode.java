@@ -27,6 +27,10 @@ public enum ErrorCode {
 	EMAIL_ALREADY_EXISTS(409, "U004", "이미 사용 중인 이메일입니다."),
 	NICKNAME_ALREADY_EXISTS(409, "U005", "이미 사용 중인 닉네임입니다."),
 
+	// Profile
+	PROFILE_INCOMPLETE(400, "U006", "프로필 정보가 완전하지 않습니다."),
+	POSITION_REQUIRED(400, "U007", "직군 정보는 필수입니다."),
+
 	// GitHub OAuth Token
 	GITHUB_OAUTH_TOKEN_NOT_FOUND(404, "G001", "깃허브 OAuth 토큰을 찾을 수 없습니다."),
 	GITHUB_OAUTH_TOKEN_INVALID(401, "G002", "유효하지 않은 깃허브 OAuth 토큰입니다."),

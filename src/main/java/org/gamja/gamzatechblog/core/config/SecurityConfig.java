@@ -49,12 +49,14 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.requestMatchers(PUBLIC).permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/users/me/complete")
+				.hasRole("PRE_REGISTER")
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/tags/**",
 					"/api/v1/posts/**"
 				).permitAll()
 				.requestMatchers("/api/admin/**").hasRole("ADMIN")
-				.anyRequest().authenticated()
+				.anyRequest().hasRole("USER")
 			)
 			.addFilterAfter(
 				JwtAuthenticationFilter,

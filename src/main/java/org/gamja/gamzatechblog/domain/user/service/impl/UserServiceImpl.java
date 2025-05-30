@@ -1,11 +1,14 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
-import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
-import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
+import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
+import org.gamja.gamzatechblog.domain.user.model.dto.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
+import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapperV2;
+import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
@@ -22,6 +25,7 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 	private final UserValidator userValidator;
 	private final UserProfileMapper userProfileMapper;
+	private final UserProfileMapperV2 userProfileMapperV2;
 
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
@@ -43,6 +47,17 @@ public class UserServiceImpl implements UserService {
 		return userProfileMapper.toUserProfileDto(user);
 	}
 
+	@Override
+	@Transactional
+	public UserProfileResponse completeProfile(String githubId, UserProfileRequest userProfileRequest) {
+		userValidator.validateProfileRequest(userProfileRequest);
+		User user = userValidator.validateAndGetUserByGithubId(githubId);
+		userProfileMapperV2.updateFromDto(userProfileRequest, user);
+		user.setUserRole(UserRole.USER);
+		User saved = userRepository.save(user);
+		return userProfileMapperV2.toResponse(saved);
+	}
+
 	@Transactional
 	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
@@ -54,5 +69,10 @@ public class UserServiceImpl implements UserService {
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		userRepository.delete(user);
+	}
+
+	@Override
+	public User findByGithubId(String githubId) {
+		return userValidator.validateAndGetUserByGithubId(githubId);
 	}
 }

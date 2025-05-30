@@ -1,7 +1,7 @@
 package org.gamja.gamzatechblog.domain.user.model.mapper;
 
-import org.gamja.gamzatechblog.domain.user.model.dto.UpdateProfileRequest;
-import org.gamja.gamzatechblog.domain.user.model.dto.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
+import org.gamja.gamzatechblog.domain.user.model.dto.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

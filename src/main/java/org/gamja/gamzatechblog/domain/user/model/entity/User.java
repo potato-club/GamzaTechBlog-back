@@ -11,6 +11,7 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.profile.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
+import org.gamja.gamzatechblog.domain.user.model.type.Position;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 
 import jakarta.persistence.CascadeType;
@@ -58,11 +59,18 @@ public class User extends BaseTime {
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role", length = 10, nullable = false)
-	private UserRole role = UserRole.USER;
+	@Column(name = "role", length = 20, nullable = false)
+	private UserRole role = UserRole.PRE_REGISTER;
 
 	@Column(name = "gamja_batch")
 	private Integer gamjaBatch;
+
+	@Column(name = "student_number")
+	private String studentNumber;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "position", length = 20)
+	private Position position;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
@@ -91,12 +99,15 @@ public class User extends BaseTime {
 	private GithubOauthToken oauthToken;
 
 	@Builder
-	public User(String githubId, String name, String email, Integer gamjaBatch, String nickname) {
+	public User(String githubId, String name, String email, String studentNumber, Integer gamjaBatch, String nickname,
+		Position position) {
 		this.githubId = githubId;
 		this.name = name;
 		this.email = email;
-		this.nickname = nickname;
+		this.studentNumber = studentNumber;
 		this.gamjaBatch = gamjaBatch;
+		this.nickname = nickname;
+		this.position = position;
 	}
 
 	public void setNickname(String newNickname) {
@@ -107,4 +118,26 @@ public class User extends BaseTime {
 		this.email = newEmail;
 	}
 
+	public void setStudentNumber(String studentNumber) {
+		this.studentNumber = studentNumber;
+	}
+
+	public void setGamjaBatch(Integer gamjaBatch) {
+		this.gamjaBatch = gamjaBatch;
+	}
+
+	public void setPosition(Position position) {
+		this.position = position;
+	}
+
+	public void setUserRole(UserRole role) {
+		this.role = role;
+	}
+
+	public boolean isProfileComplete() {
+		return email != null && !email.isBlank()
+			&& studentNumber != null && !studentNumber.isBlank()
+			&& gamjaBatch != null
+			&& position != null;
+	}
 }

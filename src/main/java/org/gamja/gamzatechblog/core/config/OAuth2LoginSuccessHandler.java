@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
+import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
-import org.gamja.gamzatechblog.domain.user.service.impl.UserServiceImpl;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -18,6 +21,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,12 +35,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final UserServiceImpl userAuthService;
+	private final UserService userService;
 	private final JwtProvider jwtProvider;
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final GithubApiClient githubApiClient;
 	private final RefreshTokenDao refreshTokenDao;
 	private final GithubOAuthTokenDao githubTokenDao;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -48,8 +54,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient("github",
 			authentication.getName());
 
-		if (!userAuthService.existsByGithubId(gitUser.getGithubId())) {
-			userAuthService.registerWithProvider(gitUser);
+		if (!userService.existsByGithubId(gitUser.getGithubId())) {
+			userService.registerWithProvider(gitUser);
 		}
 
 		if (client != null && client.getAccessToken() != null) {
@@ -62,6 +68,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
 			}
 		}
+
+		User user = userService.findByGithubId(githubId);
 
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
@@ -78,7 +86,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
+		boolean complete = user.isProfileComplete();
+		ResponseDto<Map<String, Boolean>> body = ResponseDto.of(HttpStatus.OK, "로그인 성공",
+			Map.of("profileComplete", complete));
 		response.setContentType("application/json;charset=UTF-8");
-		response.getWriter().write("{}");
+		objectMapper.writeValue(response.getWriter(), body);
 	}
 }
