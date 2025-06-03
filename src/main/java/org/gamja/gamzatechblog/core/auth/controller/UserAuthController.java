@@ -39,4 +39,5 @@ public class UserAuthController {
 		authService.logout(user.getGithubId());
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다."));
 	}
+
 }
