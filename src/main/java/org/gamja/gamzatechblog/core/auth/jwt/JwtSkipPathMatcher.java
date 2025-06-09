@@ -14,6 +14,7 @@ public class JwtSkipPathMatcher {
 	private static final List<String> SKIP_PREFIXES = List.of(
 		"/api/auth/reissue",
 		"/oauth2",
+		"/login/oauth2/code",
 		"/v3/api-docs",
 		"/swagger-ui",
 		"/swagger-resources",
