@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(NQ4pesHDZUD8mtyMb8aboNpJMhgkYDLqQa1xL9GKHq+cAyWFOyVsGGIusE1sIVdi)
-    username: ENC(vwBCHysABcI54vCVni0YBA==)
-    password: ENC(7ab1XbSultGxuiXHbHm3EWW5ehyCxwGh)
+    url: ENC(ofoQ9M9etwzoYb86U3WfjLHcBnmE01a75G6kjkJ5jEmUNDfC9gbqlZgisJB2AZnTlSrSYpdj75/RHXJAWHjtvNdVQsPt3dTAYdZDIInxi2EFGDsI/NDMAqdzIAz8npLNW8DQRq8fEWw8fo3+0ofaqknhERf2wu7lrKEeO43nywATvzJmBg+jDOeKUYPBcvIkVl721FnXbsM3gq2W5DyyHA==)
+    username: ENC(OJmd+KJMGLN7ez+h/gcvLpWr6ma5sClc)
+    password: ENC(5iR/D13CNkJhRfwMkm1sYS/7ucLDY2q0)
 
   jpa:
     hibernate:
@@ -24,7 +24,7 @@ spring:
   data:
     redis:
       auth:
-        host: ENC(v9i5p0xaJ7+u28wHCnse/VnJrhOjZVRd)
+        host: redis
         port: 6379
         password: ENC(CE6Jp9s6E8WC7GlhL/eSfQ==)
         database: 0
