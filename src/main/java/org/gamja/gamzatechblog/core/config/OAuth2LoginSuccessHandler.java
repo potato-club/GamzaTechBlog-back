@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
-import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
@@ -66,7 +65,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
-		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, refreshToken));
+
+		ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+			.domain(".gamzatech.site")
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(Duration.ofHours(1))
+			.sameSite("Lax")
+			.build();
+		response.addHeader("Set-Cookie", accessCookie.toString());
 
 		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 			.domain(".gamzatech.site")
@@ -78,7 +86,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
-		response.setContentType("application/json;charset=UTF-8");
-		response.getWriter().write("{}");
+		response.sendRedirect("https://api.gamzatech.site");
 	}
 }

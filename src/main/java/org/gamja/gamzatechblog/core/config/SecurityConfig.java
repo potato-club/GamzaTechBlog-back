@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-	private final JwtAuthenticationFilter JwtAuthenticationFilter;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
 	private static final String[] PUBLIC = {
@@ -60,7 +60,7 @@ public class SecurityConfig {
 				.anyRequest().hasRole("USER")
 			)
 			.addFilterAfter(
-				JwtAuthenticationFilter,
+				jwtAuthenticationFilter,
 				ExceptionTranslationFilter.class
 			);
 
