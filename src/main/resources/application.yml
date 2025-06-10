@@ -44,7 +44,7 @@ spring:
           github:
             client-id: ENC(QH8tNKQ5kr4GfpPzZ2ySbScdv+/mwfy46uy57iggQjA=)
             client-secret: ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
-            redirect-uri: ENC(gWnjbIroBFkb/CDA/Gdq8GPC0MeV3F+AWqO4SMcRC/irFZqw3RhchiUQiGNtqr59aCxxLY6dGzqX5rs6JhVNDw==)
+            redirect-uri: ENC(V01W8yfdFGbGpdgNOZ4MH5Kaiv1r/wsL2S5FJhQd+4Y/Ke4qc2bnC/qaVMGEb0gdWsiJ7CsOPEo=)
             authorization-grant-type: ENC(SXz2VlgX1PMd1fqPSOvSveQBpZoD0eHFJoOQWS4YeUw=)
             scope: ENC(AFDNpXI3FLzrpYrT254eP1xjp4TavPENBTIV1zLvRVl+Jrl5Mh0ELg==)
 
