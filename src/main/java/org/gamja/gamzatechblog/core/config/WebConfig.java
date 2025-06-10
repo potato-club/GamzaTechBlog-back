@@ -16,7 +16,11 @@ public class WebConfig implements WebMvcConfigurer {
 				"https://gamzatech.site",
 				"https://www.gamzatech.site",
 				"http://gamzatech.site",
-				"http://www.gamzatech.site"
+				"http://www.gamzatech.site",
+				"https://dev.gamzatech.site:3000",
+				"http://dev.gamzatech.site:3000",
+				"https://app.gamzatech.site",
+				"http://app.gamzatech.site"
 			)
 			.allowedMethods("*")
 			.allowedHeaders("*")
