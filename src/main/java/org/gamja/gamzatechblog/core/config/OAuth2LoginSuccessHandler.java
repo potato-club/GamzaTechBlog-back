@@ -86,6 +86,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
-		response.sendRedirect("https://api.gamzatech.site");
+		response.sendRedirect("https://app.gamzatech.site");
 	}
 }
