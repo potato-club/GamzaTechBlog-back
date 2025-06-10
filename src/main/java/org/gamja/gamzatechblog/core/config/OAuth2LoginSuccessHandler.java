@@ -77,7 +77,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
-			.secure(false)               // 배포 시 HTTPS면 true 로 변경
+			.secure(true)               // 배포 시 HTTPS면 true 로 변경
 			.path("/")
 			.maxAge(Duration.ofDays(30))
 			.sameSite("Lax")
