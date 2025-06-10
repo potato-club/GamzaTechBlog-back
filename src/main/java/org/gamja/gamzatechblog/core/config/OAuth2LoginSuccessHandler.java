@@ -12,6 +12,8 @@ import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -84,9 +86,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
-		boolean complete = user.isProfileComplete();
-		String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
-		String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
-		response.sendRedirect(redirectUri);
+		response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
+		response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		Map<String, Object> body = Map.of(
+			"profileComplete", user.isProfileComplete()
+		);
+		objectMapper.writeValue(response.getWriter(), body);
 	}
 }
