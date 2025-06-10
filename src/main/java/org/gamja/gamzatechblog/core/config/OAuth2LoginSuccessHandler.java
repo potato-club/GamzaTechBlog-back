@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
-import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
@@ -75,16 +74,40 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
-		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
 
-		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+		// 	jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
+		//
+		// 	ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+		// 		.httpOnly(true)
+		// 		.secure(false)               // 배포 시 HTTPS면 true 로 변경
+		// 		.path("/")
+		// 		.maxAge(Duration.ofDays(30))
+		// 		.sameSite("Lax")
+		// 		.build();
+		// 	response.addHeader("Set-Cookie", cookie.toString());
+		//
+		// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
+		// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+		// 	response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		// 	Map<String, Object> body = Map.of(
+		// 		"profileComplete", user.isProfileComplete()
+		// 	);
+		// 	objectMapper.writeValue(response.getWriter(), body);
+		// }
+		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("refreshToken", refreshToken)
 			.httpOnly(true)
-			.secure(true)               // 배포 시 HTTPS면 true 로 변경
+			.sameSite("None")    // 크로스사이트 전송 허용
 			.path("/")
-			.maxAge(Duration.ofDays(30))
-			.sameSite("Lax")
-			.build();
-		response.addHeader("Set-Cookie", cookie.toString());
+			.maxAge(Duration.ofDays(30));
+
+		String host = request.getServerName();
+		if ("gamzatech.site".equals(host)) {
+			cookieBuilder.domain("gamzatech.site")
+				.secure(true);
+		} else {
+			cookieBuilder.secure(false);
+		}
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
 
 		response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
 		response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
