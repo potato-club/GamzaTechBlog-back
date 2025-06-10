@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
-import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
@@ -13,7 +12,6 @@ import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -87,9 +85,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		response.addHeader("Set-Cookie", cookie.toString());
 
 		boolean complete = user.isProfileComplete();
-		ResponseDto<Map<String, Boolean>> body = ResponseDto.of(HttpStatus.OK, "로그인 성공",
-			Map.of("profileComplete", complete));
-		response.setContentType("application/json;charset=UTF-8");
-		objectMapper.writeValue(response.getWriter(), body);
+		String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
+		String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
+		response.sendRedirect(redirectUri);
 	}
 }
