@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
-import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
@@ -12,7 +11,8 @@ import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
-import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -67,36 +67,45 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			}
 		}
 
-		User user = userService.findByGithubId(githubId);
-
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
 
-		jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
+		response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+		response.setHeader("Refresh-Token", refreshToken);
+		response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization,Refresh-Token");
 
-		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-			.httpOnly(true)
-			.secure(false)               // 배포 시 HTTPS면 true 로 변경
-			.path("/")
-			.maxAge(Duration.ofDays(30))
-			.sameSite("Lax")
-			.build();
-		response.addHeader("Set-Cookie", cookie.toString());
-
-		// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
-		// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-		// 	response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		// 	Map<String, Object> body = Map.of(
-		// 		"profileComplete", user.isProfileComplete()
-		// 	);
-		// 	objectMapper.writeValue(response.getWriter(), body);
-		// }
-		boolean complete = user.isProfileComplete();
-		String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
-		String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
-		response.sendRedirect(redirectUri);
-
+		User user = userService.findByGithubId(githubId);
+		Map<String, Object> body = Map.of(
+			"profileComplete", user.isProfileComplete()
+		);
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		objectMapper.writeValue(response.getWriter(), body);
 	}
+	// 	jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
+	//
+	// 	ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+	// 		.httpOnly(true)
+	// 		.secure(false)               // 배포 시 HTTPS면 true 로 변경
+	// 		.path("/")
+	// 		.maxAge(Duration.ofDays(30))
+	// 		.sameSite("Lax")
+	// 		.build();
+	// 	response.addHeader("Set-Cookie", cookie.toString());
+	//
+	// 	// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
+	// 	// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+	// 	// 	response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+	// 	// 	Map<String, Object> body = Map.of(
+	// 	// 		"profileComplete", user.isProfileComplete()
+	// 	// 	);
+	// 	// 	objectMapper.writeValue(response.getWriter(), body);
+	// 	// }
+	// 	boolean complete = user.isProfileComplete();
+	// 	String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
+	// 	String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
+	// 	response.sendRedirect(redirectUri);
+	//
+	// }
 }
