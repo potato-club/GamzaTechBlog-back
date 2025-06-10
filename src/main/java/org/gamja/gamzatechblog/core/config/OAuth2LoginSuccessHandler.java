@@ -1,6 +1,8 @@
 package org.gamja.gamzatechblog.core.config;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 
@@ -9,10 +11,8 @@ import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
-import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -66,46 +66,71 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
 			}
 		}
-
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
-
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
 
 		response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		response.setHeader("Refresh-Token", refreshToken);
 		response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization,Refresh-Token");
-
-		User user = userService.findByGithubId(githubId);
-		Map<String, Object> body = Map.of(
-			"profileComplete", user.isProfileComplete()
+		boolean profileComplete = userService.findByGithubId(githubId).isProfileComplete();
+		String frontendCallback = "http://localhost:3000/token-callback"; // 운영 시 변경
+		String redirectUri = String.format(
+			"%s#access=%s&refresh=%s&profileComplete=%s",
+			frontendCallback,
+			URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+			URLEncoder.encode(refreshToken, StandardCharsets.UTF_8),
+			profileComplete
 		);
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		objectMapper.writeValue(response.getWriter(), body);
+		response.sendRedirect(redirectUri);
 	}
-	// 	jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
-	//
-	// 	ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-	// 		.httpOnly(true)
-	// 		.secure(false)               // 배포 시 HTTPS면 true 로 변경
-	// 		.path("/")
-	// 		.maxAge(Duration.ofDays(30))
-	// 		.sameSite("Lax")
-	// 		.build();
-	// 	response.addHeader("Set-Cookie", cookie.toString());
-	//
-	// 	// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
-	// 	// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-	// 	// 	response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-	// 	// 	Map<String, Object> body = Map.of(
-	// 	// 		"profileComplete", user.isProfileComplete()
-	// 	// 	);
-	// 	// 	objectMapper.writeValue(response.getWriter(), body);
-	// 	// }
-	// 	boolean complete = user.isProfileComplete();
-	// 	String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
-	// 	String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
-	// 	response.sendRedirect(redirectUri);
-	//
-	// }
 }
+
+// 	String accessToken = jwtProvider.createAccessToken(githubId);
+// 	String refreshToken = jwtProvider.createRefreshToken(githubId);
+//
+// 	refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
+//
+// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+// 	response.setHeader("Refresh-Token", refreshToken);
+// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization,Refresh-Token");
+//
+// 	User user = userService.findByGithubId(githubId);
+// 	boolean profileComplete = user.isProfileComplete();
+//
+// 	String frontendCallback = "http://localhost:3000/token-callback"; // 운영 시 변경
+// 	String redirectUri = String.format(
+// 		"%s#access=%s&refresh=%s&profileComplete=%s",
+// 		frontendCallback,
+// 		accessToken,
+// 		refreshToken,
+// 		profileComplete
+// 	);
+//
+// 	response.sendRedirect(redirectUri);
+// }
+// 	jwtProvider.addTokenHeaders(response, new TokenResponse(accessToken, null));
+//
+// 	ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+// 		.httpOnly(true)
+// 		.secure(false)               // 배포 시 HTTPS면 true 로 변경
+// 		.path("/")
+// 		.maxAge(Duration.ofDays(30))
+// 		.sameSite("Lax")
+// 		.build();
+// 	response.addHeader("Set-Cookie", cookie.toString());
+//
+// 	// 	response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION);
+// 	// 	response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+// 	// 	response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+// 	// 	Map<String, Object> body = Map.of(
+// 	// 		"profileComplete", user.isProfileComplete()
+// 	// 	);
+// 	// 	objectMapper.writeValue(response.getWriter(), body);
+// 	// }
+// 	boolean complete = user.isProfileComplete();
+// 	String frontendUrl = "http://localhost:3000";  //운영시 변경, 지금 프론트 테스트용
+// 	String redirectUri = String.format("%s?profileComplete=%s", frontendUrl, complete);
+// 	response.sendRedirect(redirectUri);
+//
+// }
