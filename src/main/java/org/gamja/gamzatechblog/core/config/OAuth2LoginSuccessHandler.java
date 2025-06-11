@@ -66,9 +66,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
 
-		ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+		ResponseCookie accessCookie = ResponseCookie.from("authorization", accessToken)
 			.domain(".gamzatech.site")
-			.httpOnly(true)
+			.httpOnly(false)
 			.secure(true)
 			.path("/")
 			.maxAge(Duration.ofHours(1))
@@ -86,6 +86,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 
-		response.sendRedirect("https://app.gamzatech.site");
+		response.sendRedirect("https://dev.gamzatech.site:3000");
 	}
 }
