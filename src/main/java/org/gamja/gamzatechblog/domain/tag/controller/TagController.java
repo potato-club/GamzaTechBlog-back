@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.domain.tag.model.dto.TagResponse;
 import org.gamja.gamzatechblog.domain.tag.service.TagService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,8 @@ public class TagController {
 
 	@Operation(summary = "전체 태그 조회", tags = "태그 기능")
 	@GetMapping
-	public ResponseEntity<ResponseDto<List<TagResponse>>> getAllTags() {
-		List<TagResponse> tags = tagService.getAllTags();
+	public ResponseEntity<ResponseDto<List<String>>> getAllTags() {
+		List<String> tags = tagService.getAllTags();
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "태그 목록 조회 성공", tags));
 	}
 }
