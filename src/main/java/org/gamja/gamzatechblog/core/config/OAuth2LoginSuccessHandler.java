@@ -9,8 +9,8 @@ import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.model.GithubUser;
+import org.gamja.gamzatechblog.core.auth.oauth.util.CookieUtils;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -35,6 +35,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final GithubApiClient githubApiClient;
 	private final RefreshTokenDao refreshTokenDao;
 	private final GithubOAuthTokenDao githubTokenDao;
+	private final CookieUtils cookieUtils;
+
+	private static final String DOMAIN = ".gamzatech.site";
+	private static final Duration ACCESS_TOKEN_TTL = Duration.ofHours(1);
+	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -66,25 +71,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
 
-		ResponseCookie accessCookie = ResponseCookie.from("authorization", accessToken)
-			.domain(".gamzatech.site")
-			.httpOnly(false)
-			.secure(true)
-			.path("/")
-			.maxAge(Duration.ofHours(1))
-			.sameSite("Lax")
-			.build();
-		response.addHeader("Set-Cookie", accessCookie.toString());
-
-		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-			.domain(".gamzatech.site")
-			.httpOnly(true)
-			.secure(true) //Secure, sameSite 상황에따라 변경
-			.path("/")
-			.maxAge(Duration.ofDays(30))
-			.sameSite("None")
-			.build();
-		response.addHeader("Set-Cookie", cookie.toString());
+		cookieUtils.addAccessTokenCookie(response, accessToken, DOMAIN, ACCESS_TOKEN_TTL);
+		cookieUtils.addRefreshTokenCookie(response, refreshToken, DOMAIN, REFRESH_TOKEN_TTL);
 
 		response.sendRedirect("https://dev.gamzatech.site:3000");
 	}
