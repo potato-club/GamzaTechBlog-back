@@ -4,16 +4,16 @@ import java.time.Duration;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RefreshTokenDao {
 	private static final String TOKEN_PREFIX = "refresh:";
 	private static final String USER_TOKEN_KEY = "userRefresh:";
-	private final RedisTemplate<String, Object> redis;
+	private final StringRedisTemplate redis;
 
-	public RefreshTokenDao(@Qualifier("authRedisTemplate") RedisTemplate<String, Object> redis) {
+	public RefreshTokenDao(@Qualifier("authStringRedisTemplate") StringRedisTemplate redis) {
 		this.redis = redis;
 	}
 
