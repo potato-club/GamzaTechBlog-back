@@ -27,16 +27,11 @@ public class LikeController {
 
 	private final LikeService likeService;
 
-	//나중에 쿼리dsl로 리팩토링 예정
-	@Operation(summary = "내가 누른 좋아요 목록", tags = "좋아요 기능")
+	@Operation(summary = "내가 누른 좋아요 목록 조회", tags = "좋아요 기능")
 	@GetMapping("/me")
-	public ResponseEntity<ResponseDto<PagedResponse<LikeResponse>>> getMyLikes(
-		@CurrentUser User currentUser,
-		@ParameterObject
-		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-	) {
-		PagedResponse<LikeResponse> page = likeService.getMyLikes(currentUser, pageable);
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "좋아요 목록 조회 성공", page));
+	public ResponseDto<PagedResponse<LikeResponse>> getMyLikes(@CurrentUser User currentUser, @ParameterObject
+	@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return ResponseDto.of(HttpStatus.OK, "좋아요 목록 조회 성공", likeService.getMyLikes(currentUser, pageable));
 	}
 
 	@Operation(summary = "게시글 좋아요", tags = "좋아요 기능")
