@@ -1,8 +1,12 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
+import org.gamja.gamzatechblog.domain.comment.repository.CommentRepository;
+import org.gamja.gamzatechblog.domain.like.repository.LikeRepository;
+import org.gamja.gamzatechblog.domain.post.repository.PostRepository;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
+import org.gamja.gamzatechblog.domain.user.model.dto.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
@@ -24,6 +28,9 @@ public class UserServiceImpl implements UserService {
 	private final UserMapper userMapper;
 	private final UserValidator userValidator;
 	private final UserProfileMapper userProfileMapper;
+	private final LikeRepository likeRepository;
+	private final PostRepository postRepository;
+	private final CommentRepository commentRepository;
 
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
@@ -54,6 +61,15 @@ public class UserServiceImpl implements UserService {
 		user.setUserRole(UserRole.USER);
 		User saved = userRepository.save(user);
 		return userProfileMapper.toUserProfileResponse(saved);
+	}
+
+	@Override
+	public UserActivityResponse getUserActivity(User user) {
+		int likedPostCount = likeRepository.countByUser(user);
+		int writtenPostCount = postRepository.countByUser(user);
+		int writtenCommentCount = commentRepository.countByUser(user);
+
+		return new UserActivityResponse(likedPostCount, writtenPostCount, writtenCommentCount);
 	}
 
 	@Transactional
