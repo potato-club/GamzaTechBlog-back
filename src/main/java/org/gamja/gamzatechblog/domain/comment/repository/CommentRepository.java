@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -12,4 +14,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	int countByUser(User user);
 
+	Page<Comment> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 }
