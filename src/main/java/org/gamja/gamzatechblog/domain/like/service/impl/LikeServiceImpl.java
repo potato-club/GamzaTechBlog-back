@@ -10,7 +10,6 @@ import org.gamja.gamzatechblog.domain.like.validator.LikeValidator;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,21 +24,10 @@ public class LikeServiceImpl implements LikeService {
 	private final PostValidator postValidator;
 	private final LikeValidator likeValidator;
 
-	// @Override
-	// @Transactional(readOnly = true)
-	// public List<LikeResponse> getMyLikes(User currentUser) {
-	// 	return likeRepository.findByUserOrderByCreatedAtDesc(currentUser)
-	// 		.stream()
-	// 		.map(likeMapper::toLikeResponse)
-	// 		.collect(Collectors.toList());
-	// }
-
 	@Override
 	@Transactional(readOnly = true)
-	public PagedResponse<LikeResponse> getMyLikes(User currentUser, Pageable pageable) {
-		Page<Like> page = likeRepository.findByUser(currentUser, pageable);
-		Page<LikeResponse> dtoPage = page.map(likeMapper::toLikeResponse);
-		return PagedResponse.pagedFrom(dtoPage);
+	public PagedResponse<LikeResponse> getMyLikes(User user, Pageable pageable) {
+		return likeRepository.findMyLikesByUser(user, pageable);
 	}
 
 	@Override

@@ -6,9 +6,7 @@ import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Pageable;
 
 public interface LikeService {
-	// List<LikeResponse> getMyLikes(User currentUser);
-
-	PagedResponse<LikeResponse> getMyLikes(User currentUser, Pageable pageable);
+	PagedResponse<LikeResponse> getMyLikes(User user, Pageable pageable);
 
 	LikeResponse likePost(User currentUser, Long postId);
 
