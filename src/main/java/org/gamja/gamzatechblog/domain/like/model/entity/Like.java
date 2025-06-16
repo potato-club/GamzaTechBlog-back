@@ -19,9 +19,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Like: 게시물(Post)에 대한 사용자의 좋아요 정보를 저장하는 엔티티
- */
 @Entity
 @Table(name = "likes")
 @Getter
