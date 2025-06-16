@@ -7,4 +7,8 @@ import org.gamja.gamzatechblog.domain.user.model.entity.User;
 
 public interface LikeService {
 	List<LikeResponse> getMyLikes(User currentUser);
+
+	LikeResponse likePost(User currentUser, Long postId);
+
+	void unlikePost(User currentUser, Long postId);
 }
