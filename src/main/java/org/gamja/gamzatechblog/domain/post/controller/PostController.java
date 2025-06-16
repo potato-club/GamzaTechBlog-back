@@ -75,7 +75,7 @@ public class PostController {
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "게시물 상세 조회 성공", detail));
 	}
 
-	@Operation(summary = "내가 쓴 게시물 목록 조회 (최신순, 페이징)", tags = "게시물 조회 기능")
+	@Operation(summary = "내가 쓴 게시물 목록 조회", tags = "게시물 조회 기능")
 	@GetMapping("/me")
 	public ResponseEntity<ResponseDto<PagedResponse<PostListResponse>>> getMyPosts(
 		@CurrentUser User currentUser,
