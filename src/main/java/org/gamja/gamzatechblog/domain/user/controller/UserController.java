@@ -66,4 +66,12 @@ public class UserController {
 		UserActivityResponse response = userService.getUserActivity(currentUser);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "유저 활동 정보 조회 성공", response));
 	}
+
+	@Operation(summary = "내 역할(ROLE) 조회", tags = "유저 기능")
+	@GetMapping("/me/role")
+	public ResponseEntity<ResponseDto<String>> getMyRole(@CurrentUser User currentUser) {
+		String role = currentUser.getRole().name();
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "내 역할 조회 성공", role));
+	}
+
 }
