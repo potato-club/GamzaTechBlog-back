@@ -2,9 +2,11 @@ package org.gamja.gamzatechblog.domain.comment.model.mapper;
 
 import java.util.stream.Collectors;
 
+import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentListResponse;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
@@ -24,4 +26,11 @@ public interface CommentMapper {
 			)
 			.build();
 	}
+
+	@Mapping(source = "id", target = "commentId")
+	@Mapping(source = "content", target = "content")
+	@Mapping(source = "createdAt", target = "createdAt")
+	@Mapping(source = "post.id", target = "postId")
+	@Mapping(source = "post.title", target = "postTitle")
+	CommentListResponse toCommentListResponse(Comment comment);
 }

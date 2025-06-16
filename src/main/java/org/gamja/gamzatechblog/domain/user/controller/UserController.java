@@ -5,6 +5,7 @@ import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
+import org.gamja.gamzatechblog.domain.user.model.dto.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
@@ -57,5 +58,12 @@ public class UserController {
 		@Valid @RequestBody UserProfileRequest userProfileRequest, @CurrentUser User currentUser) {
 		UserProfileResponse updated = userService.completeProfile(currentUser.getGithubId(), userProfileRequest);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "프로필이 성공적으로 완성되었습니다.", updated));
+	}
+
+	@Operation(summary = "유저 활동(내가 쓴 글/댓글/좋아요 개수) 조회", tags = "유저 기능")
+	@GetMapping("/me/activity")
+	public ResponseEntity<ResponseDto<UserActivityResponse>> getUserActivity(@CurrentUser User currentUser) {
+		UserActivityResponse response = userService.getUserActivity(currentUser);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "유저 활동 정보 조회 성공", response));
 	}
 }

@@ -3,12 +3,18 @@ package org.gamja.gamzatechblog.domain.comment.controller;
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
+import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.comment.model.dto.request.CommentRequest;
+import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentListResponse;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,4 +55,17 @@ public class CommentController {
 		commentService.deleteComment(currentUser, commentId);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "댓글이 삭제되었습니다."));
 	}
+
+	//코드 수정예정
+	@Operation(summary = "내가 단 댓글 목록 조회", tags = "댓글 기능")
+	@GetMapping("/me/comments")
+	public ResponseEntity<ResponseDto<PagedResponse<CommentListResponse>>> getMyComments(
+		@CurrentUser User currentUser,
+		@ParameterObject
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		PagedResponse<CommentListResponse> page = commentService.getMyComments(currentUser, pageable);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "내가 단 댓글 목록 조회 성공", page));
+	}
+
 }
