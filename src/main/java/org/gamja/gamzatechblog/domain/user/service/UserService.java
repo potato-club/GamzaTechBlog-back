@@ -20,4 +20,5 @@ public interface UserService {
 	UserProfileResponse getMyProfile(User currentUser);
 
 	UserProfileResponse completeProfile(String githubId, UserProfileRequest userProfileRequest);
+
 }
