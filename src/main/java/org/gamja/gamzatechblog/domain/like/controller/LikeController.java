@@ -4,7 +4,7 @@ import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.domain.like.dto.response.LikeResponse;
+import org.gamja.gamzatechblog.domain.like.model.dto.response.LikeResponse;
 import org.gamja.gamzatechblog.domain.like.service.LikeService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springdoc.core.annotations.ParameterObject;
