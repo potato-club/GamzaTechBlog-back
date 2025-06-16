@@ -117,4 +117,12 @@ public class PostServiceImpl implements PostService {
 		List<CommentResponse> comments = commentService.getCommentsByPostId(postId);
 		return postDetailMapper.toDetailResponse(post, comments);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PagedResponse<PostListResponse> getMyPosts(User currentUser, Pageable pageable) {
+		Page<Post> page = postRepository.findByUserOrderByCreatedAtDesc(currentUser, pageable);
+		Page<PostListResponse> dtoPage = page.map(postListMapper::toListResponse);
+		return PagedResponse.pagedFrom(dtoPage);
+	}
 }

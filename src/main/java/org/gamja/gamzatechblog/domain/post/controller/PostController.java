@@ -12,7 +12,9 @@ import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -71,5 +73,16 @@ public class PostController {
 	public ResponseEntity<ResponseDto<PostDetailResponse>> getPostDetail(@PathVariable Long postId) {
 		PostDetailResponse detail = postService.getPostDetail(postId);
 		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "게시물 상세 조회 성공", detail));
+	}
+
+	@Operation(summary = "내가 쓴 게시물 목록 조회", tags = "게시물 조회 기능")
+	@GetMapping("/me")
+	public ResponseEntity<ResponseDto<PagedResponse<PostListResponse>>> getMyPosts(
+		@CurrentUser User currentUser,
+		@ParameterObject
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		PagedResponse<PostListResponse> page = postService.getMyPosts(currentUser, pageable);
+		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "내가 쓴 게시물 조회 성공", page));
 	}
 }

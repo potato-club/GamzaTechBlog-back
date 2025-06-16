@@ -20,4 +20,7 @@ public interface PostService {
 	PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags);
 
 	PostDetailResponse getPostDetail(Long postId);
+
+	PagedResponse<PostListResponse> getMyPosts(User currentUser, Pageable pageable);
+
 }
