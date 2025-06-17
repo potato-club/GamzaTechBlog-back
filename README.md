@@ -17,9 +17,9 @@
 
 ## 운영 및 협업
 
-- **코드 스타일**: [네이버 Java 코드 컨벤션](https://naver.github.io/hackday-conventions-java/) 준수  
-- **커뮤니케이션**: Slack  
-- **운영 방식**: 주 1회 정기 **코드 리뷰 및 회고** 진행  
+- **코드 스타일**: [네이버 Java 코드 컨벤션](https://naver.github.io/hackday-conventions-java/) 준수
+- **커뮤니케이션**: Slack
+- **운영 방식**: 주 1회 정기 **코드 리뷰 및 회고** 진행
 - **Git 전략**: 기능 단위 브랜치 관리 및 이슈 기반 협업
 
 ---
@@ -28,7 +28,7 @@
 
 - 감자 동아리 소속만 회원가입 가능 (어드민 승인 필요)
 - GitHub OAuth 로그인 사용
-  - 가져올 정보: `name`, `email`, `repo` 등
+    - 가져올 정보: `name`, `email`, `repo` 등
 - 추가 정보 입력 (기수, 이름, 학번 등)
 
 ---
@@ -74,6 +74,7 @@ Add: [Java] 감자란 무엇인가
 Update: [JS] JS 이벤트 핸들링
 Delete: [Java] 감자 구조 이해하기
 ```
+
 ---
 
 ## 댓글 (COMMENT)
@@ -114,8 +115,12 @@ Delete: [Java] 감자 구조 이해하기
   추후 GitHub에서의 수정사항을 감기블로 반영하는 기능도 고려 중입니다.
 
 ---
-  
-## 초 ERD
+
+## Figma
+
+![img.png](img.png)
+
+## ERD
 
 <img src="https://github.com/user-attachments/assets/8fa22484-186f-4e86-bd7a-5a9225c1db24" width="90%" alt="image" />
 
