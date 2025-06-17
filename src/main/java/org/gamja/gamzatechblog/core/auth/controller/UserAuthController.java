@@ -11,7 +11,6 @@ import org.gamja.gamzatechblog.core.auth.oauth.util.CookieUtils;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -33,20 +32,20 @@ public class UserAuthController {
 
 	@Operation(summary = "토큰 재발급", tags = {"인증,인가"})
 	@PostMapping("/reissue")
-	public ResponseEntity<ResponseDto<AccessTokenResponse>> reissue(@CookieValue("refreshToken") String oldRefresh,
+	public ResponseDto<AccessTokenResponse> reissue(@CookieValue("refreshToken") String oldRefresh,
 		HttpServletResponse response) {
 		TokenResponse tokens = authService.reissueRefreshToken(oldRefresh);
 		cookieUtils.addAccessTokenCookie(response, tokens.getAccessToken(), DOMAIN, ACCESS_TOKEN_TTL);
 		cookieUtils.addRefreshTokenCookie(response, tokens.getRefreshToken(), DOMAIN, REFRESH_TOKEN_TTL);
 		AccessTokenResponse body = new AccessTokenResponse(tokens.getAccessToken());
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "토큰 재발급 성공", body));
+		return ResponseDto.of(HttpStatus.OK, "토큰 재발급 성공", body);
 	}
 
 	@Operation(summary = "로그아웃", tags = {"인증,인가"})
 	@PostMapping("/me/logout")
-	public ResponseEntity<ResponseDto<String>> logout(@CurrentUser User user) {
+	public ResponseDto<String> logout(@CurrentUser User user) {
 		authService.logout(user.getGithubId());
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다."));
+		return ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다.");
 	}
 
 }
