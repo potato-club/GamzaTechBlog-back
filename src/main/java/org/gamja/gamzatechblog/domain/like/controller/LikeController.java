@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,17 +35,16 @@ public class LikeController {
 
 	@Operation(summary = "게시글 좋아요", tags = "좋아요 기능")
 	@PostMapping("/{postId}")
-	public ResponseEntity<ResponseDto<LikeResponse>> likePost(@CurrentUser User currentUser,
-		@PathVariable Long postId) {
-		LikeResponse response = likeService.likePost(currentUser, postId);
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.CREATED, "좋아요 추가 성공", response));
+	public ResponseDto<String> likePost(@CurrentUser User currentUser, @PathVariable Long postId) {
+		likeService.likePost(currentUser, postId);
+		return ResponseDto.of(HttpStatus.CREATED, "좋아요 추가 성공");
 	}
 
 	@Operation(summary = "좋아요 취소", tags = "좋아요 기능")
 	@DeleteMapping("/{postId}")
-	public ResponseEntity<ResponseDto<Void>> unlikePost(@CurrentUser User currentUser, @PathVariable Long postId) {
+	public ResponseDto<String> unlikePost(@CurrentUser User currentUser, @PathVariable Long postId) {
 		likeService.unlikePost(currentUser, postId);
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "좋아요 취소 성공", null));
+		return ResponseDto.of(HttpStatus.OK, "좋아요 취소 성공");
 	}
 }
 

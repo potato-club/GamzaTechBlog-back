@@ -6,7 +6,7 @@ import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.commithistory.model.dto.response.CommitHistoryResponse;
 import org.gamja.gamzatechblog.domain.commithistory.service.CommitHistoryService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -20,8 +20,8 @@ public class CommitHistoryController {
 
 	@Operation(summary = "게시물 커밋 내역", tags = "커밋 조회 기능")
 	@GetMapping("/{postId}")
-	public ResponseEntity<ResponseDto<List<CommitHistoryResponse>>> getCommitHistories(@PathVariable Long postId) {
+	public ResponseDto<List<CommitHistoryResponse>> getCommitHistories(@PathVariable Long postId) {
 		List<CommitHistoryResponse> list = commitHistoryService.getCommitHistoryListByPostId(postId);
-		return ResponseEntity.ok(ResponseDto.of(org.springframework.http.HttpStatus.OK, "커밋 이력 조회 성공", list));
+		return ResponseDto.of(HttpStatus.OK, "커밋 이력 조회 성공", list);
 	}
 }
