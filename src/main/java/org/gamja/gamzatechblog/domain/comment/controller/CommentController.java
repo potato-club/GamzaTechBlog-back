@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,38 +33,36 @@ public class CommentController {
 
 	@Operation(summary = "게시물의 댓글 목록 조회", tags = {"댓글 기능"})
 	@GetMapping("/{postId}/comments")
-	public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long postId) {
+	public ResponseDto<List<CommentResponse>> getComments(@PathVariable Long postId) {
 		List<CommentResponse> commentResponses = commentService.getCommentsByPostId(postId);
-		return ResponseEntity.ok(commentResponses);
+		return ResponseDto.of(HttpStatus.OK, "댓글 목록 조회 성공", commentResponses);
 	}
 
 	@Operation(summary = "게시물에 댓글 등록", tags = {"댓글 기능"})
 	@PostMapping("/{postId}/comments")
-	public ResponseEntity<ResponseDto<CommentResponse>> addComment(@CurrentUser User currentUser,
+	public ResponseDto<CommentResponse> addComment(@CurrentUser User currentUser,
 		@PathVariable Long postId, @RequestBody CommentRequest commentRequest) {
 		CommentResponse createdComment = commentService.createComment(currentUser, postId, commentRequest);
-		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(ResponseDto.of(HttpStatus.CREATED, "댓글이 등록되었습니다.", createdComment));
+		return ResponseDto.of(HttpStatus.CREATED, "댓글이 등록되었습니다.", createdComment);
 	}
 
 	@Operation(summary = "댓글 삭제", tags = {"댓글 기능"})
 	@DeleteMapping("/{commentId}")
-	public ResponseEntity<ResponseDto<String>> deleteComment(@CurrentUser User currentUser,
+	public ResponseDto<String> deleteComment(@CurrentUser User currentUser,
 		@PathVariable Long commentId) {
 		commentService.deleteComment(currentUser, commentId);
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "댓글이 삭제되었습니다."));
+		return ResponseDto.of(HttpStatus.OK, "댓글이 삭제되었습니다.");
 	}
 
 	//코드 수정예정
 	@Operation(summary = "내가 단 댓글 목록 조회", tags = "댓글 기능")
 	@GetMapping("/me/comments")
-	public ResponseEntity<ResponseDto<PagedResponse<CommentListResponse>>> getMyComments(
+	public ResponseDto<PagedResponse<CommentListResponse>> getMyComments(
 		@CurrentUser User currentUser,
 		@ParameterObject
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		PagedResponse<CommentListResponse> page = commentService.getMyComments(currentUser, pageable);
-		return ResponseEntity.ok(ResponseDto.of(HttpStatus.OK, "내가 단 댓글 목록 조회 성공", page));
+		return ResponseDto.of(HttpStatus.OK, "내가 단 댓글 목록 조회 성공", page);
 	}
-
 }
