@@ -92,8 +92,10 @@ dependencies {
 }
 
 tasks.named('test') {
-    enabled = false
+    enabled = true
+    useJUnitPlatform()
 }
+
 
 tasks.withType(Checkstyle).configureEach {
     enabled = false
