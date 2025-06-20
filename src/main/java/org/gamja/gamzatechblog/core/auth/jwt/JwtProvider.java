@@ -13,7 +13,7 @@ import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.core.error.exception.UnauthorizedException;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
+import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

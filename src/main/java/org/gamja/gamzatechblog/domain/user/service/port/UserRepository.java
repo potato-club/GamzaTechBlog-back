@@ -1,13 +1,10 @@
-package org.gamja.gamzatechblog.domain.user.infrastructure;
+package org.gamja.gamzatechblog.domain.user.service.port;
 
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository {
 	Optional<User> findByGithubId(String githubId);
 
 	boolean existsByGithubId(String githubId);
@@ -17,4 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByNickname(String nickname);
 
 	boolean existsByStudentNumber(String studentNumber);
+
+	User save(User user);
+
+	void delete(User user);
 }
