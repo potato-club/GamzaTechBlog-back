@@ -7,7 +7,7 @@ import org.gamja.gamzatechblog.domain.user.exception.UserAlreadyRegisteredExcept
 import org.gamja.gamzatechblog.domain.user.exception.UserNotFoundException;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.gamja.gamzatechblog.domain.user.repository.UserRepository;
+import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
