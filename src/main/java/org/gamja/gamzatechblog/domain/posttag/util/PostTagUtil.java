@@ -6,7 +6,7 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.posttag.repository.PostTagRepository;
 import org.gamja.gamzatechblog.domain.tag.model.entity.Tag;
-import org.gamja.gamzatechblog.domain.tag.repository.TagRepository;
+import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
