@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.post.repository;
+package org.gamja.gamzatechblog.domain.post.infrastructure.adapter;
 
 import static org.gamja.gamzatechblog.domain.post.model.entity.QPost.*;
 import static org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag.*;
@@ -7,6 +7,7 @@ import static org.gamja.gamzatechblog.domain.tag.model.entity.QTag.*;
 import java.util.List;
 
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
+import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +19,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 
 @Repository
-public class PostRepositoryCustomImpl implements PostRepositoryCustom {
+public class PostQueryAdapter implements PostQueryPort {
 
 	private final JPAQueryFactory queryFactory;
 
-	public PostRepositoryCustomImpl(EntityManager em) {
+	public PostQueryAdapter(EntityManager em) {
 		this.queryFactory = new JPAQueryFactory(em);
 	}
 
