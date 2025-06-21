@@ -6,13 +6,41 @@ import java.util.Optional;
 import org.gamja.gamzatechblog.domain.tag.model.entity.Tag;
 
 public interface TagRepository {
-	Optional<Tag> findByTagName(String tagName);
+	/**
+ * Retrieves a tag entity by its name.
+ *
+ * @param tagName the name of the tag to search for
+ * @return an Optional containing the found Tag, or empty if no tag with the given name exists
+ */
+Optional<Tag> findByTagName(String tagName);
 
-	List<String> findAllTagNames();
+	/**
+ * Retrieves a list of all tag names.
+ *
+ * @return a list containing the names of all tags
+ */
+List<String> findAllTagNames();
 
-	Tag save(Tag tag);
+	/**
+ * Persists the given Tag entity and returns the saved instance.
+ *
+ * @param tag the Tag entity to be saved
+ * @return the saved Tag entity
+ */
+Tag save(Tag tag);
 
-	void delete(Tag tag);
+	/**
+ * Removes the specified Tag entity from the data store.
+ *
+ * @param tag the Tag entity to be deleted
+ */
+void delete(Tag tag);
 
-	Tag saveAndFlush(Tag tag);
+	/**
+ * Saves the given Tag entity and immediately flushes changes to the underlying storage.
+ *
+ * @param tag the Tag entity to be saved
+ * @return the persisted Tag entity
+ */
+Tag saveAndFlush(Tag tag);
 }
