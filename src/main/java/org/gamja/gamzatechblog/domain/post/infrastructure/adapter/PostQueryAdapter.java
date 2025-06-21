@@ -23,6 +23,11 @@ public class PostQueryAdapter implements PostQueryPort {
 
 	private final JPAQueryFactory queryFactory;
 
+	/**
+	 * Constructs a PostQueryAdapter with a JPAQueryFactory initialized from the given EntityManager.
+	 *
+	 * @param em the EntityManager used to create the JPAQueryFactory for building queries
+	 */
 	public PostQueryAdapter(EntityManager em) {
 		this.queryFactory = new JPAQueryFactory(em);
 	}

@@ -48,6 +48,13 @@ public class PostServiceImpl implements PostService {
 	private final PostQueryPort postQueryPort;
 	private final CommitHistoryServiceImpl commitHistoryService;
 
+	/**
+	 * Publishes a new blog post for the current user, synchronizing it with the user's GitHub repository.
+	 *
+	 * Validates the user's GitHub access, ensures the existence of a personal repository, creates and saves the post entity, synchronizes tags, uploads the post to GitHub with an "Add" commit, and registers the commit history.
+	 *
+	 * @return a response DTO representing the published post
+	 */
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
@@ -102,6 +109,13 @@ public class PostServiceImpl implements PostService {
 		postRepository.delete(post);
 	}
 
+	/**
+	 * Retrieves a paginated list of posts filtered by the specified tags.
+	 *
+	 * @param pageable pagination and sorting information
+	 * @param filterTags list of tags to filter posts by
+	 * @return a paged response containing post list responses matching the filter criteria
+	 */
 	@Override
 	public PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags) {
 		Page<PostListResponse> page = postQueryPort
