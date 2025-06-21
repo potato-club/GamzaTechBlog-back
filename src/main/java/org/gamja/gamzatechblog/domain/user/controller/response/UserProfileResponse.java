@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.user.model.dto.response;
+package org.gamja.gamzatechblog.domain.user.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
