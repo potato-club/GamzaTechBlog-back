@@ -4,7 +4,7 @@ import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.domain.post.exception.PostAccessDeniedException;
 import org.gamja.gamzatechblog.domain.post.exception.PostNotFoundException;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
-import org.gamja.gamzatechblog.domain.post.repository.PostRepository;
+import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.stereotype.Component;
 

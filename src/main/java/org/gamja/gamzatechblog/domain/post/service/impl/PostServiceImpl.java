@@ -15,9 +15,9 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostListMapper;
-import org.gamja.gamzatechblog.domain.post.repository.PostRepository;
-import org.gamja.gamzatechblog.domain.post.repository.PostRepositoryCustom;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
+import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
+import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
@@ -45,7 +45,7 @@ public class PostServiceImpl implements PostService {
 	private final PostListMapper postListMapper;
 	private final CommentService commentService;
 	private final PostDetailMapper postDetailMapper;
-	private final PostRepositoryCustom postRepositoryCustom;
+	private final PostQueryPort postQueryPort;
 	private final CommitHistoryServiceImpl commitHistoryService;
 
 	@Override
@@ -104,7 +104,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags) {
-		Page<PostListResponse> page = postRepositoryCustom
+		Page<PostListResponse> page = postQueryPort
 			.findAllPosts(pageable, filterTags)
 			.map(postListMapper::toListResponse);
 

@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.post.repository;
+package org.gamja.gamzatechblog.domain.post.service.port;
 
 import java.util.List;
 
@@ -6,6 +6,6 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface PostRepositoryCustom {
+public interface PostQueryPort {
 	Page<Post> findAllPosts(Pageable pageable, List<String> tagNames);
 }
