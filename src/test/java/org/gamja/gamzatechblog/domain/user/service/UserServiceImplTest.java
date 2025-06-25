@@ -13,62 +13,50 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("UserServiceImpl메서드 단위 테스트")
+@DisplayName("UserServiceImpl 메서드 단위 테스트")
 public class UserServiceImplTest {
 
+	private static final String EXISTING_ID = "git2";
 	private UserServiceImpl userService;
 	private UserFakeUserRepository repository;
 
 	@BeforeEach
-	void init() {
+	void setUp() {
 		repository = new UserFakeUserRepository();
-		UserMapper userMapper = new UserMapper();
-		UserValidator userValidator = new UserValidator(repository);
-		UserProfileMapperImpl profileMapper = new UserProfileMapperImpl();
+		repository.save(createUser(EXISTING_ID));
 
 		userService = new UserServiceImpl(
 			repository,
-			userMapper,
-			userValidator,
-			profileMapper,
-			null,
-			null,
-			null
+			new UserMapper(),
+			new UserValidator(repository),
+			new UserProfileMapperImpl(),
+			null, null, null
 		);
+	}
+
+	private User createUser(String githubId) {
+		return User.builder()
+			.githubId(githubId)
+			.name("User-" + githubId)
+			.email(githubId + "@mail.com")
+			.studentNumber("SN-" + githubId)
+			.gamjaBatch(1)
+			.nickname("nick-" + githubId)
+			.position(null)
+			.build();
 	}
 
 	@Test
 	@DisplayName("existsByGithubId: 저장된 ID일 때 true, 미저장 ID일 때 false 반환")
 	void existsByGithubId_behavior() {
-		// Given
-		User user = User.builder()
-			.githubId("git2")
-			.name("User2")
-			.email("u2@mail.com")
-			.studentNumber("SN2")
-			.gamjaBatch(1)
-			.nickname("nick2")
-			.position(null)
-			.build();
-		repository.save(user);
-
-		// When
-		boolean known = userService.existsByGithubId("git2");
-		boolean unknown = userService.existsByGithubId("unknown");
-
-		// Then
-		assertThat(known).isTrue();
-		assertThat(unknown).isFalse();
+		assertThat(userService.existsByGithubId(EXISTING_ID)).isTrue();
+		assertThat(userService.existsByGithubId("unknown")).isFalse();
 	}
 
 	@Test
 	@DisplayName("findByGithubId: 존재하지 않는 ID 조회 시 UserNotFoundException 발생")
 	void findByGithubId_notFound() {
-		// Given: 없는 ID
-		String missingId = "none";
-
-		// When & Then
-		assertThatThrownBy(() -> userService.findByGithubId(missingId))
+		assertThatThrownBy(() -> userService.findByGithubId("none"))
 			.isInstanceOf(UserNotFoundException.class)
 			.hasMessage("사용자를 찾을 수 없습니다.");
 	}
@@ -76,23 +64,11 @@ public class UserServiceImplTest {
 	@Test
 	@DisplayName("withdraw: 사용자 삭제 시 Repository에서 제거됨")
 	void withdraw_removesUser() {
-		// Given
-		User user = User.builder()
-			.githubId("git4")
-			.name("User4")
-			.email("u4@mail.com")
-			.studentNumber("SN4")
-			.gamjaBatch(3)
-			.nickname("nick4")
-			.position(null)
-			.build();
-		repository.save(user);
-		assertThat(repository.existsByGithubId("git4")).isTrue();
+		assertThat(repository.existsByGithubId(EXISTING_ID)).isTrue();
 
-		// When
-		userService.withdraw(user);
+		userService.withdraw(createUser(EXISTING_ID));
 
-		// Then
-		assertThat(repository.existsByGithubId("git4")).isFalse();
+		assertThat(repository.existsByGithubId(EXISTING_ID)).isFalse();
 	}
+
 }
