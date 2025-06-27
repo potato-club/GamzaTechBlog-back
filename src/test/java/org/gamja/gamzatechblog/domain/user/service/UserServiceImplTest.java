@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class UserServiceImplTest {
 
 	private static final String EXISTING_ID = "git2";
-	private UserServiceImpl userService;
+	private UserService userService;
 	private UserFakeUserRepository repository;
 
 	@BeforeEach
@@ -47,14 +47,24 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	@DisplayName("existsByGithubId: 저장된 ID일 때 true, 미저장 ID일 때 false 반환")
+	@DisplayName("깃허브 아이디가 저장된 ID일 때 true, 미저장 ID일 때 false 반환")
 	void existsByGithubId_behavior() {
 		assertThat(userService.existsByGithubId(EXISTING_ID)).isTrue();
 		assertThat(userService.existsByGithubId("unknown")).isFalse();
 	}
 
 	@Test
-	@DisplayName("findByGithubId: 존재하지 않는 ID 조회 시 UserNotFoundException 발생")
+	@DisplayName("유저의 아이디를 성공적으로 찾았을 경우")
+	void findByGithubId_success() {
+		User saved = repository.save(createUser("git123"));
+
+		User result = userService.findByGithubId("git123");
+
+		assertThat(result.getName()).isEqualTo(saved.getName());
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 아이디 검색시 404발생")
 	void findByGithubId_notFound() {
 		assertThatThrownBy(() -> userService.findByGithubId("none"))
 			.isInstanceOf(UserNotFoundException.class)
@@ -62,12 +72,10 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	@DisplayName("withdraw: 사용자 삭제 시 Repository에서 제거됨")
+	@DisplayName("사용자 삭제시 제거가 되는지")
 	void withdraw_removesUser() {
 		assertThat(repository.existsByGithubId(EXISTING_ID)).isTrue();
-
 		userService.withdraw(createUser(EXISTING_ID));
-
 		assertThat(repository.existsByGithubId(EXISTING_ID)).isFalse();
 	}
 
