@@ -74,9 +74,10 @@ public class UserServiceImplTest {
 	@Test
 	@DisplayName("사용자 삭제시 제거가 되는지")
 	void withdraw_removesUser() {
-		assertThat(repository.existsByGithubId(EXISTING_ID)).isTrue();
-		userService.withdraw(createUser(EXISTING_ID));
+		User existingUser = repository.findByGithubId(EXISTING_ID).orElse(null);
+		assertThat(existingUser).isNotNull();
+
+		userService.withdraw(existingUser);
 		assertThat(repository.existsByGithubId(EXISTING_ID)).isFalse();
 	}
-
 }
