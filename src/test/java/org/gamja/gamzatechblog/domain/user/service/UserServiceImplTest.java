@@ -1,6 +1,7 @@
 package org.gamja.gamzatechblog.domain.user.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.gamja.gamzatechblog.support.user.UserFixtures.*;
 
 import org.gamja.gamzatechblog.domain.user.exception.UserNotFoundException;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -20,10 +21,11 @@ public class UserServiceImplTest {
 	private UserService userService;
 	private UserFakeUserRepository repository;
 
+	//Support패키지 userFixtures를 사용합니다.
 	@BeforeEach
 	void setUp() {
 		repository = new UserFakeUserRepository();
-		repository.save(createUser(EXISTING_ID));
+		repository.save(user(EXISTING_ID));
 
 		userService = new UserServiceImpl(
 			repository,
@@ -32,18 +34,6 @@ public class UserServiceImplTest {
 			new UserProfileMapperImpl(),
 			null, null, null
 		);
-	}
-
-	private User createUser(String githubId) {
-		return User.builder()
-			.githubId(githubId)
-			.name("User-" + githubId)
-			.email(githubId + "@mail.com")
-			.studentNumber("SN-" + githubId)
-			.gamjaBatch(1)
-			.nickname("nick-" + githubId)
-			.position(null)
-			.build();
 	}
 
 	@Test
@@ -56,7 +46,7 @@ public class UserServiceImplTest {
 	@Test
 	@DisplayName("유저의 아이디를 성공적으로 찾았을 경우")
 	void findByGithubId_success() {
-		User saved = repository.save(createUser("git123"));
+		User saved = repository.save(user("git123"));
 
 		User result = userService.findByGithubId("git123");
 
