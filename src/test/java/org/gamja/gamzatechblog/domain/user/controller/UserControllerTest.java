@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.exception.UserNotFoundException;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -58,15 +59,28 @@ class UserControllerTest {
 	}
 
 	@Test
+	@DisplayName("내 프로필 조회 실패 - 사용자 없음")
+	void getMyProfile_실패_사용자없음() {
+		User mockUser = mock(User.class);
+		when(userService.getMyProfile(mockUser))
+			.thenThrow(new UserNotFoundException(1L));
+
+		assertThrows(
+			UserNotFoundException.class,
+			() -> userController.getMyProfile(mockUser)
+		);
+	}
+
+	@Test
 	@DisplayName("프로필 업데이트 성공 테스트")
 	void updateProfile_성공() {
 		User mockUser = mock(User.class);
-
-		UpdateProfileRequest req = new UpdateProfileRequest();
-		req.setEmail("new@example.com");
-		req.setStudentNumber("20201234");
-		req.setGamjaBatch(10);
-		req.setPosition(Position.BACKEND);
+		UpdateProfileRequest req = new UpdateProfileRequest(
+			"new@example.com",
+			"20201234",
+			10,
+			Position.BACKEND
+		);
 
 		UserProfileResponse updatedProfile = new UserProfileResponse(
 			"gh123",
@@ -90,6 +104,23 @@ class UserControllerTest {
 	}
 
 	@Test
+	@DisplayName("프로필 업데이트 실패 - 잘못된 데이터")
+	void updateProfile_실패() {
+		User mockUser = mock(User.class);
+		UpdateProfileRequest req = new UpdateProfileRequest(
+			null, null, null, null
+		);
+		when(userService.updateProfile(mockUser, req))
+			.thenThrow(new IllegalArgumentException("유효하지 않은 요청"));
+
+		IllegalArgumentException ex = assertThrows(
+			IllegalArgumentException.class,
+			() -> userController.updateProfile(mockUser, req)
+		);
+		assertEquals("유효하지 않은 요청", ex.getMessage());
+	}
+
+	@Test
 	@DisplayName("계정 삭제 성공 테스트")
 	void withdraw_성공() {
 		User mockUser = mock(User.class);
@@ -103,13 +134,23 @@ class UserControllerTest {
 	}
 
 	@Test
-	@DisplayName("회원가입용 프로필 완료 테스트")
+	@DisplayName("계정 삭제 실패 - 서비스 오류")
+	void withdraw_실패_서비스오류() {
+		User mockUser = mock(User.class);
+		doThrow(new RuntimeException("삭제 처리 중 오류")).when(userService).withdraw(mockUser);
+
+		assertThrows(RuntimeException.class, () -> userController.withdraw(mockUser));
+	}
+
+	@Test
+	@DisplayName("회원가입용 프로필 완료 성공 테스트")
 	void completeProfile_성공() {
-		UserProfileRequest completeReq = new UserProfileRequest();
-		completeReq.setEmail("first@example.com");
-		completeReq.setStudentNumber("20201234");
-		completeReq.setGamjaBatch(8);
-		completeReq.setPosition(Position.BACKEND);
+		UserProfileRequest completeReq = new UserProfileRequest(
+			"first@example.com",
+			"20201234",
+			8,
+			Position.BACKEND
+		);
 
 		User mockUser = mock(User.class);
 		when(mockUser.getGithubId()).thenReturn("gh123");
@@ -134,6 +175,28 @@ class UserControllerTest {
 		assertEquals("프로필이 성공적으로 완성되었습니다.", response.getMessage());
 		assertSame(completed, response.getData());
 		verify(userService).completeProfile("gh123", completeReq);
+	}
+
+	@Test
+	@DisplayName("프로필 완료 실패 - 이미 완료됨")
+	void completeProfile_실패() {
+		UserProfileRequest req = new UserProfileRequest(
+			"a@b.com",
+			"20201234",
+			8,
+			Position.BACKEND
+		);
+
+		User mockUser = mock(User.class);
+		when(mockUser.getGithubId()).thenReturn("gh123");
+		when(userService.completeProfile("gh123", req))
+			.thenThrow(new IllegalStateException("이미 프로필이 완성되었습니다."));
+
+		IllegalStateException ex = assertThrows(
+			IllegalStateException.class,
+			() -> userController.completeProfile(req, mockUser)
+		);
+		assertEquals("이미 프로필이 완성되었습니다.", ex.getMessage());
 	}
 
 	@Test
@@ -167,55 +230,5 @@ class UserControllerTest {
 		assertEquals("역할 조회 성공", response.getMessage());
 		assertEquals("USER", response.getData());
 		verify(mockUser).getRole();
-	}
-
-	@Test
-	@DisplayName("내 프로필 조회 실패 - 서비스 예외")
-	void getMyProfile_실패() {
-		User mockUser = mock(User.class);
-		when(userService.getMyProfile(mockUser))
-			.thenThrow(new IllegalStateException("조회 중 오류"));
-
-		IllegalStateException ex = assertThrows(
-			IllegalStateException.class,
-			() -> userController.getMyProfile(mockUser)
-		);
-		assertEquals("조회 중 오류", ex.getMessage());
-	}
-
-	@Test
-	@DisplayName("프로필 업데이트 실패 - 잘못된 데이터")
-	void updateProfile_실패() {
-		User mockUser = mock(User.class);
-		UpdateProfileRequest req = new UpdateProfileRequest();
-		when(userService.updateProfile(mockUser, req))
-			.thenThrow(new IllegalArgumentException("유효하지 않은 요청"));
-
-		IllegalArgumentException ex = assertThrows(
-			IllegalArgumentException.class,
-			() -> userController.updateProfile(mockUser, req)
-		);
-		assertEquals("유효하지 않은 요청", ex.getMessage());
-	}
-
-	@Test
-	@DisplayName("프로필 완료 실패 - 이미 완료됨")
-	void completeProfile_실패() {
-		UserProfileRequest req = new UserProfileRequest();
-		req.setEmail("a@b.com");
-		req.setStudentNumber("20201234");
-		req.setGamjaBatch(8);
-		req.setPosition(Position.BACKEND);
-
-		User mockUser = mock(User.class);
-		when(mockUser.getGithubId()).thenReturn("gh123");
-		when(userService.completeProfile("gh123", req))
-			.thenThrow(new IllegalStateException("이미 프로필이 완성되었습니다."));
-
-		IllegalStateException ex = assertThrows(
-			IllegalStateException.class,
-			() -> userController.completeProfile(req, mockUser)
-		);
-		assertEquals("이미 프로필이 완성되었습니다.", ex.getMessage());
 	}
 }
