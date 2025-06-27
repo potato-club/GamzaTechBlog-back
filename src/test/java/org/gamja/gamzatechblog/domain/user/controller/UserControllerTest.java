@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.user.controller;
 
+import static org.gamja.gamzatechblog.support.user.UserFixtures.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -36,45 +37,39 @@ class UserControllerTest {
 	@Test
 	@DisplayName("내 프로필 조회 성공 테스트")
 	void getMyProfile_성공() {
-		User mockUser = mock(User.class);
+		User fixture = user("gh123");
 		UserProfileResponse mockProfile = new UserProfileResponse(
-			"gh123",
-			"parkjihun",
-			"박지훈",
-			"jihun@example.com",
-			"http://img.url/me.png",
-			"USER",
-			9,
-			"2025-06-26T10:00:00",
-			"2025-06-26T12:00:00"
+			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), fixture.getEmail(),
+			"http://img.url/me.png", fixture.getRole().name(), fixture.getGamjaBatch(),
+			"2025-06-26T10:00:00", "2025-06-26T12:00:00"
 		);
-		when(userService.getMyProfile(mockUser)).thenReturn(mockProfile);
+		when(userService.getMyProfile(fixture)).thenReturn(mockProfile);
 
-		ResponseDto<UserProfileResponse> response = userController.getMyProfile(mockUser);
+		ResponseDto<UserProfileResponse> response = userController.getMyProfile(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("프로필 조회 성공", response.getMessage());
 		assertSame(mockProfile, response.getData());
-		verify(userService).getMyProfile(mockUser);
+		verify(userService).getMyProfile(fixture);
 	}
 
 	@Test
 	@DisplayName("내 프로필 조회 실패 - 사용자 없음")
 	void getMyProfile_실패_사용자없음() {
-		User mockUser = mock(User.class);
-		when(userService.getMyProfile(mockUser))
+		User fixture = user("gh456");
+		when(userService.getMyProfile(fixture))
 			.thenThrow(new UserNotFoundException(1L));
 
 		assertThrows(
 			UserNotFoundException.class,
-			() -> userController.getMyProfile(mockUser)
+			() -> userController.getMyProfile(fixture)
 		);
 	}
 
 	@Test
 	@DisplayName("프로필 업데이트 성공 테스트")
 	void updateProfile_성공() {
-		User mockUser = mock(User.class);
+		User fixture = user("gh123");
 		UpdateProfileRequest req = new UpdateProfileRequest(
 			"new@example.com",
 			"20201234",
@@ -83,39 +78,31 @@ class UserControllerTest {
 		);
 
 		UserProfileResponse updatedProfile = new UserProfileResponse(
-			"gh123",
-			"parkjihun",
-			"박지훈",
-			"new@example.com",
-			"http://img.url/new.png",
-			"USER",
-			10,
-			"2025-06-27T09:00:00",
-			"2025-06-27T10:00:00"
+			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), req.getEmail(),
+			"http://img.url/new.png", fixture.getRole().name(), req.getGamjaBatch(),
+			"2025-06-27T09:00:00", "2025-06-27T10:00:00"
 		);
-		when(userService.updateProfile(mockUser, req)).thenReturn(updatedProfile);
+		when(userService.updateProfile(fixture, req)).thenReturn(updatedProfile);
 
-		ResponseDto<UserProfileResponse> response = userController.updateProfile(mockUser, req);
+		ResponseDto<UserProfileResponse> response = userController.updateProfile(fixture, req);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("프로필이 수정되었습니다", response.getMessage());
 		assertSame(updatedProfile, response.getData());
-		verify(userService).updateProfile(mockUser, req);
+		verify(userService).updateProfile(fixture, req);
 	}
 
 	@Test
 	@DisplayName("프로필 업데이트 실패 - 잘못된 데이터")
 	void updateProfile_실패() {
-		User mockUser = mock(User.class);
-		UpdateProfileRequest req = new UpdateProfileRequest(
-			null, null, null, null
-		);
-		when(userService.updateProfile(mockUser, req))
+		User fixture = user("gh123");
+		UpdateProfileRequest req = new UpdateProfileRequest(null, null, null, null);
+		when(userService.updateProfile(fixture, req))
 			.thenThrow(new IllegalArgumentException("유효하지 않은 요청"));
 
 		IllegalArgumentException ex = assertThrows(
 			IllegalArgumentException.class,
-			() -> userController.updateProfile(mockUser, req)
+			() -> userController.updateProfile(fixture, req)
 		);
 		assertEquals("유효하지 않은 요청", ex.getMessage());
 	}
@@ -123,23 +110,23 @@ class UserControllerTest {
 	@Test
 	@DisplayName("계정 삭제 성공 테스트")
 	void withdraw_성공() {
-		User mockUser = mock(User.class);
+		User fixture = user("gh123");
 
-		ResponseDto<String> response = userController.withdraw(mockUser);
+		ResponseDto<String> response = userController.withdraw(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("삭제되었습니다", response.getMessage());
 		assertNull(response.getData());
-		verify(userService).withdraw(mockUser);
+		verify(userService).withdraw(fixture);
 	}
 
 	@Test
 	@DisplayName("계정 삭제 실패 - 서비스 오류")
 	void withdraw_실패_서비스오류() {
-		User mockUser = mock(User.class);
-		doThrow(new RuntimeException("삭제 처리 중 오류")).when(userService).withdraw(mockUser);
+		User fixture = user("gh123");
+		doThrow(new RuntimeException("삭제 처리 중 오류")).when(userService).withdraw(fixture);
 
-		assertThrows(RuntimeException.class, () -> userController.withdraw(mockUser));
+		assertThrows(RuntimeException.class, () -> userController.withdraw(fixture));
 	}
 
 	@Test
@@ -152,29 +139,22 @@ class UserControllerTest {
 			Position.BACKEND
 		);
 
-		User mockUser = mock(User.class);
-		when(mockUser.getGithubId()).thenReturn("gh123");
+		User fixture = user("gh123");
 
 		UserProfileResponse completed = new UserProfileResponse(
-			"gh123",
-			"parkjihun",
-			"박지훈",
-			"first@example.com",
-			"http://img.url/first.png",
-			"USER",
-			8,
-			"2025-06-27T08:00:00",
-			"2025-06-27T09:00:00"
+			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), completeReq.getEmail(),
+			"http://img.url/first.png", fixture.getRole().name(), completeReq.getGamjaBatch(),
+			"2025-06-27T08:00:00", "2025-06-27T09:00:00"
 		);
-		when(userService.completeProfile("gh123", completeReq)).thenReturn(completed);
+		when(userService.completeProfile(fixture.getGithubId(), completeReq)).thenReturn(completed);
 
 		ResponseDto<UserProfileResponse> response =
-			userController.completeProfile(completeReq, mockUser);
+			userController.completeProfile(completeReq, fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("프로필이 성공적으로 완성되었습니다.", response.getMessage());
 		assertSame(completed, response.getData());
-		verify(userService).completeProfile("gh123", completeReq);
+		verify(userService).completeProfile(fixture.getGithubId(), completeReq);
 	}
 
 	@Test
@@ -187,14 +167,13 @@ class UserControllerTest {
 			Position.BACKEND
 		);
 
-		User mockUser = mock(User.class);
-		when(mockUser.getGithubId()).thenReturn("gh123");
-		when(userService.completeProfile("gh123", req))
+		User fixture = user("gh123");
+		when(userService.completeProfile(fixture.getGithubId(), req))
 			.thenThrow(new IllegalStateException("이미 프로필이 완성되었습니다."));
 
 		IllegalStateException ex = assertThrows(
 			IllegalStateException.class,
-			() -> userController.completeProfile(req, mockUser)
+			() -> userController.completeProfile(req, fixture)
 		);
 		assertEquals("이미 프로필이 완성되었습니다.", ex.getMessage());
 	}
@@ -202,33 +181,31 @@ class UserControllerTest {
 	@Test
 	@DisplayName("유저 활동 정보 조회 성공 테스트")
 	void getUserActivity_성공() {
-		User mockUser = mock(User.class);
-		UserActivityResponse activity = new UserActivityResponse(
-			5,
-			12,
-			20
-		);
-		when(userService.getUserActivity(mockUser)).thenReturn(activity);
+		User fixture = user("gh123");
+		UserActivityResponse activity = new UserActivityResponse(5, 12, 20);
+		when(userService.getUserActivity(fixture)).thenReturn(activity);
 
-		ResponseDto<UserActivityResponse> response = userController.getUserActivity(mockUser);
+		ResponseDto<UserActivityResponse> response = userController.getUserActivity(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("유저 활동 정보 조회 성공", response.getMessage());
 		assertSame(activity, response.getData());
-		verify(userService).getUserActivity(mockUser);
+		verify(userService).getUserActivity(fixture);
 	}
 
 	@Test
 	@DisplayName("유저 역할 조회 성공 테스트")
 	void getMyRole_성공() {
-		User mockUser = mock(User.class);
-		when(mockUser.getRole()).thenReturn(UserRole.USER);
+		User real = user("gh123");
+		User fixture = spy(real);
+		when(fixture.getRole()).thenReturn(UserRole.USER);
 
-		ResponseDto<String> response = userController.getMyRole(mockUser);
+		ResponseDto<String> response = userController.getMyRole(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("역할 조회 성공", response.getMessage());
 		assertEquals("USER", response.getData());
-		verify(mockUser).getRole();
+		verify(fixture).getRole();
 	}
+
 }
