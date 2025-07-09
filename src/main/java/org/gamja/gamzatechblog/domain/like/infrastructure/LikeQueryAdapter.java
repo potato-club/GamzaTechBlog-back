@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.like.repository;
+package org.gamja.gamzatechblog.domain.like.infrastructure;
 
 import java.util.List;
 import java.util.Map;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.domain.like.model.dto.response.LikeResponse;
 import org.gamja.gamzatechblog.domain.like.model.entity.QLike;
+import org.gamja.gamzatechblog.domain.like.service.port.LikeQueryPort;
 import org.gamja.gamzatechblog.domain.post.model.entity.QPost;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag;
 import org.gamja.gamzatechblog.domain.tag.model.entity.QTag;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Repository
-public class LikeRepositoryImpl implements LikeRepositoryCustom {
+public class LikeQueryAdapter implements LikeQueryPort {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
