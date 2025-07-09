@@ -1,8 +1,8 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
-import org.gamja.gamzatechblog.domain.comment.repository.CommentRepository;
-import org.gamja.gamzatechblog.domain.like.repository.LikeRepository;
+import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
+import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 		User user = userMapper.toEntity(info);
-		return userRepository.save(user);
+		return userRepository.saveUser(user);
 	}
 
 	public boolean existsByGithubId(String githubId) {
@@ -47,24 +47,24 @@ public class UserServiceImpl implements UserService {
 	필터로 유효성검사를 하지만, 서비스코드에서 한번 더 실행합니다.
 	 */
 	@Transactional(readOnly = true)
-	public UserProfileResponse getMyProfile(User currentUser) {
+	public UserProfileResponse getCurrentUserProfile(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		return userProfileMapper.toUserProfileResponse(user);
 	}
 
 	@Override
 	@Transactional
-	public UserProfileResponse completeProfile(String githubId, UserProfileRequest userProfileRequest) {
+	public UserProfileResponse setupUserProfile(String githubId, UserProfileRequest userProfileRequest) {
 		userValidator.validateProfileRequest(userProfileRequest);
 		User user = userValidator.validateAndGetUserByGithubId(githubId);
 		userProfileMapper.completeProfile(userProfileRequest, user);
 		user.setUserRole(UserRole.USER);
-		User saved = userRepository.save(user);
+		User saved = userRepository.saveUser(user);
 		return userProfileMapper.toUserProfileResponse(saved);
 	}
 
 	@Override
-	public UserActivityResponse getUserActivity(User user) {
+	public UserActivityResponse getActivitySummary(User user) {
 		int likedPostCount = likeRepository.countByUser(user);
 		int writtenPostCount = postRepository.countByUser(user);
 		int writtenCommentCount = commentRepository.countByUser(user);
@@ -82,11 +82,11 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
-		userRepository.delete(user);
+		userRepository.deleteUser(user);
 	}
 
 	@Override
-	public User findByGithubId(String githubId) {
+	public User getUserByGithubId(String githubId) {
 		return userValidator.validateAndGetUserByGithubId(githubId);
 	}
 }

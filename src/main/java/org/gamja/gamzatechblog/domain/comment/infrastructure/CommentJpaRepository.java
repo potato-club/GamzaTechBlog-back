@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.comment.repository;
+package org.gamja.gamzatechblog.domain.comment.infrastructure;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentJpaRepository extends JpaRepository<Comment, Long> {
 
 	List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(Long postId);
 

@@ -36,33 +36,33 @@ class UserControllerTest {
 
 	@Test
 	@DisplayName("내 프로필 조회 성공 테스트")
-	void getMyProfile_성공() {
+	void getCurrentUserProfile_성공() {
 		User fixture = user("gh123");
 		UserProfileResponse mockProfile = new UserProfileResponse(
 			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), fixture.getEmail(),
 			"http://img.url/me.png", fixture.getRole().name(), fixture.getGamjaBatch(),
 			"2025-06-26T10:00:00", "2025-06-26T12:00:00"
 		);
-		when(userService.getMyProfile(fixture)).thenReturn(mockProfile);
+		when(userService.getCurrentUserProfile(fixture)).thenReturn(mockProfile);
 
-		ResponseDto<UserProfileResponse> response = userController.getMyProfile(fixture);
+		ResponseDto<UserProfileResponse> response = userController.getCurrentUserProfile(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("프로필 조회 성공", response.getMessage());
 		assertSame(mockProfile, response.getData());
-		verify(userService).getMyProfile(fixture);
+		verify(userService).getCurrentUserProfile(fixture);
 	}
 
 	@Test
 	@DisplayName("내 프로필 조회 실패 - 사용자 없음")
-	void getMyProfile_실패_사용자없음() {
+	void getCurrentUserProfile_실패_사용자없음() {
 		User fixture = user("gh456");
-		when(userService.getMyProfile(fixture))
+		when(userService.getCurrentUserProfile(fixture))
 			.thenThrow(new UserNotFoundException(1L));
 
 		assertThrows(
 			UserNotFoundException.class,
-			() -> userController.getMyProfile(fixture)
+			() -> userController.getCurrentUserProfile(fixture)
 		);
 	}
 
@@ -146,7 +146,7 @@ class UserControllerTest {
 			"http://img.url/first.png", fixture.getRole().name(), completeReq.getGamjaBatch(),
 			"2025-06-27T08:00:00", "2025-06-27T09:00:00"
 		);
-		when(userService.completeProfile(fixture.getGithubId(), completeReq)).thenReturn(completed);
+		when(userService.setupUserProfile(fixture.getGithubId(), completeReq)).thenReturn(completed);
 
 		ResponseDto<UserProfileResponse> response =
 			userController.completeProfile(completeReq, fixture);
@@ -154,7 +154,7 @@ class UserControllerTest {
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("프로필이 성공적으로 완성되었습니다.", response.getMessage());
 		assertSame(completed, response.getData());
-		verify(userService).completeProfile(fixture.getGithubId(), completeReq);
+		verify(userService).setupUserProfile(fixture.getGithubId(), completeReq);
 	}
 
 	@Test
@@ -168,7 +168,7 @@ class UserControllerTest {
 		);
 
 		User fixture = user("gh123");
-		when(userService.completeProfile(fixture.getGithubId(), req))
+		when(userService.setupUserProfile(fixture.getGithubId(), req))
 			.thenThrow(new IllegalStateException("이미 프로필이 완성되었습니다."));
 
 		IllegalStateException ex = assertThrows(
@@ -180,27 +180,27 @@ class UserControllerTest {
 
 	@Test
 	@DisplayName("유저 활동 정보 조회 성공 테스트")
-	void getUserActivity_성공() {
+	void getActivity_Summary_성공() {
 		User fixture = user("gh123");
 		UserActivityResponse activity = new UserActivityResponse(5, 12, 20);
-		when(userService.getUserActivity(fixture)).thenReturn(activity);
+		when(userService.getActivitySummary(fixture)).thenReturn(activity);
 
-		ResponseDto<UserActivityResponse> response = userController.getUserActivity(fixture);
+		ResponseDto<UserActivityResponse> response = userController.getActivitySummary(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("유저 활동 정보 조회 성공", response.getMessage());
 		assertSame(activity, response.getData());
-		verify(userService).getUserActivity(fixture);
+		verify(userService).getActivitySummary(fixture);
 	}
 
 	@Test
 	@DisplayName("유저 역할 조회 성공 테스트")
-	void getMyRole_성공() {
+	void getCurrentUserRole_성공() {
 		User real = user("gh123");
 		User fixture = spy(real);
 		when(fixture.getRole()).thenReturn(UserRole.USER);
 
-		ResponseDto<String> response = userController.getMyRole(fixture);
+		ResponseDto<String> response = userController.getCurrentUserRole(fixture);
 
 		assertEquals(HttpStatus.OK.value(), response.getStatus());
 		assertEquals("역할 조회 성공", response.getMessage());

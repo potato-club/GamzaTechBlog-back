@@ -4,8 +4,9 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.domain.like.model.dto.response.LikeResponse;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.like.model.mapper.LikeMapper;
-import org.gamja.gamzatechblog.domain.like.repository.LikeRepository;
 import org.gamja.gamzatechblog.domain.like.service.LikeService;
+import org.gamja.gamzatechblog.domain.like.service.port.LikeQueryPort;
+import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.like.validator.LikeValidator;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
@@ -23,11 +24,12 @@ public class LikeServiceImpl implements LikeService {
 	private final LikeMapper likeMapper;
 	private final PostValidator postValidator;
 	private final LikeValidator likeValidator;
+	private final LikeQueryPort likeQueryPort;
 
 	@Override
 	@Transactional(readOnly = true)
 	public PagedResponse<LikeResponse> getMyLikes(User user, Pageable pageable) {
-		return likeRepository.findMyLikesByUser(user, pageable);
+		return likeQueryPort.findMyLikesByUser(user, pageable);
 	}
 
 	@Override
@@ -36,7 +38,7 @@ public class LikeServiceImpl implements LikeService {
 		Post post = postValidator.validatePostExists(postId);
 		likeValidator.validateNotAlreadyLiked(currentUser, post);
 		Like like = Like.createByUserForPost(currentUser, post);
-		Like saved = likeRepository.save(like);
+		Like saved = likeRepository.saveLike(like);
 		return likeMapper.toLikeResponse(saved);
 	}
 

@@ -29,8 +29,8 @@ public class UserController {
 
 	@Operation(summary = "정보 조회", tags = "유저 기능")
 	@GetMapping("/me/get/profile")
-	public ResponseDto<UserProfileResponse> getMyProfile(@CurrentUser User user) {
-		UserProfileResponse profile = userService.getMyProfile(user);
+	public ResponseDto<UserProfileResponse> getCurrentUserProfile(@CurrentUser User user) {
+		UserProfileResponse profile = userService.getCurrentUserProfile(user);
 		return ResponseDto.of(HttpStatus.OK, "프로필 조회 성공", profile);
 	}
 
@@ -55,21 +55,21 @@ public class UserController {
 	@PreAuthorize("hasRole('PRE_REGISTER')")
 	public ResponseDto<UserProfileResponse> completeProfile(
 		@Valid @RequestBody UserProfileRequest userProfileRequest, @CurrentUser User currentUser) {
-		UserProfileResponse updated = userService.completeProfile(currentUser.getGithubId(), userProfileRequest);
+		UserProfileResponse updated = userService.setupUserProfile(currentUser.getGithubId(), userProfileRequest);
 		return ResponseDto.of(HttpStatus.OK, "프로필이 성공적으로 완성되었습니다.", updated);
 	}
 
 	@Operation(summary = "유저 활동(내가 쓴 글/댓글/좋아요 개수) 조회", tags = "유저 기능")
 	@GetMapping("/me/activity")
-	public ResponseDto<UserActivityResponse> getUserActivity(@CurrentUser User currentUser) {
-		UserActivityResponse response = userService.getUserActivity(currentUser);
+	public ResponseDto<UserActivityResponse> getActivitySummary(@CurrentUser User currentUser) {
+		UserActivityResponse response = userService.getActivitySummary(currentUser);
 		return ResponseDto.of(HttpStatus.OK, "유저 활동 정보 조회 성공", response);
 	}
 
 	@Operation(summary = "역할 조회", tags = "유저 기능")
 	@GetMapping("/me/role")
 	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER')")
-	public ResponseDto<String> getMyRole(@CurrentUser User currentUser) {
+	public ResponseDto<String> getCurrentUserRole(@CurrentUser User currentUser) {
 		String role = currentUser.getRole().name();
 		return ResponseDto.of(HttpStatus.OK, "역할 조회 성공", role);
 	}

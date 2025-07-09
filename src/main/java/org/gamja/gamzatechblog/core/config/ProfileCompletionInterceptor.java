@@ -30,7 +30,7 @@ public class ProfileCompletionInterceptor implements HandlerInterceptor {
 		if (auth != null && auth.isAuthenticated()
 			&& !"anonymousUser".equals(auth.getPrincipal())) {
 			String githubId = auth.getName();
-			User user = userService.findByGithubId(githubId);
+			User user = userService.getUserByGithubId(githubId);
 			userValidator.validateProfileComplete(user);
 		}
 		return true;

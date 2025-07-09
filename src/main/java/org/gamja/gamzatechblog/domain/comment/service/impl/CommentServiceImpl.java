@@ -8,8 +8,8 @@ import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentListResp
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.comment.model.mapper.CommentMapper;
-import org.gamja.gamzatechblog.domain.comment.repository.CommentRepository;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
+import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.comment.validator.CommentValidator;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
 			.content(commentRequest.getContent())
 			.build();
 
-		Comment saved = commentRepository.save(comment);
+		Comment saved = commentRepository.saveComment(comment);
 		return commentMapper.toResponse(saved);
 	}
 
@@ -66,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
 	public void deleteComment(User currentUser, Long commentId) {
 		Comment existing = commentValidator.validateCommentExists(commentId);
 		commentValidator.validateCommentOwnership(existing, currentUser);
-		commentRepository.delete(existing);
+		commentRepository.deleteComment(existing);
 	}
 
 	//코드 수정 예정

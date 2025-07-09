@@ -38,13 +38,13 @@ public class UserFakeUserRepository implements UserRepository {
 	}
 
 	@Override
-	public User save(User user) {
+	public User saveUser(User user) {
 		userHashMap.put(user.getGithubId(), user);
 		return user;
 	}
 
 	@Override
-	public void delete(User user) {
+	public void deleteUser(User user) {
 		userHashMap.remove(user.getGithubId());
 	}
 }

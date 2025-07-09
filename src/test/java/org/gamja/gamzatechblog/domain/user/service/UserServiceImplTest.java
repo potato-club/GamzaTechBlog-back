@@ -25,7 +25,7 @@ public class UserServiceImplTest {
 	@BeforeEach
 	void setUp() {
 		repository = new UserFakeUserRepository();
-		repository.save(user(EXISTING_ID));
+		repository.saveUser(user(EXISTING_ID));
 
 		userService = new UserServiceImpl(
 			repository,
@@ -45,18 +45,18 @@ public class UserServiceImplTest {
 
 	@Test
 	@DisplayName("유저의 아이디를 성공적으로 찾았을 경우")
-	void findByGithubId_success() {
-		User saved = repository.save(user("git123"));
+	void getUserByGithubId_success() {
+		User saved = repository.saveUser(user("git123"));
 
-		User result = userService.findByGithubId("git123");
+		User result = userService.getUserByGithubId("git123");
 
 		assertThat(result.getName()).isEqualTo(saved.getName());
 	}
 
 	@Test
 	@DisplayName("존재하지 않는 아이디 검색시 404발생")
-	void findByGithubId_notFound() {
-		assertThatThrownBy(() -> userService.findByGithubId("none"))
+	void getUserByGithubId_notFound() {
+		assertThatThrownBy(() -> userService.getUserByGithubId("none"))
 			.isInstanceOf(UserNotFoundException.class)
 			.hasMessage("사용자를 찾을 수 없습니다.");
 	}
