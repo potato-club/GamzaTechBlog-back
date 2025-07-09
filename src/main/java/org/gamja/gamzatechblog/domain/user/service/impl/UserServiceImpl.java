@@ -1,7 +1,7 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
-import org.gamja.gamzatechblog.domain.comment.repository.CommentRepository;
+import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.repository.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
