@@ -15,7 +15,7 @@ public interface UserRepository {
 
 	boolean existsByStudentNumber(String studentNumber);
 
-	User save(User user);
+	User saveUser(User user);
 
-	void delete(User user);
+	void deleteUser(User user);
 }

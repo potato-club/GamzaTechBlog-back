@@ -12,16 +12,16 @@ public interface UserService {
 
 	void withdraw(User currentUser);
 
-	User findByGithubId(String githubId);
+	User getUserByGithubId(String githubId);
 
 	boolean existsByGithubId(String githubId);
 
 	User registerWithProvider(OAuthUserInfo info);
 
-	UserProfileResponse getMyProfile(User currentUser);
+	UserProfileResponse getCurrentUserProfile(User currentUser);
 
-	UserProfileResponse completeProfile(String githubId, UserProfileRequest userProfileRequest);
+	UserProfileResponse setupUserProfile(String githubId, UserProfileRequest userProfileRequest);
 
-	UserActivityResponse getUserActivity(User user);
+	UserActivityResponse getActivitySummary(User user);
 
 }

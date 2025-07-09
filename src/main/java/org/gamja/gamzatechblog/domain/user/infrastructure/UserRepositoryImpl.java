@@ -40,12 +40,12 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
-	public User save(User user) {
+	public User saveUser(User user) {
 		return userJpaRepository.save(user);
 	}
 
 	@Override
-	public void delete(User user) {
+	public void deleteUser(User user) {
 		userJpaRepository.delete(user);
 	}
 }
