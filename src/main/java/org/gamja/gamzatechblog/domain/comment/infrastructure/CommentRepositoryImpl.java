@@ -8,12 +8,12 @@ import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Component
+@Repository
 public class CommentRepositoryImpl implements CommentRepository {
 	private final CommentJpaRepository commentJpaRepository;
 
