@@ -12,10 +12,15 @@ import lombok.RequiredArgsConstructor;
 @Repository
 @RequiredArgsConstructor
 public class GithubRepositoryImpl implements GitHubRepoRepository {
-	private final GithubJpaRepository githubJpaRepository;
+	private final GithubRepoJpaRepository githubRepoJpaRepository;
 
 	@Override
 	public Optional<GitHubRepo> findByUser(User user) {
-		return githubJpaRepository.findByUser(user);
+		return githubRepoJpaRepository.findByUser(user);
+	}
+
+	@Override
+	public GitHubRepo gitHubRepoSave(GitHubRepo gitHubRepo) {
+		return githubRepoJpaRepository.save(gitHubRepo);
 	}
 }

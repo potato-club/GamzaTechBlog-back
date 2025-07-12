@@ -55,7 +55,7 @@ public class PostServiceImpl implements PostService {
 		String repoName = "GamzaTechBlog";
 		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
 			.orElseGet(() ->
-				githubRepoRepository.save(GitHubRepo.builder()
+				githubRepoRepository.gitHubRepoSave(GitHubRepo.builder()
 					.user(currentUser)
 					.name(repoName)
 					.githubUrl("https://github.com/" + currentUser.getNickname() + "/" + repoName)
