@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.repository.repository;
+package org.gamja.gamzatechblog.domain.repository.infrastructure;
 
 import java.util.Optional;
 
@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GitHubRepoRepository extends JpaRepository<GitHubRepo, Long> {
+public interface GitHubRepoJpaRepository extends JpaRepository<GitHubRepo, Long> {
 	Optional<GitHubRepo> findByUser(User user);
-
-	Optional<GitHubRepo> findByGithubUrl(String githubUrl);
 }

@@ -37,7 +37,7 @@ public class CommentServiceImpl implements CommentService {
 		return commentRepository
 			.findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(postId)
 			.stream()
-			.map(commentMapper::toResponse)
+			.map(commentMapper::mapToCommentTree)
 			.toList();
 	}
 
@@ -59,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
 			.build();
 
 		Comment saved = commentRepository.saveComment(comment);
-		return commentMapper.toResponse(saved);
+		return commentMapper.mapToCommentTree(saved);
 	}
 
 	@Override
