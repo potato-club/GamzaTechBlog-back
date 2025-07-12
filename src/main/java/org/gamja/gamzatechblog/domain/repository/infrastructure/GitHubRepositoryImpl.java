@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class GithubRepositoryImpl implements GitHubRepoRepository {
-	private final GithubRepoJpaRepository githubRepoJpaRepository;
+public class GitHubRepositoryImpl implements GitHubRepoRepository {
+	private final GitHubRepoJpaRepository githubRepoJpaRepository;
 
 	@Override
 	public Optional<GitHubRepo> findByUser(User user) {
