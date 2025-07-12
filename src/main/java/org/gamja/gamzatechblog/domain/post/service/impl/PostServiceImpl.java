@@ -22,7 +22,7 @@ import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
-import org.gamja.gamzatechblog.domain.repository.repository.GitHubRepoRepository;
+import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
