@@ -7,13 +7,10 @@ import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
-	CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
-
-	default CommentResponse toResponse(Comment comment) {
+	default CommentResponse mapToCommentTree(Comment comment) {
 		return CommentResponse.builder()
 			.commentId(comment.getId())
 			.writer(comment.getUser().getNickname())
@@ -21,7 +18,7 @@ public interface CommentMapper {
 			.createdAt(comment.getCreatedAt())
 			.replies(
 				comment.getReplies().stream()
-					.map(this::toResponse)
+					.map(this::mapToCommentTree)
 					.collect(Collectors.toList())
 			)
 			.build();
