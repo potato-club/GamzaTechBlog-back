@@ -13,12 +13,8 @@ import lombok.RequiredArgsConstructor;
 public class TagServiceImpl implements TagService {
 	private final TagRepository tagRepository;
 
-	/*
-	메인 페이지 호출용 전체 태그 보냄
-	 */
 	@Override
 	public List<String> getAllTags() {
-		// findAllTagNames()이 이미 List<String>을 반환한다면
 		return tagRepository.findAllTagNames();
 	}
 }
