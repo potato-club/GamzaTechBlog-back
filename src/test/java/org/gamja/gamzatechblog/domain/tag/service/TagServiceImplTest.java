@@ -35,7 +35,7 @@ public class TagServiceImplTest {
 
 	@Test
 	@DisplayName("태그가 존재하지 않으면 반환X")
-	void getAllTags_whenNoTags_returnsEmpyList() {
+	void getAllTags_whenNoTags_returnsEmptyList() {
 		List<String> result = tagService.getAllTags();
 
 		assertThat(result).isEmpty();
