@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LikeFakeRepository 메서드 단위 테스트")
-class LikeRepositoryTest {
+class LikeFakeRepositoryTest {
 
 	private LikeService likeService;
 	private LikeFakeRepository likeFakeRepository;
