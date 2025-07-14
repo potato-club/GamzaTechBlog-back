@@ -6,47 +6,21 @@ import static org.gamja.gamzatechblog.support.like.LikeFixtures.*;
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
-import org.gamja.gamzatechblog.domain.like.model.mapper.LikeMapper;
-import org.gamja.gamzatechblog.domain.like.service.LikeService;
-import org.gamja.gamzatechblog.domain.like.service.impl.LikeServiceImpl;
-import org.gamja.gamzatechblog.domain.like.validator.LikeValidator;
-import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LikeFakeRepository 메서드 단위 테스트")
 class LikeFakeRepositoryTest {
 
-	private LikeService likeService;
 	private LikeFakeRepository likeFakeRepository;
-
-	@Mock
-	private LikeMapper likeMapper;
-
-	@Mock
-	private PostValidator postValidator;
-
-	@Mock
-	private LikeValidator likeValidator;
-
-	@Mock
-	private LikeQueryPort likeQueryPort;
 
 	@BeforeEach
 	void setUp() {
 		likeFakeRepository = new LikeFakeRepository();
-		likeService = new LikeServiceImpl(
-			likeFakeRepository,
-			likeMapper,
-			postValidator,
-			likeValidator,
-			likeQueryPort
-		);
 	}
 
 	@Test
