@@ -48,7 +48,7 @@ public class LikeFakeRepository implements LikeRepository {
 	}
 
 	private boolean isNewLike(Like like) {
-		return like.getId() == null || like.getId() == 0;
+		return like.getId() == null;
 	}
 
 	private Like createLikeWithNewId(Like like) {
@@ -64,6 +64,6 @@ public class LikeFakeRepository implements LikeRepository {
 	}
 
 	private String createUserPostKey(User user, Post post) {
-		return user.getId() + "_" + post.getId();
+		return String.format("user:%d:post:%d", user.getId(), post.getId());
 	}
 }
