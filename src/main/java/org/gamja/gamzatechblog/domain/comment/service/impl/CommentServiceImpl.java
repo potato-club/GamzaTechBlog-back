@@ -69,14 +69,10 @@ public class CommentServiceImpl implements CommentService {
 		commentRepository.deleteComment(existing);
 	}
 
-	//코드 수정 예정
 	@Override
+	@Transactional(readOnly = true)
 	public PagedResponse<CommentListResponse> getMyComments(User user, Pageable pageable) {
-		Page<Comment> comments = commentRepository.findByUserOrderByCreatedAtDesc(user, pageable);
-		List<CommentListResponse> content = comments.getContent().stream()
-			.map(commentMapper::toCommentListResponse)
-			.toList();
-		return new PagedResponse<>(content, comments.getNumber(), comments.getSize(), comments.getTotalElements(),
-			comments.getTotalPages());
+		Page<Comment> page = commentRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+		return PagedResponse.of(page, commentMapper::toCommentListResponse);
 	}
 }
