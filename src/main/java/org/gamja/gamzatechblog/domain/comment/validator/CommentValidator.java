@@ -34,4 +34,8 @@ public class CommentValidator {
 			throw new CommentAccessDeniedException(ErrorCode.COMMENT_FORBIDDEN);
 		}
 	}
+
+	public Comment resolveParent(Long parentCommentId) {
+		return (parentCommentId == null) ? null : validateCommentExists(parentCommentId);
+	}
 }
