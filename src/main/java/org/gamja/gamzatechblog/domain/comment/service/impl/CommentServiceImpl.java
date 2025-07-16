@@ -11,6 +11,7 @@ import org.gamja.gamzatechblog.domain.comment.model.mapper.CommentMapper;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.comment.validator.CommentValidator;
+import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
@@ -42,22 +43,10 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public CommentResponse createComment(User currentUser,
-		Long postId,
-		CommentRequest commentRequest) {
-		var post = postValidator.validatePostExists(postId);
-
-		Comment parent = null;
-		if (commentRequest.getParentCommentId() != null) {
-			parent = commentValidator.validateCommentExists(commentRequest.getParentCommentId());
-		}
-		Comment comment = Comment.builder()
-			.post(post)
-			.user(currentUser)
-			.parent(parent)
-			.content(commentRequest.getContent())
-			.build();
-
+	public CommentResponse createComment(User user, Long postId, CommentRequest req) {
+		Post post = postValidator.validatePostExists(postId);
+		Comment parent = commentValidator.resolveParent(req.getParentCommentId());
+		Comment comment = buildComment(post, user, parent, req.getContent());
 		Comment saved = commentRepository.saveComment(comment);
 		return commentMapper.mapToCommentTree(saved);
 	}
@@ -74,5 +63,14 @@ public class CommentServiceImpl implements CommentService {
 	public PagedResponse<CommentListResponse> getMyComments(User user, Pageable pageable) {
 		Page<Comment> page = commentRepository.findByUserOrderByCreatedAtDesc(user, pageable);
 		return PagedResponse.of(page, commentMapper::toCommentListResponse);
+	}
+
+	private Comment buildComment(Post post, User user, Comment parent, String content) {
+		return Comment.builder()
+			.post(post)
+			.user(user)
+			.parent(parent)
+			.content(content)
+			.build();
 	}
 }
