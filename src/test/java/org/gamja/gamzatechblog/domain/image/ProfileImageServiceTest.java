@@ -17,12 +17,12 @@ class ProfileImageServiceTest {
 
 	private ProfileImageService profileImageService;
 	private ProfileImageFakeRepository profileImageRepository;
-	private StubImageStorage stubStorage;
+	private StubS3S3ImageStorage stubStorage;
 
 	@BeforeEach
 	void setUp() {
 		profileImageRepository = new ProfileImageFakeRepository();
-		stubStorage = new StubImageStorage();
+		stubStorage = new StubS3S3ImageStorage();
 		profileImageService = new ProfileImageService(profileImageRepository, stubStorage);
 	}
 
@@ -60,7 +60,7 @@ class ProfileImageServiceTest {
 		assertTrue(stubStorage.isDeleted("https://stub/old.png"));
 	}
 
-	private static class StubImageStorage implements ImageStorage {
+	private static class StubS3S3ImageStorage implements ImageStorage {
 		private final java.util.Set<String> deletedUrls = new java.util.HashSet<>();
 
 		@Override

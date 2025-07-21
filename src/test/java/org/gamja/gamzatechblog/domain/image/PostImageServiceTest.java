@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.domain.image.port.PostImageFakeRepository;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
@@ -17,12 +18,12 @@ class PostImageServiceTest {
 
 	private PostImageService postImageService;
 	private PostImageFakeRepository postImageRepository;
-	private StubImageStorage stubStorage;
+	private StubS3S3ImageStorage stubStorage;
 
 	@BeforeEach
 	void setUp() {
 		postImageRepository = new PostImageFakeRepository();
-		stubStorage = new StubImageStorage();
+		stubStorage = new StubS3S3ImageStorage();
 		postImageService = new PostImageService(postImageRepository, stubStorage);
 	}
 
@@ -55,7 +56,7 @@ class PostImageServiceTest {
 		assertTrue(stubStorage.isDeleted("https://stub/delete.png"));
 	}
 
-	private static class StubImageStorage implements ImageStorage {
+	private static class StubS3S3ImageStorage implements S3ImageStorage {
 		private final java.util.Set<String> deletedUrls = new java.util.HashSet<>();
 
 		@Override
