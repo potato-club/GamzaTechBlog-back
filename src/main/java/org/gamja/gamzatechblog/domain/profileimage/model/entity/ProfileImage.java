@@ -34,6 +34,6 @@ public class ProfileImage extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@Column(name = "profile_image_url", length = 255, nullable = false)
+	@Column(name = "profile_image_url", length = 2048, nullable = false)
 	private String profileImageUrl;
 }

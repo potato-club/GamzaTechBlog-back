@@ -34,6 +34,6 @@ public class PostImage extends BaseTime {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
-	@Column(name = "image_url", length = 255, nullable = false)
+	@Column(name = "image_url", length = 2048, nullable = false)
 	private String postImageUrl;
 }
