@@ -1,7 +1,7 @@
-package org.gamja.gamzatechblog.domain.image.model.entity;
+package org.gamja.gamzatechblog.domain.profileimage.model.entity;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
-import org.gamja.gamzatechblog.domain.post.model.entity.Post;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,21 +19,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "post_images")
+@Table(name = "profile_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class PostImage extends BaseTime {
+public class ProfileImage extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "post_image_id")
+	@Column(name = "profile_image_id")
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id")
+	private User user;
 
-	@Column(name = "image_url", length = 255, nullable = false)
-	private String postImageUrl;
+	@Column(name = "profile_image_url", length = 255, nullable = false)
+	private String profileImageUrl;
 }
