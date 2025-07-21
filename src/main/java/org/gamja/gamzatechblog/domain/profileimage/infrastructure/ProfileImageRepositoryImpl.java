@@ -8,8 +8,8 @@ import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepo
 public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	private final ProfileImageJpaRepository profileImageJpaRepository;
 
-	public ProfileImageRepositoryImpl(ProfileImageJpaRepository imageJpaRepository) {
-		this.profileImageJpaRepository = imageJpaRepository;
+	public ProfileImageRepositoryImpl(ProfileImageJpaRepository profileImageJpaRepository) {
+		this.profileImageJpaRepository = profileImageJpaRepository;
 	}
 
 	@Override

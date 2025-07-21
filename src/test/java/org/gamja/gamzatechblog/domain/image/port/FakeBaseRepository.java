@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public abstract class FakeBaseRepository<T> {
 
-	protected final Map<Long, T> imageStore = new HashMap<>();
+	protected final Map<Long, T> entityStore = new HashMap<>();
 
 	private long sequence = 0L;
 
@@ -17,26 +17,26 @@ public abstract class FakeBaseRepository<T> {
 		if (id == null) {
 			long newId = ++sequence;
 			T saved = initializer.apply(newId);
-			imageStore.put(newId, saved);
+			entityStore.put(newId, saved);
 			return saved;
 		}
-		imageStore.put(id, entity);
+		entityStore.put(id, entity);
 		return entity;
 	}
 
 	public Optional<T> findById(Long id) {
-		return Optional.ofNullable(imageStore.get(id));
+		return Optional.ofNullable(entityStore.get(id));
 	}
 
 	public List<T> findAll() {
-		return new ArrayList<>(imageStore.values());
+		return new ArrayList<>(entityStore.values());
 	}
 
 	public void deleteById(Long id) {
-		imageStore.remove(id);
+		entityStore.remove(id);
 	}
 
 	public void clear() {
-		imageStore.clear();
+		entityStore.clear();
 	}
 }

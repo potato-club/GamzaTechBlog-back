@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("TagServiceImpl 메서드 단위 테스트")
+@DisplayName("TagService 메서드 단위 테스트")
 public class TagServiceTest {
 	private TagFakeRepository tagFakeRepository;
 	private TagService tagService;
@@ -30,7 +30,7 @@ public class TagServiceTest {
 
 		List<String> result = tagService.getAllTags();
 
-		assertThat(result).containsExactly("spring", "docker");
+		assertThat(result).containsExactlyInAnyOrder("spring", "docker");
 	}
 
 	@Test

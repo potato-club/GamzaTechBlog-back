@@ -18,12 +18,12 @@ class PostImageServiceTest {
 
 	private PostImageService postImageService;
 	private PostImageFakeRepository postImageRepository;
-	private StubS3S3ImageStorage stubStorage;
+	private StubS3ImageStorage stubStorage;
 
 	@BeforeEach
 	void setUp() {
 		postImageRepository = new PostImageFakeRepository();
-		stubStorage = new StubS3S3ImageStorage();
+		stubStorage = new StubS3ImageStorage();
 		postImageService = new PostImageService(postImageRepository, stubStorage);
 	}
 
@@ -56,7 +56,7 @@ class PostImageServiceTest {
 		assertTrue(stubStorage.isDeleted("https://stub/delete.png"));
 	}
 
-	private static class StubS3S3ImageStorage implements S3ImageStorage {
+	private static class StubS3ImageStorage implements S3ImageStorage {
 		private final java.util.Set<String> deletedUrls = new java.util.HashSet<>();
 
 		@Override
