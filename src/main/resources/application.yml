@@ -4,8 +4,8 @@ openapi:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(ofoQ9M9etwzoYb86U3WfjLHcBnmE01a75G6kjkJ5jEmUNDfC9gbqlZgisJB2AZnTlSrSYpdj75/RHXJAWHjtvNdVQsPt3dTAYdZDIInxi2EFGDsI/NDMAqdzIAz8npLNW8DQRq8fEWw8fo3+0ofaqknhERf2wu7lrKEeO43nywATvzJmBg+jDOeKUYPBcvIkVl721FnXbsM3gq2W5DyyHA==)
-    username: ENC(OJmd+KJMGLN7ez+h/gcvLpWr6ma5sClc)
+    url: ENC(W1NgCoMGlqcPMuoFd6aq7UjYttKz8Omg+Hub7JvAB/vHWhg9kfXMBABHhDPVwOkU37W9uyUt/k5UqlT2d/it0Stkl8NEvkO0xWfLeGCvzMBvdHMxHa4ceYU+5cokwUixhYwKNBtZATtmcDnLcbz/9Xy74ctyl+hgvQFNluiRkr6KtZxqGpGsWBFOk3e8HT8fCuhCNAgbdSPPzjhQB7go7A==)
+    username: ENC(cIcZ93cAM7dTYd/G6tGJSQ==)
     password: ENC(5iR/D13CNkJhRfwMkm1sYS/7ucLDY2q0)
 
   jpa:
@@ -54,6 +54,15 @@ spring:
             token-uri: ENC(1bZRymZ06qfnBNyoqr+yLwInANmF2v3J/dMbQzEDUAhEZkLnC9Ns3LN0zoxeJqqfnTJJWYBwIJs=)
             user-info-uri: ENC(gQOYYEX2X3LLg7uNv88rHqH2EWKcNb6C1745Tc/Ft6vY2G8J/vyA5w==)
             user-name-attribute: ENC(+sX3q06WzbxlcrQG5AJLCw==)
+
+cloud:
+  aws:
+    s3:
+      access-key: ENC(eFSNnYmGS6WdJCw8LYeWta5nhuNEQ3H4sh5ndwvUwnE=)
+      bucket-name: ENC(bpqjruN9Pi3VSnojLsu8U9cZZKnKFrEQ54gP0agkn+U=)
+      region: ENC(DenKvm3nXXZTdJweS889ZYOXVOUR/wEW)
+      secret-key: ENC(pwcKhM0IW0pbhBI+WJbPJdo2b+CUZo07aVYjLCmGuH3OEsBJDrJTP39VWlnvE7m3LDrIbuPzl6s=)
+
 
 jwt:
   secret: ENC(i9YjMfhl3QsjH1ne2Bu5ujdYbC09iMOF+bNeWNJDFbJVvSIVAsRzo0kiHFcXvTCmiDzWs5AMdhs=)

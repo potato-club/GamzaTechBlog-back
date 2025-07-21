@@ -18,10 +18,10 @@ public class S3Config {
 	@Value("${cloud.aws.s3.bucket-name}")
 	private String bucketName;
 
-	@Value("${cloud.aws.credentials.access-key}")
+	@Value("${cloud.aws.s3.access-key}")
 	private String accessKey;
 
-	@Value("${cloud.aws.credentials.secret-key}")
+	@Value("${cloud.aws.s3.secret-key}")
 	private String secretKey;
 
 	@Bean
