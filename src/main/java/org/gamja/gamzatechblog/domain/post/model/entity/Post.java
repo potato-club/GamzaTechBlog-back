@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
-import org.gamja.gamzatechblog.domain.image.model.entity.Image;
+import org.gamja.gamzatechblog.domain.image.model.entity.PostImage;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
@@ -64,7 +64,7 @@ public class Post extends BaseTime {
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
-	private List<Image> images = new ArrayList<>();
+	private List<PostImage> images = new ArrayList<>();
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default

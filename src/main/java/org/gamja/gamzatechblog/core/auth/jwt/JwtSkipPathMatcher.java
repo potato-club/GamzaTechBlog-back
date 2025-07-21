@@ -19,7 +19,8 @@ public class JwtSkipPathMatcher {
 		"/swagger-ui",
 		"/swagger-resources",
 		"/webjars",
-		"/api/v1/tags"
+		"/api/v1/tags",
+		"/jenkins"
 	);
 
 	public boolean shouldSkip(HttpServletRequest request) {
