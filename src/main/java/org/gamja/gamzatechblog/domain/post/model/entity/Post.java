@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
-import org.gamja.gamzatechblog.domain.image.model.entity.PostImage;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
+import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;

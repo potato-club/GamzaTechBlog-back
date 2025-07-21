@@ -12,7 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface UserProfileMapper {
-	@Mapping(source = "profileImage.url", target = "profileImageUrl")
+	@Mapping(source = "profileImage.profileImageUrl", target = "profileImageUrl")
 	@Mapping(source = "role", target = "role")
 	@Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
 	@Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd'T'HH:mm:ss")

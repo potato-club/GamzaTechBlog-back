@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.image.model.entity;
+package org.gamja.gamzatechblog.domain.postimage.model.entity;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
@@ -34,6 +34,6 @@ public class PostImage extends BaseTime {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
-	@Column(name = "image_url", length = 255, nullable = false)
+	@Column(name = "image_url", length = 2048, nullable = false)
 	private String postImageUrl;
 }

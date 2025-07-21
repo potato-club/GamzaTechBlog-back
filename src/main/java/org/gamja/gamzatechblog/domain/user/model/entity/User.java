@@ -8,7 +8,7 @@ import org.gamja.gamzatechblog.core.auth.oauth.model.entity.GithubOauthToken;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
-import org.gamja.gamzatechblog.domain.profile.model.entity.ProfileImage;
+import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.user.model.type.Position;

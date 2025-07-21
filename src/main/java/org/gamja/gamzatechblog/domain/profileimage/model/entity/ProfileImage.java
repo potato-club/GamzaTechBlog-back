@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.image.model.entity;
+package org.gamja.gamzatechblog.domain.profileimage.model.entity;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -34,6 +34,6 @@ public class ProfileImage extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@Column(name = "image_url", length = 255, nullable = false)
+	@Column(name = "profile_image_url", length = 2048, nullable = false)
 	private String profileImageUrl;
 }
