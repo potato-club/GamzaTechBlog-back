@@ -1,4 +1,4 @@
 package org.gamja.gamzatechblog.domain.comment.service;
 
-public class CommentServiceImplTest {
+public class CommentServiceTest {
 }

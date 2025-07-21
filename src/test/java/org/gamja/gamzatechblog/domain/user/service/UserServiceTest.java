@@ -14,8 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("UserServiceImpl 메서드 단위 테스트")
-public class UserServiceImplTest {
+@DisplayName("UserService 메서드 단위 테스트")
+public class UserServiceTest {
 
 	private static final String EXISTING_ID = "git2";
 	private UserService userService;
@@ -68,6 +68,6 @@ public class UserServiceImplTest {
 		assertThat(existingUser).isNotNull();
 
 		userService.withdraw(existingUser);
-		assertThat(repository.existsByGithubId(EXISTING_ID)).isFalse();
+		assertThatThrownBy(() -> userService.getUserByGithubId(EXISTING_ID)).isInstanceOf(UserNotFoundException.class);
 	}
 }
