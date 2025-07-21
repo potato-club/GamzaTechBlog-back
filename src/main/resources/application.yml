@@ -8,6 +8,11 @@ spring:
     username: ENC(cIcZ93cAM7dTYd/G6tGJSQ==)
     password: ENC(5iR/D13CNkJhRfwMkm1sYS/7ucLDY2q0)
 
+  servlet:
+    multipart:
+      max-file-size: 7MB
+      max-request-size: 7MB
+
   jpa:
     hibernate:
       ddl-auto: update
