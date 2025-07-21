@@ -25,7 +25,7 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LikeServiceImpl 단위 테스트")
-class LikeServiceImplTest {
+class LikeServiceTest {
 
 	private LikeService likeService;
 	private LikeFakeRepository likeRepository;

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("UserServiceImpl 메서드 단위 테스트")
-public class UserServiceImplTest {
+public class UserServiceTest {
 
 	private static final String EXISTING_ID = "git2";
 	private UserService userService;

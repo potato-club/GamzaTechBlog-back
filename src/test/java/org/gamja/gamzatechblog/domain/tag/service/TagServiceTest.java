@@ -12,7 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("TagServiceImpl 메서드 단위 테스트")
-public class TagServiceImplTest {
+public class TagServiceTest {
 	private TagFakeRepository tagFakeRepository;
 	private TagService tagService;
 
