@@ -40,8 +40,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	@Override
 	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
-		profileImageRepository.findByUser(user).ifPresent(pi -> deleteProfileImage(user));
-
+		removeExistingProfileImage(user);
 		return uploadProfileImage(newFile, user);
 	}
 
@@ -54,18 +53,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	@Override
 	public void deleteProfileImage(User user) {
-		ProfileImage existing = profileImageRepository.findByUser(user)
-			.orElseThrow(() -> new BusinessException(
-				ErrorCode.ENTITY_NOT_FOUND, "프로필 이미지를 찾을 수 없습니다.")
-			);
-		profileImageValidator.validateForDelete(existing);
-		try {
-			s3ImageStorage.delete(existing.getProfileImageUrl());
-		} catch (Exception e) {
-			throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
-		}
-
-		profileImageRepository.deleteProfileImageById(existing.getId());
+		removeExistingProfileImage(user);
 	}
 
 	private String uploadToS3(MultipartFile file) {
@@ -74,5 +62,17 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		} catch (IOException e) {
 			throw new BusinessException(ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED);
 		}
+	}
+
+	private void removeExistingProfileImage(User user) {
+		profileImageRepository.findByUser(user).ifPresent(existing -> {
+			profileImageValidator.validateForDelete(existing);
+			try {
+				s3ImageStorage.delete(existing.getProfileImageUrl());
+			} catch (Exception e) {
+				throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
+			}
+			profileImageRepository.deleteProfileImageById(existing.getId());
+		});
 	}
 }
