@@ -31,7 +31,7 @@ public class ProfileImage extends BaseTime {
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false, unique = true)
 	private User user;
 
 	@Column(name = "profile_image_url", length = 2048, nullable = false)
