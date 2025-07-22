@@ -91,7 +91,7 @@ public class User extends BaseTime {
 	@Builder.Default
 	private List<Project> projects = new ArrayList<>();
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "profile_image_id")
 	private ProfileImage profileImage;
 
@@ -132,6 +132,10 @@ public class User extends BaseTime {
 
 	public void setUserRole(UserRole role) {
 		this.role = role;
+	}
+
+	public void setProfileImage(ProfileImage profileImage) {
+		this.profileImage = profileImage;
 	}
 
 	public boolean isProfileComplete() {

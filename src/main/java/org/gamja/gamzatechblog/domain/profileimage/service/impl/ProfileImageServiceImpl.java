@@ -39,9 +39,9 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
-	public ProfileImage updateProfileImage(MultipartFile newFile, ProfileImage existingImage) {
-		deleteProfileImage(existingImage);
-		return uploadProfileImage(newFile, existingImage.getUser());
+	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
+		removeExistingProfileImage(user);
+		return uploadProfileImage(newFile, user);
 	}
 
 	@Override
@@ -52,15 +52,8 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
-	public void deleteProfileImage(ProfileImage profileImage) {
-		profileImageValidator.validateForDelete(profileImage);
-
-		try {
-			s3ImageStorage.delete(profileImage.getProfileImageUrl());
-		} catch (Exception e) {
-			throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
-		}
-		profileImageRepository.deleteProfileImageById(profileImage.getId());
+	public void deleteProfileImage(User user) {
+		removeExistingProfileImage(user);
 	}
 
 	private String uploadToS3(MultipartFile file) {
@@ -69,5 +62,17 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		} catch (IOException e) {
 			throw new BusinessException(ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED);
 		}
+	}
+
+	private void removeExistingProfileImage(User user) {
+		profileImageRepository.findByUser(user).ifPresent(existing -> {
+			profileImageValidator.validateForDelete(existing);
+			try {
+				s3ImageStorage.delete(existing.getProfileImageUrl());
+			} catch (Exception e) {
+				throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
+			}
+			profileImageRepository.deleteProfileImageById(existing.getId());
+		});
 	}
 }

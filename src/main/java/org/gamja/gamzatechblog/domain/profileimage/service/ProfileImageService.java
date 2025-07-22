@@ -7,9 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ProfileImageService {
 	ProfileImage uploadProfileImage(MultipartFile file, User user);
 
-	ProfileImage updateProfileImage(MultipartFile file, ProfileImage existingImage);
+	ProfileImage updateProfileImage(MultipartFile newFile, User user);
 
 	ProfileImage getProfileImageByUser(User user);
 
-	void deleteProfileImage(ProfileImage img);
+	void deleteProfileImage(User user);
 }

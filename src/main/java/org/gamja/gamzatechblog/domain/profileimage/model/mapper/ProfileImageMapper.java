@@ -1,6 +1,7 @@
 package org.gamja.gamzatechblog.domain.profileimage.model.mapper;
 
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
+import org.gamja.gamzatechblog.domain.profileimage.controller.response.ProfileImageResponse;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.mapstruct.Mapper;
@@ -16,4 +17,6 @@ public interface ProfileImageMapper {
 	@Mapping(source = "user", target = "user")
 	@Mapping(source = "imageUrl", target = "profileImageUrl")
 	ProfileImage toProfileImage(User user, String imageUrl);
+
+	ProfileImageResponse toProfileImageResponse(ProfileImage profileImage);
 }

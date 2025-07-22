@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.profileimage.validator;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.gamja.gamzatechblog.core.error.ErrorCode;
@@ -7,12 +8,18 @@ import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageEmptyEx
 import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageInvalidTypeException;
 import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageSizeExceededException;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
+import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class ProfileImageValidator {
 
+	private final ProfileImageRepository profileImageRepository;
 	private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
 	private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -36,5 +43,9 @@ public class ProfileImageValidator {
 		if (img == null || img.getProfileImageUrl() == null || img.getProfileImageUrl().isBlank()) {
 			throw new ProfileImageEmptyException(ErrorCode.PROFILE_IMAGE_EMPTY);
 		}
+	}
+
+	public Optional<ProfileImage> findExistingByUser(User user) {
+		return profileImageRepository.findByUser(user);
 	}
 }
