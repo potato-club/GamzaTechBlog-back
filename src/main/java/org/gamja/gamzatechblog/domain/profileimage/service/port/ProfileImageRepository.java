@@ -14,4 +14,6 @@ public interface ProfileImageRepository {
 
 	Optional<ProfileImage> findByUser(User user);
 
+	void delete(ProfileImage profileImage);
+
 }
