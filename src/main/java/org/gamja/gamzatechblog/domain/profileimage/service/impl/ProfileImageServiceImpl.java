@@ -78,6 +78,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteProfileImage(User user) {
 		profileImageRepository.findByUser(user).ifPresent(pi -> {
 			validator.validateForDelete(pi);
