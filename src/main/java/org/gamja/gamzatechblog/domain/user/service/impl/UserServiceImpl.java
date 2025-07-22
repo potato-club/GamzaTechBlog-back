@@ -50,10 +50,12 @@ public class UserServiceImpl implements UserService {
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 		User user = userMapper.toEntity(info);
-		ProfileImage profileImage = profileImageService
-			.uploadProfileImageFromUrl(info.getProfileImageUrl(), user);
-		user.setProfileImage(profileImage);
-		return userRepository.saveUser(user);
+		User saved = userRepository.saveUser(user);
+		if (info.getProfileImageUrl() != null) {
+			ProfileImage pi = profileImageService.uploadProfileImageFromUrl(info.getProfileImageUrl(), saved);
+			saved.setProfileImage(pi);
+		}
+		return saved;
 	}
 
 	public boolean existsByGithubId(String githubId) {
