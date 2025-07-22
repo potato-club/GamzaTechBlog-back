@@ -17,9 +17,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class S3ImageStorageImpl implements S3ImageStorage {
 
 	private final AmazonS3 amazonS3;
@@ -77,14 +79,24 @@ public class S3ImageStorageImpl implements S3ImageStorage {
 	@Override
 	public void deleteByUrl(String fileUrl) {
 		String bucketUrl = amazonS3.getUrl(bucketName, "").toString();
+		// 1) 로깅: bucketUrl, fileUrl, 추출된 키 확인
+		log.info("S3 삭제 요청 → bucketUrl='{}', fileUrl='{}'", bucketUrl, fileUrl);
+
 		String key = validator.extractKey(bucketUrl, fileUrl);
+		log.info("추출된 S3 key='{}'", key);
+
 		try {
 			amazonS3.deleteObject(bucketName, key);
+			log.info("S3 객체 삭제 성공 → bucket='{}', key='{}'", bucketName, key);
 		} catch (SdkClientException e) {
+			// 2) 예외 메시지·원인까지 함께 로깅
+			log.error("S3 삭제 실패 → bucket='{}', key='{}', message='{}'",
+				bucketName, key, e.getMessage(), e);
 			throw new BusinessException(
 				ErrorCode.PROFILE_IMAGE_DELETE_FAILED,
-				"파일 삭제 중 오류가 발생했습니다."
+				"파일 삭제 중 오류가 발생했습니다: " + e.getMessage()
 			);
 		}
 	}
+
 }
