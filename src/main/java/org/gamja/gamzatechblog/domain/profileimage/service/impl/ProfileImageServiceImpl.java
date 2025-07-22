@@ -39,9 +39,10 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
-	public ProfileImage updateProfileImage(MultipartFile newFile, ProfileImage existingImage) {
-		deleteProfileImage(existingImage);
-		return uploadProfileImage(newFile, existingImage.getUser());
+	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
+		ProfileImage existing = getProfileImageByUser(user);
+		deleteProfileImage(existing);
+		return uploadProfileImage(newFile, user);
 	}
 
 	@Override

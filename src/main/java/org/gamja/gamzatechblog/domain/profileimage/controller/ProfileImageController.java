@@ -62,8 +62,7 @@ public class ProfileImageController {
 		@RequestPart("file") MultipartFile newFile,
 		@CurrentUser User user
 	) {
-		ProfileImage existing = profileImageService.getProfileImageByUser(user);
-		ProfileImage updated = profileImageService.updateProfileImage(newFile, existing);
+		ProfileImage updated = profileImageService.updateProfileImage(newFile, user);
 		ProfileImageResponse body = profileImageMapper.toProfileImageResponse(updated);
 		return ResponseDto.of(HttpStatus.OK, "프로필 이미지 수정 성공", body);
 	}
