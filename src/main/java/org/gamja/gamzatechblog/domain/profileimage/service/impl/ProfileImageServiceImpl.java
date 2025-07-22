@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 리팩토링 예정
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ProfileImageServiceImpl implements ProfileImageService {
 
 	private final S3ImageStorage s3ImageStorage;
@@ -77,13 +79,31 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			));
 	}
 
+	// @Override
+	// @Transactional
+	// public void deleteProfileImage(User user) {
+	// 	profileImageRepository.findByUser(user).ifPresent(pi -> {
+	// 		validator.validateForDelete(pi);
+	// 		s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
+	// 		profileImageRepository.deleteProfileImageById(pi.getId());
+	// 	});
+	// }
 	@Override
 	@Transactional
 	public void deleteProfileImage(User user) {
 		profileImageRepository.findByUser(user).ifPresent(pi -> {
 			validator.validateForDelete(pi);
-			s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
+
+			// 1) S3 삭제 시도, 실패해도 무시하고 계속 진행
+			try {
+				s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
+			} catch (BusinessException e) {
+				log.warn("S3 삭제 중 오류 발생(무시): {}", e.getMessage());
+			}
+
+			// 2) DB에서 반드시 삭제
 			profileImageRepository.deleteProfileImageById(pi.getId());
+			profileImageRepository.flush();
 		});
 	}
 }
