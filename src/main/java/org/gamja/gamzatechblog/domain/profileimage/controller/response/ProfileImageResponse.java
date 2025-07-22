@@ -1,12 +1,12 @@
 package org.gamja.gamzatechblog.domain.profileimage.controller.response;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class ProfileImageResponse {
-	private Long id;
+	private final Long id;
 
-	private String imageUrl;
+	private final String imageUrl;
 }
