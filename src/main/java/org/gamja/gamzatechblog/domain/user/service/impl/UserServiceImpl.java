@@ -49,13 +49,18 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
+
 		User user = userMapper.toEntity(info);
-		User saved = userRepository.saveUser(user);
+
 		if (info.getProfileImageUrl() != null) {
-			ProfileImage pi = profileImageService.uploadProfileImageFromUrl(info.getProfileImageUrl(), saved);
-			saved.setProfileImage(pi);
+			String url = s3ImageStorage.uploadFromUrl(info.getProfileImageUrl());
+			ProfileImage pi = ProfileImage.builder()
+				.profileImageUrl(url)
+				.build();
+			user.setProfileImage(pi);
 		}
-		return saved;
+
+		return userRepository.saveUser(user);
 	}
 
 	public boolean existsByGithubId(String githubId) {
