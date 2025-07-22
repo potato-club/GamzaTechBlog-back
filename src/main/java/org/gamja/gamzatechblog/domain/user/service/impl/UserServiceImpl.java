@@ -2,6 +2,7 @@ package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
+import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
@@ -23,9 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
@@ -90,14 +93,20 @@ public class UserServiceImpl implements UserService {
 		return userProfileMapper.toUserProfileResponse(user);
 	}
 
+	@Override
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		ProfileImage img = user.getProfileImage();
 		if (img != null) {
 			user.setProfileImage(null);
-			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
-			profileImageRepository.delete(img);
+			try {
+				s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
+			} catch (BusinessException e) {
+				log.warn("S3 삭제 중 오류 발생(무시): {}", e.getMessage());
+			}
+			profileImageRepository.deleteProfileImageById(img.getId());
+			profileImageRepository.flush();
 		}
 		userRepository.deleteUser(user);
 	}

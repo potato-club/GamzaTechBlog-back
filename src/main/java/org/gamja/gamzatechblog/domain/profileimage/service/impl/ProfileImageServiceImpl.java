@@ -93,7 +93,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	public void deleteProfileImage(User user) {
 		profileImageRepository.findByUser(user).ifPresent(pi -> {
 			validator.validateForDelete(pi);
-
+			user.setProfileImage(null);
 			// 1) S3 삭제 시도, 실패해도 무시하고 계속 진행
 			try {
 				s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
