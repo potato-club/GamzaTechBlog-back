@@ -4,6 +4,9 @@ import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
+import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
+import org.gamja.gamzatechblog.domain.profileimage.model.mapper.ProfileImageMapper;
+import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
@@ -31,12 +34,17 @@ public class UserServiceImpl implements UserService {
 	private final LikeRepository likeRepository;
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
+	private final ProfileImageRepository profileImageRepository;
+	private final ProfileImageMapper profileImageMapper;
 
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 		User user = userMapper.toEntity(info);
-		return userRepository.saveUser(user);
+		User savedUser = userRepository.saveUser(user);
+		ProfileImage profileImage = profileImageMapper.fromOAuthUserInfo(info, savedUser);
+		profileImageRepository.saveProfileImage(profileImage);
+		return savedUser;
 	}
 
 	public boolean existsByGithubId(String githubId) {

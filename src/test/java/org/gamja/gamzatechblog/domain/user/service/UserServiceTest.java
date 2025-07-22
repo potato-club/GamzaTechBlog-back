@@ -32,7 +32,7 @@ public class UserServiceTest {
 			new UserMapper(),
 			new UserValidator(repository),
 			new UserProfileMapperImpl(),
-			null, null, null
+			null, null, null, null, null
 		);
 	}
 

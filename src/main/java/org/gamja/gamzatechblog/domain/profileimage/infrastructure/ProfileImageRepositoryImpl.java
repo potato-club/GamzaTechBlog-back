@@ -4,7 +4,9 @@ import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	private final ProfileImageJpaRepository profileImageJpaRepository;
 
