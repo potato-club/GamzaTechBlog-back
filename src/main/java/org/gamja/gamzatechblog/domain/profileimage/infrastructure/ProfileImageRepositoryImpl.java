@@ -6,13 +6,12 @@ import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.springframework.stereotype.Repository;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	private final ProfileImageJpaRepository profileImageJpaRepository;
-
-	public ProfileImageRepositoryImpl(ProfileImageJpaRepository profileImageJpaRepository) {
-		this.profileImageJpaRepository = profileImageJpaRepository;
-	}
 
 	@Override
 	public ProfileImage saveProfileImage(ProfileImage profileImage) {
