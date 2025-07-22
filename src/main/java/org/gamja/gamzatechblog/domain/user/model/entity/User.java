@@ -136,6 +136,20 @@ public class User extends BaseTime {
 
 	public void setProfileImage(ProfileImage profileImage) {
 		this.profileImage = profileImage;
+		if (profileImage != null && profileImage.getUser() != this) {
+			profileImage.setUser(this);
+		}
+	}
+
+	public void changeProfileImage(ProfileImage newPi) {
+		if (this.profileImage != null) {
+			this.profileImage.setUser(null);
+		}
+		// 새 것 연결
+		this.profileImage = newPi;
+		if (newPi != null) {
+			newPi.setUser(this);
+		}
 	}
 
 	public boolean isProfileComplete() {

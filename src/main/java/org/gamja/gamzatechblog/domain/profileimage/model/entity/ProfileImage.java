@@ -29,9 +29,13 @@ public class ProfileImage extends BaseTime {
 	@Column(name = "profile_image_id")
 	private Long id;
 
-	@OneToOne(mappedBy = "profileImage", fetch = FetchType.LAZY, optional = false)
+	@OneToOne(mappedBy = "profileImage", fetch = FetchType.LAZY)
 	private User user;
 
 	@Column(name = "profile_image_url", length = 2048, nullable = false)
 	private String profileImageUrl;
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }
