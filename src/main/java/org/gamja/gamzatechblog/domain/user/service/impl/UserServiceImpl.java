@@ -2,12 +2,14 @@ package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
+import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.ProfileImageService;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
@@ -23,9 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
@@ -38,6 +42,8 @@ public class UserServiceImpl implements UserService {
 	private final ProfileImageService profileImageService;
 	private final ProfileImageRepository profileImageRepository;
 	private final S3ImageStorage s3ImageStorage;
+
+	private final ProfileImageValidator profileImageValidator;
 
 	@Override
 	@Transactional
@@ -90,15 +96,13 @@ public class UserServiceImpl implements UserService {
 		return userProfileMapper.toUserProfileResponse(user);
 	}
 
+	@Override
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
-		ProfileImage img = user.getProfileImage();
-		if (img != null) {
-			user.setProfileImage(null);
-			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
-			profileImageRepository.delete(img);
-		}
+
+		unlinkAndDeleteProfileImage(user);
+
 		userRepository.deleteUser(user);
 	}
 
@@ -106,4 +110,22 @@ public class UserServiceImpl implements UserService {
 	public User getUserByGithubId(String githubId) {
 		return userValidator.validateAndGetUserByGithubId(githubId);
 	}
+
+	private void unlinkAndDeleteProfileImage(User user) {
+		ProfileImage img = user.getProfileImage();
+		if (img == null)
+			return;
+
+		profileImageValidator.validateForDelete(img);
+
+		try {
+			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
+		} catch (BusinessException e) {
+			log.warn("S3 삭제 실패(무시): {}", e.getMessage());
+		}
+
+		// 연관만 끊기면 orphanRemoval=true 가 DB 삭제 처리
+		user.setProfileImage(null);
+	}
+
 }
