@@ -9,6 +9,7 @@ import org.gamja.gamzatechblog.domain.profileimage.service.ProfileImageService;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,23 +32,41 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final ProfileImageValidator validator;
 	private final ProfileImageRepository profileImageRepository;
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
+	private final UserRepository userRepository;
+
+	// @Override
+	// @Transactional
+	// public ProfileImage uploadProfileImage(MultipartFile file, User user) {
+	// 	validator.validateFile(file);
+	// 	user.setProfileImage(null);
+	// 	profileImageRepository.deleteByUser(user);
+	// 	profileImageRepository.flush();
+	// 	String url = s3ImageStorage.uploadFile(file);
+	// 	ProfileImage newImg = ProfileImage.builder()
+	// 		.user(user)
+	// 		.profileImageUrl(url)
+	// 		.build();
+	// 	ProfileImage saved = profileImageRepository.saveProfileImage(newImg);
+	// 	user.setProfileImage(saved);
+	//
+	// 	return saved;
+	// }
 
 	@Override
 	@Transactional
-	public ProfileImage uploadProfileImage(MultipartFile file, User user) {
+	public ProfileImage uploadProfileImage(MultipartFile file, User currentUser) {
+		User user = userRepository.findByGithubId(currentUser.getGithubId())
+			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
 		validator.validateFile(file);
-		user.setProfileImage(null);
-		profileImageRepository.deleteByUser(user);
-		profileImageRepository.flush();
+		unlinkAndDeleteProfileImage(user);
+
 		String url = s3ImageStorage.uploadFile(file);
 		ProfileImage newImg = ProfileImage.builder()
 			.user(user)
 			.profileImageUrl(url)
 			.build();
-		ProfileImage saved = profileImageRepository.saveProfileImage(newImg);
-		user.setProfileImage(saved);
-
-		return saved;
+		return profileImageRepository.saveProfileImage(newImg);
 	}
 
 	@Override
@@ -64,9 +83,9 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
-	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
-		deleteProfileImage(user);
-		return uploadProfileImage(newFile, user);
+	@Transactional
+	public ProfileImage updateProfileImage(MultipartFile newFile, User currentUser) {
+		return uploadProfileImage(newFile, currentUser);
 	}
 
 	@Override
@@ -90,20 +109,27 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	// }
 	@Override
 	@Transactional
-	public void deleteProfileImage(User user) {
-		profileImageRepository.findByUser(user).ifPresent(pi -> {
-			validator.validateForDelete(pi);
-			user.setProfileImage(null);
-			// 1) S3 삭제 시도, 실패해도 무시하고 계속 진행
-			try {
-				s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
-			} catch (BusinessException e) {
-				log.warn("S3 삭제 중 오류 발생(무시): {}", e.getMessage());
-			}
+	public void deleteProfileImage(User currentUser) {
+		User user = userRepository.findByGithubId(currentUser.getGithubId())
+			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-			// 2) DB에서 반드시 삭제
-			profileImageRepository.deleteProfileImageById(pi.getId());
-			profileImageRepository.flush();
-		});
+		unlinkAndDeleteProfileImage(user);
 	}
+
+	private void unlinkAndDeleteProfileImage(User user) {
+		ProfileImage img = user.getProfileImage();
+		if (img == null)
+			return;
+
+		validator.validateForDelete(img);
+
+		try {
+			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
+		} catch (BusinessException e) {
+			log.warn("S3 삭제 실패(무시): {}", e.getMessage());
+		}
+
+		user.setProfileImage(null);
+	}
+
 }
