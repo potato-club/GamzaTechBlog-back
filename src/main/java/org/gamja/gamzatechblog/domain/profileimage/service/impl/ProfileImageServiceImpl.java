@@ -27,15 +27,25 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	private final S3ImageStorage s3ImageStorage;
 	private final ProfileImageValidator validator;
-	private final ProfileImageRepository repository;
+	private final ProfileImageRepository profileImageRepository;
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 
 	@Override
+	@Transactional
 	public ProfileImage uploadProfileImage(MultipartFile file, User user) {
 		validator.validateFile(file);
+		user.setProfileImage(null);
+		profileImageRepository.deleteByUser(user);
+		profileImageRepository.flush();
 		String url = s3ImageStorage.uploadFile(file);
-		ProfileImage pi = mapper.toProfileImage(user, url);
-		return repository.saveProfileImage(pi);
+		ProfileImage newImg = ProfileImage.builder()
+			.user(user)
+			.profileImageUrl(url)
+			.build();
+		ProfileImage saved = profileImageRepository.saveProfileImage(newImg);
+		user.setProfileImage(saved);
+
+		return saved;
 	}
 
 	@Override
@@ -48,7 +58,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		}
 		String url = s3ImageStorage.uploadFromUrl(imageUrl);
 		ProfileImage pi = mapper.toProfileImage(user, url);
-		return repository.saveProfileImage(pi);
+		return profileImageRepository.saveProfileImage(pi);
 	}
 
 	@Override
@@ -60,7 +70,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	@Override
 	@Transactional(readOnly = true)
 	public ProfileImage getProfileImageByUser(User user) {
-		return repository.findByUser(user)
+		return profileImageRepository.findByUser(user)
 			.orElseThrow(() -> new BusinessException(
 				ErrorCode.ENTITY_NOT_FOUND,
 				"프로필 이미지를 찾을 수 없습니다."
@@ -69,10 +79,10 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	@Override
 	public void deleteProfileImage(User user) {
-		repository.findByUser(user).ifPresent(pi -> {
+		profileImageRepository.findByUser(user).ifPresent(pi -> {
 			validator.validateForDelete(pi);
 			s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
-			repository.deleteProfileImageById(pi.getId());
+			profileImageRepository.deleteProfileImageById(pi.getId());
 		});
 	}
 }
