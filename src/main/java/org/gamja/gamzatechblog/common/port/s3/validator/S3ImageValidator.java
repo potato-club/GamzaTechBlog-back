@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.common.port.s3.validator;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class S3ImageValidator {
 
-	public void validateStreamAndName(Object stream, String fileName) {
+	public void validateStreamAndName(InputStream stream, String fileName) {
 		if (stream == null || fileName == null || fileName.isBlank()) {
 			throw new BusinessException(
 				ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED,
@@ -27,7 +28,12 @@ public class S3ImageValidator {
 	public String generateSafeKey(String originalFileName) {
 		String safe = originalFileName
 			.replaceAll("[^a-zA-Z0-9._-]", "_")
-			.replaceAll("\\s+", "_");
+			.replaceAll("_{2,}", "_")
+			.replaceAll("^_+|_+$", "");
+
+		if (safe.isBlank()) {
+			safe = "file";
+		}
 		return UUID.randomUUID() + "_" + safe;
 	}
 
@@ -77,6 +83,10 @@ public class S3ImageValidator {
 			);
 		}
 		String key = fileUrl.substring(bucketUrl.length());
+
+		if (key.startsWith("/")) {
+			key = key.substring(1);
+		}
 		if (key.isBlank()) {
 			throw new BusinessException(
 				ErrorCode.PROFILE_IMAGE_DELETE_FAILED,
