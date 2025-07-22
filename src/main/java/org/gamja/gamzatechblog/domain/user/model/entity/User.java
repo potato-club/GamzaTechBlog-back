@@ -23,6 +23,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -90,7 +91,8 @@ public class User extends BaseTime {
 	@Builder.Default
 	private List<Project> projects = new ArrayList<>();
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "profile_image_id")
 	private ProfileImage profileImage;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -134,6 +136,20 @@ public class User extends BaseTime {
 
 	public void setProfileImage(ProfileImage profileImage) {
 		this.profileImage = profileImage;
+		if (profileImage != null && profileImage.getUser() != this) {
+			profileImage.setUser(this);
+		}
+	}
+
+	public void changeProfileImage(ProfileImage newPi) {
+		if (this.profileImage != null) {
+			this.profileImage.setUser(null);
+		}
+		// 새 것 연결
+		this.profileImage = newPi;
+		if (newPi != null) {
+			newPi.setUser(this);
+		}
 	}
 
 	public boolean isProfileComplete() {
