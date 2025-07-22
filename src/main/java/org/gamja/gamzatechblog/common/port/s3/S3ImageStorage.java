@@ -2,8 +2,15 @@ package org.gamja.gamzatechblog.common.port.s3;
 
 import java.io.InputStream;
 
-public interface S3ImageStorage {
-	String upload(InputStream stream, String originalFileName);
+import org.springframework.web.multipart.MultipartFile;
 
-	void delete(String url);
+public interface S3ImageStorage {
+
+	String uploadStream(InputStream stream, String filename);
+
+	String uploadFile(MultipartFile file);
+
+	String uploadFromUrl(String imageUrl);
+
+	void deleteByUrl(String fileUrl);
 }

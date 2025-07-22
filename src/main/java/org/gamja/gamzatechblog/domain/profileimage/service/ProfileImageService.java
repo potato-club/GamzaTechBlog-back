@@ -12,4 +12,6 @@ public interface ProfileImageService {
 	ProfileImage getProfileImageByUser(User user);
 
 	void deleteProfileImage(User user);
+
+	ProfileImage uploadProfileImageFromUrl(String imageUrl, User user);
 }
