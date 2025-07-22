@@ -72,8 +72,7 @@ public class ProfileImageController {
 	public ResponseDto<Void> deleteProfileImage(
 		@CurrentUser User user
 	) {
-		ProfileImage existing = profileImageService.getProfileImageByUser(user);
-		profileImageService.deleteProfileImage(existing);
+		profileImageService.deleteProfileImage(user);
 		return ResponseDto.of(HttpStatus.OK, "프로필 이미지 삭제 성공");
 	}
 }

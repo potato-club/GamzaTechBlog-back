@@ -11,5 +11,5 @@ public interface ProfileImageService {
 
 	ProfileImage getProfileImageByUser(User user);
 
-	void deleteProfileImage(ProfileImage img);
+	void deleteProfileImage(User user);
 }

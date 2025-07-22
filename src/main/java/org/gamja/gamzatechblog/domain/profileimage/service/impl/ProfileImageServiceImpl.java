@@ -40,8 +40,8 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	@Override
 	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
-		ProfileImage existing = getProfileImageByUser(user);
-		deleteProfileImage(existing);
+		profileImageRepository.findByUser(user).ifPresent(pi -> deleteProfileImage(user));
+
 		return uploadProfileImage(newFile, user);
 	}
 
@@ -53,15 +53,19 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	}
 
 	@Override
-	public void deleteProfileImage(ProfileImage profileImage) {
-		profileImageValidator.validateForDelete(profileImage);
-
+	public void deleteProfileImage(User user) {
+		ProfileImage existing = profileImageRepository.findByUser(user)
+			.orElseThrow(() -> new BusinessException(
+				ErrorCode.ENTITY_NOT_FOUND, "프로필 이미지를 찾을 수 없습니다.")
+			);
+		profileImageValidator.validateForDelete(existing);
 		try {
-			s3ImageStorage.delete(profileImage.getProfileImageUrl());
+			s3ImageStorage.delete(existing.getProfileImageUrl());
 		} catch (Exception e) {
 			throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
 		}
-		profileImageRepository.deleteProfileImageById(profileImage.getId());
+
+		profileImageRepository.deleteProfileImageById(existing.getId());
 	}
 
 	private String uploadToS3(MultipartFile file) {

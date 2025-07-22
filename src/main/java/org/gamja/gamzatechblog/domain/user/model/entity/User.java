@@ -91,7 +91,7 @@ public class User extends BaseTime {
 	@Builder.Default
 	private List<Project> projects = new ArrayList<>();
 
-	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+	@OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "profile_image_id")
 	private ProfileImage profileImage;
 
