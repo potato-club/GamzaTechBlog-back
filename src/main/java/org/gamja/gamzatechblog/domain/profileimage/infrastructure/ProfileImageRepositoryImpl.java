@@ -33,4 +33,9 @@ public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	public Optional<ProfileImage> findByUser(User user) {
 		return profileImageJpaRepository.findByUser(user);
 	}
+
+	@Override
+	public void delete(ProfileImage profileImage) {
+		profileImageJpaRepository.delete(profileImage);
+	}
 }

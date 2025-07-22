@@ -1,11 +1,13 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
+import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.ProfileImageService;
+import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserService {
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
 	private final ProfileImageService profileImageService;
+	private final ProfileImageRepository profileImageRepository;
+	private final S3ImageStorage s3ImageStorage;
 
 	@Override
 	@Transactional
@@ -89,6 +93,12 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
+		ProfileImage img = user.getProfileImage();
+		if (img != null) {
+			user.setProfileImage(null);
+			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
+			profileImageRepository.delete(img);
+		}
 		userRepository.deleteUser(user);
 	}
 
