@@ -1,8 +1,5 @@
 package org.gamja.gamzatechblog.domain.profileimage.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
@@ -12,67 +9,70 @@ import org.gamja.gamzatechblog.domain.profileimage.service.ProfileImageService;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 리팩토링 예정
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ProfileImageServiceImpl implements ProfileImageService {
 
 	private final S3ImageStorage s3ImageStorage;
-	private final ProfileImageValidator profileImageValidator;
-	private final ProfileImageMapper profileImageMapper;
-	private final ProfileImageRepository profileImageRepository;
+	private final ProfileImageValidator validator;
+	private final ProfileImageRepository repository;
+	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 
 	@Override
 	public ProfileImage uploadProfileImage(MultipartFile file, User user) {
-		profileImageValidator.validateFile(file);
+		validator.validateFile(file);
+		String url = s3ImageStorage.uploadFile(file);
+		ProfileImage pi = mapper.toProfileImage(user, url);
+		return repository.saveProfileImage(pi);
+	}
 
-		String imageUrl = uploadToS3(file);
-
-		ProfileImage profileImage = profileImageMapper.toProfileImage(user, imageUrl);
-		return profileImageRepository.saveProfileImage(profileImage);
+	@Override
+	public ProfileImage uploadProfileImageFromUrl(String imageUrl, User user) {
+		if (!StringUtils.hasText(imageUrl)) {
+			throw new BusinessException(
+				ErrorCode.INVALID_INPUT_VALUE,
+				"프로필 이미지 URL이 없습니다."
+			);
+		}
+		String url = s3ImageStorage.uploadFromUrl(imageUrl);
+		ProfileImage pi = mapper.toProfileImage(user, url);
+		return repository.saveProfileImage(pi);
 	}
 
 	@Override
 	public ProfileImage updateProfileImage(MultipartFile newFile, User user) {
-		removeExistingProfileImage(user);
+		deleteProfileImage(user);
 		return uploadProfileImage(newFile, user);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public ProfileImage getProfileImageByUser(User user) {
-		return profileImageRepository.findByUser(user)
-			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "프로필 이미지를 찾을 수 없습니다."));
+		return repository.findByUser(user)
+			.orElseThrow(() -> new BusinessException(
+				ErrorCode.ENTITY_NOT_FOUND,
+				"프로필 이미지를 찾을 수 없습니다."
+			));
 	}
 
 	@Override
 	public void deleteProfileImage(User user) {
-		removeExistingProfileImage(user);
-	}
-
-	private String uploadToS3(MultipartFile file) {
-		try (InputStream inputStream = file.getInputStream()) {
-			return s3ImageStorage.upload(inputStream, file.getOriginalFilename());
-		} catch (IOException e) {
-			throw new BusinessException(ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED);
-		}
-	}
-
-	private void removeExistingProfileImage(User user) {
-		profileImageRepository.findByUser(user).ifPresent(existing -> {
-			profileImageValidator.validateForDelete(existing);
-			try {
-				s3ImageStorage.delete(existing.getProfileImageUrl());
-			} catch (Exception e) {
-				throw new BusinessException(ErrorCode.PROFILE_IMAGE_DELETE_FAILED);
-			}
-			profileImageRepository.deleteProfileImageById(existing.getId());
+		repository.findByUser(user).ifPresent(pi -> {
+			validator.validateForDelete(pi);
+			s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
+			repository.deleteProfileImageById(pi.getId());
 		});
 	}
 }

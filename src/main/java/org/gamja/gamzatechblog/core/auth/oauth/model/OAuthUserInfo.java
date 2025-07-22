@@ -13,6 +13,7 @@ public interface OAuthUserInfo {
 	String getName();
 
 	String getProfileImageUrl();  // 이름 변경
+
 }
 
 
