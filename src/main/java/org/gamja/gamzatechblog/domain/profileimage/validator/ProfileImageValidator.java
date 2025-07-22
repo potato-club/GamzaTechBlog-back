@@ -1,0 +1,40 @@
+package org.gamja.gamzatechblog.domain.profileimage.validator;
+
+import java.util.Set;
+
+import org.gamja.gamzatechblog.core.error.ErrorCode;
+import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageEmptyException;
+import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageInvalidTypeException;
+import org.gamja.gamzatechblog.domain.profileimage.exception.ProfileImageSizeExceededException;
+import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+@Component
+public class ProfileImageValidator {
+
+	private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
+	private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+	public void validateFile(MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new ProfileImageEmptyException(ErrorCode.PROFILE_IMAGE_EMPTY);
+		}
+		if (file.getSize() > MAX_FILE_SIZE) {
+			throw new ProfileImageSizeExceededException(ErrorCode.PROFILE_IMAGE_SIZE_EXCEEDED);
+		}
+		String filename = file.getOriginalFilename();
+		String ext = filename != null && filename.contains(".")
+			? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase()
+			: "";
+		if (!ALLOWED_EXTENSIONS.contains(ext)) {
+			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
+		}
+	}
+
+	public void validateForDelete(ProfileImage img) {
+		if (img == null || img.getProfileImageUrl() == null || img.getProfileImageUrl().isBlank()) {
+			throw new ProfileImageEmptyException(ErrorCode.PROFILE_IMAGE_EMPTY);
+		}
+	}
+}

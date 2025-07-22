@@ -12,4 +12,8 @@ public interface ProfileImageMapper {
 	@Mapping(source = "info.profileImageUrl", target = "profileImageUrl")
 	@Mapping(source = "user", target = "user")
 	ProfileImage fromOAuthUserInfo(OAuthUserInfo info, User user);
+
+	@Mapping(source = "user", target = "user")
+	@Mapping(source = "imageUrl", target = "profileImageUrl")
+	ProfileImage toProfileImage(User user, String imageUrl);
 }

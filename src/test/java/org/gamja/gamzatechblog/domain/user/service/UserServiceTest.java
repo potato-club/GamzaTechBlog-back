@@ -2,7 +2,10 @@ package org.gamja.gamzatechblog.domain.user.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.gamja.gamzatechblog.support.user.UserFixtures.*;
+import static org.mockito.Mockito.*;
 
+import org.gamja.gamzatechblog.domain.profileimage.model.mapper.ProfileImageMapper;
+import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.user.exception.UserNotFoundException;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
@@ -27,13 +30,15 @@ public class UserServiceTest {
 		repository = new UserFakeUserRepository();
 		repository.saveUser(user(EXISTING_ID));
 
+		ProfileImageRepository mockProfileImageRepo = mock(ProfileImageRepository.class);
+		ProfileImageMapper mockProfileImageMapper = mock(ProfileImageMapper.class);
+
 		userService = new UserServiceImpl(
 			repository,
 			new UserMapper(),
 			new UserValidator(repository),
 			new UserProfileMapperImpl(),
-			null, null, null, null, null
-		);
+			null, null, null, mockProfileImageRepo, mockProfileImageMapper);
 	}
 
 	@Test
