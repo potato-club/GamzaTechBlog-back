@@ -7,8 +7,7 @@ import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
-import org.gamja.gamzatechblog.domain.profileimage.service.ProfileImageService;
-import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.gamja.gamzatechblog.domain.profileimage.model.mapper.ProfileImageMapper;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
@@ -39,28 +38,20 @@ public class UserServiceImpl implements UserService {
 	private final LikeRepository likeRepository;
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
-	private final ProfileImageService profileImageService;
-	private final ProfileImageRepository profileImageRepository;
 	private final S3ImageStorage s3ImageStorage;
 
 	private final ProfileImageValidator profileImageValidator;
+	private final ProfileImageMapper profileImageMapper;
 
 	@Override
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
-
 		User user = userMapper.toEntity(info);
-
-		if (info.getProfileImageUrl() != null) {
-			String url = s3ImageStorage.uploadFromUrl(info.getProfileImageUrl());
-			ProfileImage pi = ProfileImage.builder()
-				.profileImageUrl(url)
-				.build();
-			user.setProfileImage(pi);
-		}
-
+		ProfileImage profileImage = profileImageMapper.fromOAuthUserInfo(info, user);
+		user.setProfileImage(profileImage);
 		return userRepository.saveUser(user);
+
 	}
 
 	public boolean existsByGithubId(String githubId) {
