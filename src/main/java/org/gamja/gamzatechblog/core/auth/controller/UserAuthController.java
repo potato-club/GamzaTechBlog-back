@@ -32,8 +32,16 @@ public class UserAuthController {
 
 	@Operation(summary = "토큰 재발급", tags = {"인증,인가"})
 	@PostMapping("/reissue")
-	public ResponseDto<AccessTokenResponse> reissue(@CookieValue("refreshToken") String oldRefresh,
-		HttpServletResponse response) {
+	public ResponseDto<AccessTokenResponse> reissue(
+		@CookieValue(value = "refreshToken", required = false) String oldRefresh, HttpServletResponse response) {
+		// 1) 쿠키가 없으면 401 Unauthorized
+		if (oldRefresh == null) {
+			return ResponseDto.of(
+				HttpStatus.UNAUTHORIZED,
+				"리프레시 토큰이 없습니다.", //수정 예정입니다.
+				null
+			);
+		}
 		TokenResponse tokens = authService.reissueRefreshToken(oldRefresh);
 		cookieUtils.addAccessTokenCookie(response, tokens.getAccessToken(), DOMAIN, ACCESS_TOKEN_TTL);
 		cookieUtils.addRefreshTokenCookie(response, tokens.getRefreshToken(), DOMAIN, REFRESH_TOKEN_TTL);
