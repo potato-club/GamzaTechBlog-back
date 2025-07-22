@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,10 @@ public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	@Override
 	public void deleteProfileImageById(Long id) {
 		profileImageJpaRepository.deleteById(id);
+	}
+
+	@Override
+	public Optional<ProfileImage> findByUser(User user) {
+		return profileImageJpaRepository.findByUser(user);
 	}
 }

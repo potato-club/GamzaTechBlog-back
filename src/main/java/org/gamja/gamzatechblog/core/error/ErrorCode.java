@@ -48,7 +48,14 @@ public enum ErrorCode {
 
 	// Like
 	ALREADY_LIKED(409, "L001", "이미 좋아요를 눌렀습니다."),
-	LIKE_NOT_FOUND(404, "L002", "좋아요를 찾을 수 없습니다.");
+	LIKE_NOT_FOUND(404, "L002", "좋아요를 찾을 수 없습니다."),
+
+	// Profile Image
+	PROFILE_IMAGE_EMPTY(400, "U008", "업로드할 파일이 없습니다."),
+	PROFILE_IMAGE_SIZE_EXCEEDED(400, "U009", "파일 크기가 최대 용량을 초과했습니다."),
+	PROFILE_IMAGE_INVALID_TYPE(400, "U010", "지원하지 않는 파일 형식입니다."),
+	PROFILE_IMAGE_UPLOAD_FAILED(500, "U011", "프로필 이미지 업로드에 실패했습니다."),
+	PROFILE_IMAGE_DELETE_FAILED(500, "U012", "프로필 이미지 삭제에 실패했습니다.");
 
 	private final String code;
 	private final String message;
