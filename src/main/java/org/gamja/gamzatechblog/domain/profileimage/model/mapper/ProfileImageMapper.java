@@ -18,5 +18,7 @@ public interface ProfileImageMapper {
 	@Mapping(source = "imageUrl", target = "profileImageUrl")
 	ProfileImage toProfileImage(User user, String imageUrl);
 
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "profileImageUrl", target = "imageUrl")
 	ProfileImageResponse toProfileImageResponse(ProfileImage profileImage);
 }

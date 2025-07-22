@@ -16,4 +16,7 @@ public interface ProfileImageRepository {
 
 	void delete(ProfileImage profileImage);
 
+	long deleteByUser(User user);
+
+	void flush();
 }

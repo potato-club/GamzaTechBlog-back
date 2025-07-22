@@ -28,14 +28,25 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final S3ImageStorage s3ImageStorage;
 	private final ProfileImageValidator validator;
 	private final ProfileImageRepository repository;
+	private final ProfileImageRepository profileImageRepository;
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 
 	@Override
+	@Transactional
 	public ProfileImage uploadProfileImage(MultipartFile file, User user) {
 		validator.validateFile(file);
+		user.setProfileImage(null);
+		profileImageRepository.deleteByUser(user);
+		profileImageRepository.flush();
 		String url = s3ImageStorage.uploadFile(file);
-		ProfileImage pi = mapper.toProfileImage(user, url);
-		return repository.saveProfileImage(pi);
+		ProfileImage newImg = ProfileImage.builder()
+			.user(user)
+			.profileImageUrl(url)
+			.build();
+		ProfileImage saved = profileImageRepository.saveProfileImage(newImg);
+		user.setProfileImage(saved);
+
+		return saved;
 	}
 
 	@Override

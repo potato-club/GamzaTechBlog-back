@@ -38,4 +38,14 @@ public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	public void delete(ProfileImage profileImage) {
 		profileImageJpaRepository.delete(profileImage);
 	}
+
+	@Override
+	public long deleteByUser(User user) {
+		return profileImageJpaRepository.deleteByUser(user);
+	}
+
+	@Override
+	public void flush() {
+		profileImageJpaRepository.flush();
+	}
 }
