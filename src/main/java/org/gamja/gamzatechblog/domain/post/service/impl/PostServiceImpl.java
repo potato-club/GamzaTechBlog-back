@@ -28,12 +28,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
@@ -90,15 +93,21 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional(noRollbackFor = HttpClientErrorException.NotFound.class)
 	public void removePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
+
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		String prevTitle = post.getTitle();
-		List<String> prevTags = post.getPostTags().stream()
-			.map(pt -> pt.getTag().getTagName())
-			.toList();
-		postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete", post.getCommitMessage());
+		List<String> prevTags = post.getPostTags().stream().map(pt -> pt.getTag().getTagName()).toList();
+
+		try {
+			postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete", post.getCommitMessage());
+		} catch (HttpClientErrorException.NotFound e) {
+			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
+		}
+
 		postRepository.delete(post);
 	}
 
