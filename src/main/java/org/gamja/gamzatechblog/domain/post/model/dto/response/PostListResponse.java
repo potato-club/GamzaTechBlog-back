@@ -17,6 +17,7 @@ public class PostListResponse {
 	private String title;
 	private String contentSnippet;
 	private String writer;
+	private String writerProfileImageUrl;
 	private LocalDateTime createdAt;
 	private List<String> tags;
 }
