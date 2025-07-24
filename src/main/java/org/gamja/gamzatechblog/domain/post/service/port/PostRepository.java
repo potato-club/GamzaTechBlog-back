@@ -1,5 +1,7 @@
 package org.gamja.gamzatechblog.domain.post.service.port;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
@@ -14,8 +16,9 @@ public interface PostRepository {
 
 	int countByUser(User user);
 
-	// 기본 CRUD
 	Post save(Post post);
 
 	void delete(Post post);
+
+	List<Post> findTop3ByCreatedAtAfterOrderByLikesCountDesc(LocalDateTime dateTime);
 }
