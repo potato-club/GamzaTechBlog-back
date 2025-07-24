@@ -11,7 +11,9 @@ public class UserProfileResponse {
 	private final String name;
 	private final String email;
 	private final String profileImageUrl;
+	private final String position;
 	private final String role;
+	private final String studentNumber;
 	private final Integer gamjaBatch;
 	private final String createdAt;
 	private final String updatedAt;
