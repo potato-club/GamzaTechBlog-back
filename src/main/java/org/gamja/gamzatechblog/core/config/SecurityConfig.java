@@ -31,6 +31,7 @@ public class SecurityConfig {
 		"/swagger-ui/**",
 		"/webjars/**",
 		"/login/oauth2/code/**",
+		"/api/v1/posts/popular",
 		"/jenkins/**"
 	};
 

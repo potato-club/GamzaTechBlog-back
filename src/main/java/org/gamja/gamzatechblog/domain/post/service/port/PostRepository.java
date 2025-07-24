@@ -14,8 +14,8 @@ public interface PostRepository {
 
 	int countByUser(User user);
 
-	// 기본 CRUD
 	Post save(Post post);
 
 	void delete(Post post);
+
 }

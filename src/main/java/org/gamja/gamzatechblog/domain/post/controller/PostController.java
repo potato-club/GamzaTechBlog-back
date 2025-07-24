@@ -9,6 +9,7 @@ import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -83,5 +84,12 @@ public class PostController {
 	) {
 		PagedResponse<PostListResponse> page = postService.getMyPosts(currentUser, pageable);
 		return ResponseDto.of(HttpStatus.OK, "내가 쓴 게시물 조회 성공", page);
+	}
+
+	@Operation(summary = "주간 인기 게시물 조회", tags = "게시물 조회 기능")
+	@GetMapping("/popular")
+	public ResponseDto<List<PostPopularResponse>> getWeeklyPopularPosts() {
+		List<PostPopularResponse> popularList = postService.getWeeklyPopularPosts();
+		return ResponseDto.of(HttpStatus.OK, "주간 인기 게시물 조회 성공", popularList);
 	}
 }

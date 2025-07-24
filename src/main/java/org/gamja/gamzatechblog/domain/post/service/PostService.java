@@ -6,6 +6,7 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,5 @@ public interface PostService {
 
 	PagedResponse<PostListResponse> getMyPosts(User currentUser, Pageable pageable);
 
+	List<PostPopularResponse> getWeeklyPopularPosts();
 }

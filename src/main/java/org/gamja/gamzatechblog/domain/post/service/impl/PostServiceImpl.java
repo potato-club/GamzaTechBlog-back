@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.post.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
@@ -10,11 +11,13 @@ import org.gamja.gamzatechblog.domain.commithistory.service.impl.CommitHistorySe
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostListMapper;
+import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostPopularMapper;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
@@ -50,6 +53,7 @@ public class PostServiceImpl implements PostService {
 	private final PostDetailMapper postDetailMapper;
 	private final PostQueryPort postQueryPort;
 	private final CommitHistoryServiceImpl commitHistoryService;
+	private final PostPopularMapper postPopularMapper;
 
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
@@ -133,5 +137,15 @@ public class PostServiceImpl implements PostService {
 		Page<Post> page = postRepository.findByUserOrderByCreatedAtDesc(currentUser, pageable);
 		Page<PostListResponse> dtoPage = page.map(postListMapper::toListResponse);
 		return PagedResponse.pagedFrom(dtoPage);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<PostPopularResponse> getWeeklyPopularPosts() {
+		LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+		List<Post> posts = postQueryPort.findWeeklyPopularPosts(oneWeekAgo, 3);
+		return posts.stream()
+			.map(postPopularMapper::toPopularResponse)
+			.toList();
 	}
 }
