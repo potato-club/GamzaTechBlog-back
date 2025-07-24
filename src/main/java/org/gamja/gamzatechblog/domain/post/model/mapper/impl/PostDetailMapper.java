@@ -22,6 +22,7 @@ public interface PostDetailMapper {
 			+ "? post.getUser().getProfileImage().getProfileImageUrl() "
 			+ ": null)"
 	)
+	@Mapping(target = "likesCount", expression = "java(post.getLikes() != null ? post.getLikes().size() : 0)")
 	@Mapping(target = "title", source = "post.title")
 	@Mapping(target = "content", source = "post.content")
 	@Mapping(target = "tags", expression = "java(post.getPostTags().stream()  \n" +

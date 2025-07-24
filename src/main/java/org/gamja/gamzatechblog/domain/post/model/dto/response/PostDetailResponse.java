@@ -20,6 +20,7 @@ public class PostDetailResponse {
 	private String content;
 	private String writer;
 	private String writerProfileImageUrl;
+	private int likesCount;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private List<String> tags;
