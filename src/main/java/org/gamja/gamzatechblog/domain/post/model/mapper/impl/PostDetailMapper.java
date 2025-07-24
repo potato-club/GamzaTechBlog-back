@@ -18,7 +18,7 @@ public interface PostDetailMapper {
 	@Mapping(target = "writer", source = "post.user.nickname")
 	@Mapping(
 		target = "writerProfileImageUrl",
-		expression = "java(post.getUser().getProfileImage() != null "
+		expression = "java(post.getUser() != null && post.getUser().getProfileImage() != null "
 			+ "? post.getUser().getProfileImage().getProfileImageUrl() "
 			+ ": null)"
 	)
