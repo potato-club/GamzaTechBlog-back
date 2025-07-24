@@ -14,6 +14,11 @@ public interface CommentMapper {
 		return CommentResponse.builder()
 			.commentId(comment.getId())
 			.writer(comment.getUser().getNickname())
+			.writerProfileImageUrl(
+				comment.getUser().getProfileImage() != null
+					? comment.getUser().getProfileImage().getProfileImageUrl()
+					: null
+			)
 			.content(comment.getContent())
 			.createdAt(comment.getCreatedAt())
 			.replies(

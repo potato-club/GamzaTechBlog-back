@@ -11,6 +11,7 @@ import lombok.Getter;
 public class CommentResponse {
 	private Long commentId;
 	private String writer;
+	private String writerProfileImageUrl;
 	private String content;
 	private LocalDateTime createdAt;
 	private List<CommentResponse> replies;
