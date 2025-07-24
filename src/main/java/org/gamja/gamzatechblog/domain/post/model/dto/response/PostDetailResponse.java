@@ -19,6 +19,7 @@ public class PostDetailResponse {
 	private String title;
 	private String content;
 	private String writer;
+	private String writerProfileImageUrl;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private List<String> tags;

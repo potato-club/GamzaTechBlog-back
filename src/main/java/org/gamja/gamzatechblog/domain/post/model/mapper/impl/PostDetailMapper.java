@@ -16,6 +16,12 @@ public interface PostDetailMapper {
 
 	@Mapping(target = "postId", source = "post.id")
 	@Mapping(target = "writer", source = "post.user.nickname")
+	@Mapping(
+		target = "writerProfileImageUrl",
+		expression = "java(post.getUser() != null && post.getUser().getProfileImage() != null "
+			+ "? post.getUser().getProfileImage().getProfileImageUrl() "
+			+ ": null)"
+	)
 	@Mapping(target = "title", source = "post.title")
 	@Mapping(target = "content", source = "post.content")
 	@Mapping(target = "tags", expression = "java(post.getPostTags().stream()  \n" +
