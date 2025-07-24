@@ -75,7 +75,7 @@ public class PostQueryAdapter implements PostQueryPort {
 			.leftJoin(post.likes, like)
 			.where(post.createdAt.after(since))
 			.groupBy(post)
-			.orderBy(likeCount.desc())
+			.orderBy(likeCount.desc(), post.createdAt.desc()) //좋아요가 같은 게시물에 대해 생성일시로 정렬~!
 			.limit(limit)
 			.fetch();
 	}
