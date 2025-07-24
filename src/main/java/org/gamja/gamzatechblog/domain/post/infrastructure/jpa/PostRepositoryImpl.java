@@ -41,4 +41,5 @@ public class PostRepositoryImpl implements PostRepository {
 	public void delete(Post post) {
 		postJpaRepository.delete(post);
 	}
+
 }

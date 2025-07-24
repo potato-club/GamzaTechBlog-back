@@ -143,8 +143,8 @@ public class PostServiceImpl implements PostService {
 	@Transactional(readOnly = true)
 	public List<PostPopularResponse> getWeeklyPopularPosts() {
 		LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-		List<Post> popular = postRepository.findTop3ByCreatedAtAfterOrderByLikesCountDesc(oneWeekAgo);
-		return popular.stream()
+		List<Post> posts = postQueryPort.findWeeklyPopularPosts(oneWeekAgo, 3);
+		return posts.stream()
 			.map(postPopularMapper::toPopularResponse)
 			.toList();
 	}

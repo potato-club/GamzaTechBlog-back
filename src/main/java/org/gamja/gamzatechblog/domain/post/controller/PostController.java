@@ -87,7 +87,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "주간 인기 게시물 조회", tags = "게시물 조회 기능")
-	@GetMapping("/popular/post")
+	@GetMapping("/popular")
 	public ResponseDto<List<PostPopularResponse>> getWeeklyPopularPosts() {
 		List<PostPopularResponse> popularList = postService.getWeeklyPopularPosts();
 		return ResponseDto.of(HttpStatus.OK, "주간 인기 게시물 조회 성공", popularList);

@@ -19,6 +19,7 @@ public class JwtSkipPathMatcher {
 		"/swagger-ui",
 		"/swagger-resources",
 		"/webjars",
+		"/api/v1/posts/popular",
 		"/api/v1/tags",
 		"/jenkins"
 	);
