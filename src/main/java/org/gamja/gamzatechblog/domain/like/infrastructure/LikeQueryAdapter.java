@@ -10,7 +10,9 @@ import org.gamja.gamzatechblog.domain.like.model.entity.QLike;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeQueryPort;
 import org.gamja.gamzatechblog.domain.post.model.entity.QPost;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag;
+import org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage;
 import org.gamja.gamzatechblog.domain.tag.model.entity.QTag;
+import org.gamja.gamzatechblog.domain.user.model.entity.QUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -53,6 +55,8 @@ public class LikeQueryAdapter implements LikeQueryPort {
 	private List<Tuple> fetchLikeTuples(User user, Pageable pageable) {
 		QLike like = QLike.like;
 		QPost post = QPost.post;
+		QUser qUser = QUser.user;
+		QProfileImage profileImage = QProfileImage.profileImage;
 		QPostTag pt = QPostTag.postTag;
 		QTag tag = QTag.tag;
 
@@ -63,11 +67,14 @@ public class LikeQueryAdapter implements LikeQueryPort {
 				post.title,
 				post.content,
 				post.user.nickname,
+				profileImage.profileImageUrl,
 				like.createdAt,
 				tag.tagName
 			)
 			.from(like)
 			.leftJoin(like.post, post)
+			.leftJoin(post.user, qUser)
+			.leftJoin(qUser.profileImage, profileImage)
 			.leftJoin(post.postTags, pt)
 			.leftJoin(pt.tag, tag)
 			.where(like.user.eq(user))
@@ -80,6 +87,8 @@ public class LikeQueryAdapter implements LikeQueryPort {
 	private List<LikeResponse> mapTuplesToResponses(List<Tuple> rows) {
 		QLike like = QLike.like;
 		QPost post = QPost.post;
+		QUser qUser = QUser.user;
+		QProfileImage profileImage = QProfileImage.profileImage;
 		QTag tag = QTag.tag;
 
 		Map<Long, List<Tuple>> grouped = rows.stream()
@@ -101,12 +110,16 @@ public class LikeQueryAdapter implements LikeQueryPort {
 					.distinct()
 					.toList();
 
+				String writerNickname = first.get(post.user.nickname);
+				String writerImgUrl = first.get(profileImage.profileImageUrl);
+
 				return new LikeResponse(
 					likeId,
 					first.get(post.id),
 					first.get(post.title),
 					snippet,
-					first.get(post.user.nickname),
+					writerNickname,
+					writerImgUrl,
 					first.get(like.createdAt),
 					tags
 				);
