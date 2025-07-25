@@ -14,4 +14,6 @@ public interface LikeRepository {
 	int countByUser(User user);
 
 	Like saveLike(Like like);
+
+	boolean existsByUserAndPost(User user, Post post);
 }

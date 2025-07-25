@@ -46,5 +46,12 @@ public class LikeController {
 		likeService.unlikePost(currentUser, postId);
 		return ResponseDto.of(HttpStatus.OK, "좋아요 취소 성공");
 	}
+
+	@Operation(summary = "내가 해당 게시글에 좋아요 눌렀는지 여부 조회", tags = "좋아요 기능")
+	@GetMapping("/{postId}/liked")
+	public ResponseDto<Boolean> isPostLiked(@CurrentUser User currentUser, @PathVariable Long postId) {
+		boolean liked = likeService.isPostLiked(currentUser, postId);
+		return ResponseDto.of(HttpStatus.OK, "좋아요 여부 조회 성공", liked);
+	}
 }
 
