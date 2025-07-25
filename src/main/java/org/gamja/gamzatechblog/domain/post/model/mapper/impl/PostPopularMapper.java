@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PostPopularMapper {
 
+	@Mapping(target = "postId", source = "post.id")
 	@Mapping(target = "title", source = "post.title")
 	@Mapping(target = "writer", source = "post.user.nickname")
 	@Mapping(

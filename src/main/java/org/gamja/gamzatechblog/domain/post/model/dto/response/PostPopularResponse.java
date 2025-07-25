@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostPopularResponse {
+	private Long postId;
 	private String title;
 	private String writer;
 	private String writerProfileImageUrl;
