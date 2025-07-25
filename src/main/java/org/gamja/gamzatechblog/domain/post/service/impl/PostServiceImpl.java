@@ -124,7 +124,6 @@ public class PostServiceImpl implements PostService {
 		Page<PostListResponse> page = postQueryPort
 			.findAllPosts(pageable, filterTags)
 			.map(postListMapper::toListResponse);
-
 		return PagedResponse.pagedFrom(page);
 	}
 

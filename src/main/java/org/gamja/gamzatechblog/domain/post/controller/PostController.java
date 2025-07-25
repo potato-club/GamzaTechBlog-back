@@ -64,6 +64,7 @@ public class PostController {
 	public ResponseDto<PagedResponse<PostListResponse>> getPosts(
 		@PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
 		@RequestParam(name = "tags", required = false) List<String> filterTags) {
+
 		PagedResponse<PostListResponse> paged = postService.getPosts(pageable, filterTags);
 		return ResponseDto.of(HttpStatus.OK, "게시물 목록 조회 성공", paged);
 	}
