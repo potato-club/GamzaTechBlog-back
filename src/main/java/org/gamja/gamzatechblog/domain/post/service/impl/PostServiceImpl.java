@@ -121,11 +121,8 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags) {
-		Page<PostListResponse> page = postQueryPort
-			.findAllPosts(pageable, filterTags)
-			.map(postListMapper::toListResponse);
-
-		return PagedResponse.pagedFrom(page);
+		Page<PostListResponse> dtoPage = postQueryPort.findAllPosts(pageable, filterTags);
+		return PagedResponse.pagedFrom(dtoPage);
 	}
 
 	@Override

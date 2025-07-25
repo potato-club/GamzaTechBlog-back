@@ -20,4 +20,5 @@ public class PostListResponse {
 	private String writerProfileImageUrl;
 	private LocalDateTime createdAt;
 	private List<String> tags;
+	private String thumbnailImageUrl;
 }
