@@ -10,6 +10,8 @@ import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -52,7 +54,8 @@ public class Post extends BaseTime {
 	private String title;
 
 	@Lob
-	@Column(name = "content", nullable = false)
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
+	@Column(name = "content", columnDefinition = "TEXT", nullable = false)
 	private String content;
 
 	@Column(name = "commit_message", length = 255)

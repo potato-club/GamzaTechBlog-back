@@ -59,6 +59,7 @@ public class PostController {
 		return ResponseDto.of(HttpStatus.OK, "게시물 삭제 성공");
 	}
 
+	// web/controller/PostController.java
 	@Operation(summary = "최신순 게시물 목록 조회", tags = "게시물 조회 기능")
 	@GetMapping
 	public ResponseDto<PagedResponse<PostListResponse>> getPosts(
