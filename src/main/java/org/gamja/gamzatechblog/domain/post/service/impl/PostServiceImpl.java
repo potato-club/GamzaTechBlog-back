@@ -135,8 +135,7 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional(readOnly = true)
 	public PagedResponse<PostListResponse> getMyPosts(User currentUser, Pageable pageable) {
-		Page<Post> page = postRepository.findByUserOrderByCreatedAtDesc(currentUser, pageable);
-		Page<PostListResponse> dtoPage = page.map(postListMapper::toListResponse);
+		Page<PostListResponse> dtoPage = postQueryPort.findMyPosts(pageable, currentUser);
 		return PagedResponse.pagedFrom(dtoPage);
 	}
 
@@ -148,5 +147,13 @@ public class PostServiceImpl implements PostService {
 		return posts.stream()
 			.map(postPopularMapper::toPopularResponse)
 			.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PagedResponse<PostListResponse> getPostsByTag(String tagName, Pageable pageable) {
+		List<String> filterTags = List.of(tagName);
+		Page<PostListResponse> page = postQueryPort.findAllPosts(pageable, filterTags);
+		return PagedResponse.pagedFrom(page);
 	}
 }

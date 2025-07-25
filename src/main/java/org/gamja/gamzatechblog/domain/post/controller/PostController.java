@@ -93,4 +93,15 @@ public class PostController {
 		List<PostPopularResponse> popularList = postService.getWeeklyPopularPosts();
 		return ResponseDto.of(HttpStatus.OK, "주간 인기 게시물 조회 성공", popularList);
 	}
+
+	@Operation(summary = "태그별 게시물 조회", tags = "게시물 조회 기능")
+	@GetMapping("/tags/{tagName}")
+	public ResponseDto<PagedResponse<PostListResponse>> getPostsByTag(
+		@PathVariable String tagName,
+		@ParameterObject
+		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		PagedResponse<PostListResponse> page = postService.getPostsByTag(tagName, pageable);
+		return ResponseDto.of(HttpStatus.OK, String.format("'%s' 태그 게시물 조회 성공", tagName), page);
+	}
 }

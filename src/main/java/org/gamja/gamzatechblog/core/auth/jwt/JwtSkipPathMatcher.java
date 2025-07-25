@@ -21,6 +21,7 @@ public class JwtSkipPathMatcher {
 		"/webjars",
 		"/api/v1/posts/popular",
 		"/api/v1/tags",
+		"/api/v1/posts/tags",
 		"/jenkins"
 	);
 
