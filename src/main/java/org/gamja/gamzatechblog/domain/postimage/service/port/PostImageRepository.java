@@ -6,7 +6,7 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
 
 public interface PostImageRepository {
-	PostImage postImageSave(PostImage postImage);
+	PostImage save(PostImage postImage);
 
 	List<PostImage> findAllByPostOrderById(Post post);
 

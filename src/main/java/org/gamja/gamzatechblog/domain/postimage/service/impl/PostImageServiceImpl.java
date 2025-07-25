@@ -1,11 +1,11 @@
-package org.gamja.gamzatechblog.domain.postimage.service;
+package org.gamja.gamzatechblog.domain.postimage.service.impl;
 
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
-import org.gamja.gamzatechblog.domain.postimage.service.impl.PostImageService;
+import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.domain.postimage.service.port.PostImageRepository;
 import org.gamja.gamzatechblog.domain.postimage.service.util.PostImageServiceUtil;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostImageServiceImpl implements PostImageService {
 	private final S3ImageStorage s3ImageStorage;
-	private final PostImageRepository postImageJpaRepository;
+	private final PostImageRepository postImageRepository;
 	private final PostImageServiceUtil postImageServiceUtil;
 
 	@Override
@@ -33,9 +33,9 @@ public class PostImageServiceImpl implements PostImageService {
 		post.setContent(newContent);
 
 		List<String> urls = postImageServiceUtil.extractImageUrls(newContent);
-		postImageJpaRepository.deleteAllByPost(post);
+		postImageRepository.deleteAllByPost(post);
 		urls.forEach(url -> {
-			postImageJpaRepository.postImageSave(
+			postImageRepository.save(
 				PostImage.builder()
 					.post(post)
 					.postImageUrl(url)
@@ -47,7 +47,7 @@ public class PostImageServiceImpl implements PostImageService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<String> getImageUrls(Post post) {
-		return postImageJpaRepository.findAllByPostOrderById(post).stream()
+		return postImageRepository.findAllByPostOrderById(post).stream()
 			.map(PostImage::getPostImageUrl)
 			.toList();
 	}

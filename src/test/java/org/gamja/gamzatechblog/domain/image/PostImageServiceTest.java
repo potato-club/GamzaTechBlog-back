@@ -9,7 +9,7 @@ import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.domain.image.port.PostImageFakeRepository;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.postimage.model.entity.PostImage;
-import org.gamja.gamzatechblog.domain.postimage.service.impl.PostImageService;
+import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.support.image.ImageFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

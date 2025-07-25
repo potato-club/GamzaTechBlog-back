@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.postimage.service.impl;
+package org.gamja.gamzatechblog.domain.postimage.service;
 
 import java.util.List;
 

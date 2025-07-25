@@ -1,7 +1,7 @@
 package org.gamja.gamzatechblog.domain.postimage.controller;
 
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.domain.postimage.service.impl.PostImageService;
+import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 
 import lombok.RequiredArgsConstructor;
 

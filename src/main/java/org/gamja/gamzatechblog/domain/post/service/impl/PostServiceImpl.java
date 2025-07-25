@@ -23,7 +23,7 @@ import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
-import org.gamja.gamzatechblog.domain.postimage.service.impl.PostImageService;
+import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;

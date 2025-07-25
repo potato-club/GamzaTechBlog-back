@@ -16,7 +16,7 @@ public class PostImageRepositoryImpl implements PostImageRepository {
 	private final PostImageJpaRepository postImageJpaRepository;
 
 	@Override
-	public PostImage postImageSave(PostImage postImage) {
+	public PostImage save(PostImage postImage) {
 		return postImageJpaRepository.save(postImage);
 	}
 
