@@ -22,8 +22,7 @@ public interface PostListMapper {
 	@Mapping(target = "writerProfileImageUrl",
 		expression = "java(post.getUser().getProfileImage()!=null "
 			+ "? post.getUser().getProfileImage().getProfileImageUrl() : null)")
-	@Mapping(target = "thumbnailImageUrl",
-		expression = "java(post.getImages().stream().findFirst().map(pi->pi.getPostImageUrl()).orElse(null))")
+	@Mapping(target = "thumbnailImageUrl", expression = "java(pickThumbnail(post))")
 	PostListResponse toListResponse(Post post);
 
 	default String createSnippet(String content) {
