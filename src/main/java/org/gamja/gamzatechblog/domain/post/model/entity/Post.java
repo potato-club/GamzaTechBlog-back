@@ -82,4 +82,8 @@ public class Post extends BaseTime {
 		this.title = title;
 		this.content = content;
 	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
 }

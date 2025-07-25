@@ -23,6 +23,7 @@ import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
+import org.gamja.gamzatechblog.domain.postimage.service.impl.PostImageService;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
@@ -54,6 +55,7 @@ public class PostServiceImpl implements PostService {
 	private final PostQueryPort postQueryPort;
 	private final CommitHistoryServiceImpl commitHistoryService;
 	private final PostPopularMapper postPopularMapper;
+	private final PostImageService postImageService;
 
 	@Override
 	public PostResponse publishPost(User currentUser, PostRequest request) {
@@ -72,6 +74,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
+		postImageService.syncImages(post);
 		String sha = postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add",
 			request.getCommitMessage());
 		commitHistoryService.registerCommitHistory(post, repo, request, sha);
@@ -89,6 +92,7 @@ public class PostServiceImpl implements PostService {
 		post.update(request.getTitle(), request.getContent());
 		postRepository.save(post);
 		postTagUtil.syncPostTags(post, request.getTags());
+		postImageService.syncImages(post);
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		String sha = postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update",
 			request.getCommitMessage());
