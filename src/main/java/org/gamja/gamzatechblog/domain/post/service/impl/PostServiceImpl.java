@@ -148,4 +148,12 @@ public class PostServiceImpl implements PostService {
 			.map(postPopularMapper::toPopularResponse)
 			.toList();
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PagedResponse<PostListResponse> getPostsByTag(String tagName, Pageable pageable) {
+		List<String> filterTags = List.of(tagName);
+		Page<PostListResponse> page = postQueryPort.findAllPosts(pageable, filterTags);
+		return PagedResponse.pagedFrom(page);
+	}
 }
