@@ -11,4 +11,6 @@ public interface LikeService {
 	LikeResponse likePost(User currentUser, Long postId);
 
 	void unlikePost(User currentUser, Long postId);
+
+	boolean isPostLiked(User currentUser, Long postId);
 }

@@ -49,4 +49,11 @@ public class LikeServiceImpl implements LikeService {
 		likeValidator.validateExists(currentUser, post);
 		likeRepository.deleteByUserAndPost(currentUser, post);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isPostLiked(User currentUser, Long postId) {
+		Post post = postValidator.validatePostExists(postId);
+		return likeRepository.existsByUserAndPost(currentUser, post);
+	}
 }

@@ -34,4 +34,9 @@ public class LikeRepositoryImpl implements LikeRepository {
 	public Like saveLike(Like like) {
 		return likeJpaRepository.save(like);
 	}
+
+	@Override
+	public boolean existsByUserAndPost(User user, Post post) {
+		return likeJpaRepository.existsByUserAndPost(user, post);
+	}
 }
