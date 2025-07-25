@@ -29,4 +29,9 @@ public class PostImageRepositoryImpl implements PostImageRepository {
 	public void deleteAllByPost(Post post) {
 		postImageJpaRepository.deleteAllByPost(post);
 	}
+
+	@Override
+	public List<PostImage> saveAll(List<PostImage> postImages) {
+		return postImageJpaRepository.saveAll(postImages);
+	}
 }

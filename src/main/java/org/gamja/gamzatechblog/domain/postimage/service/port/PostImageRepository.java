@@ -11,4 +11,6 @@ public interface PostImageRepository {
 	List<PostImage> findAllByPostOrderById(Post post);
 
 	void deleteAllByPost(Post post);
+
+	List<PostImage> saveAll(List<PostImage> postImages);
 }

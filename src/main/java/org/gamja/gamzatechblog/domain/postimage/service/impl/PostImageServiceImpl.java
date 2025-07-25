@@ -34,14 +34,13 @@ public class PostImageServiceImpl implements PostImageService {
 
 		List<String> urls = postImageServiceUtil.extractImageUrls(newContent);
 		postImageRepository.deleteAllByPost(post);
-		urls.forEach(url -> {
-			postImageRepository.save(
-				PostImage.builder()
-					.post(post)
-					.postImageUrl(url)
-					.build()
-			);
-		});
+		List<PostImage> postImages = urls.stream()
+			.map(url -> PostImage.builder()
+				.post(post)
+				.postImageUrl(url)
+				.build())
+			.toList();
+		postImageRepository.saveAll(postImages);
 	}
 
 	@Override
