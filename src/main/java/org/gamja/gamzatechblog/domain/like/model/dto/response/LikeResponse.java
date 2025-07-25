@@ -19,6 +19,7 @@ public class LikeResponse {
 	private String contentSnippet;
 	private String writer;
 	private String writerProfileImageUrl;
+	private String thumbnailImageUrl;
 	private LocalDateTime createdAt;
 	private List<String> tags;
 }
