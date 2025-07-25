@@ -21,7 +21,7 @@ public class PostUtil {
 		githubApiClient.createRepositoryIfNotExists(token, repoName, owner);
 
 		String tag = (tags != null && !tags.isEmpty()) ? tags.get(0) : "etc";
-		String safeTitle = post.getTitle().replaceAll("[^\\w가-힣]", "_");
+		String safeTitle = post.getTitle().replaceAll("[^\\w가-힣ㄱ-ㅎㅏ-ㅣ]+", "_");
 		String fileName = post.getId() + "-" + safeTitle + ".md";
 		String path = "PotatoStudy/" + tag + "/" + fileName;
 		String msg = (commitMessage != null && !commitMessage.isBlank())
@@ -30,7 +30,7 @@ public class PostUtil {
 
 		if (oldTitle != null && oldTags != null) {
 			String oldTag = (!oldTags.isEmpty()) ? oldTags.get(0) : "etc";
-			String oldSafeTitle = oldTitle.replaceAll("[^\\w가-힣]", "_");
+			String oldSafeTitle = oldTitle.replaceAll("[^\\w가-힣ㄱ-ㅎㅏ-ㅣ]+", "_");
 			String oldFileName = post.getId() + "-" + oldSafeTitle + ".md";
 			String oldPath = "PotatoStudy/" + oldTag + "/" + oldFileName;
 
