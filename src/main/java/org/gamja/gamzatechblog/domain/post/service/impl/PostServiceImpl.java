@@ -16,7 +16,6 @@ import org.gamja.gamzatechblog.domain.post.model.dto.response.PostResponse;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
-import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostListMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostPopularMapper;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
@@ -27,6 +26,7 @@ import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
+import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
 	private final GitHubRepoRepository githubRepoRepository;
 	private final PostUtil postUtil;
 	private final PostTagUtil postTagUtil;
-	private final PostListMapper postListMapper;
+	private final TagRepository tagRepository;
 	private final CommentService commentService;
 	private final PostDetailMapper postDetailMapper;
 	private final PostQueryPort postQueryPort;
@@ -117,6 +117,7 @@ public class PostServiceImpl implements PostService {
 		}
 
 		postRepository.delete(post);
+		tagRepository.deleteOrphanTags();
 	}
 
 	@Override
