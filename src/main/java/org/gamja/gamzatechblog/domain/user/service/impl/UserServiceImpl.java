@@ -93,9 +93,14 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
+		log.info(">> updateProfile 시작: githubId={}, req={}", currentUser.getGithubId(), req);
+
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		userProfileMapper.applyProfileUpdates(req, user);
-		return userProfileMapper.toUserProfileResponse(user);
+		UserProfileResponse userProfileResponse = userProfileMapper.toUserProfileResponse(user);
+
+		log.info("<< updateProfile 완료: userId={}, response={}", user.getId(), userProfileResponse);
+		return userProfileResponse;
 	}
 
 	@Override

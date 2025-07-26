@@ -48,6 +48,20 @@ public class PostUtil {
 		return sha;
 	}
 
+	public String stripAllImages(String markdown) {
+		if (markdown == null)
+			return "";
+		return markdown.replaceAll("!\\[[^\\]]*\\]\\([^\\)]*\\)", "");
+	}
+
+	public String makeSnippet(String markdown, int length) {
+		String noImages = stripAllImages(markdown).trim();
+		if (noImages.length() <= length) {
+			return noImages;
+		}
+		return noImages.substring(0, length) + "...";
+	}
+
 	private String buildMarkdownWithFrontmatter(Post post, List<String> tags) {
 		return post.getContent();
 	}

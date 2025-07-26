@@ -18,6 +18,7 @@ import org.gamja.gamzatechblog.domain.like.model.entity.QLike;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
+import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,9 +36,11 @@ import jakarta.persistence.EntityManager;
 public class PostQueryAdapter implements PostQueryPort {
 
 	private final JPAQueryFactory queryFactory;
+	private final PostUtil postUtil;
 
-	public PostQueryAdapter(EntityManager em) {
+	public PostQueryAdapter(EntityManager em, PostUtil postUtil) {
 		this.queryFactory = new JPAQueryFactory(em);
+		this.postUtil = postUtil;
 	}
 
 	@Override
@@ -107,9 +110,9 @@ public class PostQueryAdapter implements PostQueryPort {
 				PostListResponse dto = new PostListResponse();
 				dto.setPostId(p.getId());
 				dto.setTitle(p.getTitle());
-				String c = p.getContent();
-				dto.setContentSnippet(c == null ? "" :
-					c.length() <= 100 ? c : c.substring(0, 100) + "...");
+				dto.setContentSnippet(
+					postUtil.makeSnippet(p.getContent(), 100)
+				);
 				dto.setWriter(p.getUser().getNickname());
 				dto.setWriterProfileImageUrl(
 					p.getUser().getProfileImage() != null
