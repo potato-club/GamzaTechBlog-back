@@ -85,11 +85,9 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	@Override
 	@Transactional
 	public ProfileImage updateProfileImage(MultipartFile newFile, User currentUser) {
-		log.info(">> updateProfileImage 시작: userId={}, originalFilename={}", currentUser.getId(),
-			newFile.getOriginalFilename());
+		log.info(">> updateProfileImage 시작: userId={}", currentUser.getId());
 		ProfileImage uploadProfileImage = uploadProfileImage(newFile, currentUser);
-		log.info("<< updateProfileImage 완료: profileImageId={}, url={}", uploadProfileImage.getId(),
-			uploadProfileImage.getProfileImageUrl());
+		log.info("<< updateProfileImage 완료: profileImageId={}", uploadProfileImage.getId());
 		return uploadProfileImage;
 	}
 
