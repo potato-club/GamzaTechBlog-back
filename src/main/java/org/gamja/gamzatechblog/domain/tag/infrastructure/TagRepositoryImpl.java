@@ -40,4 +40,8 @@ public class TagRepositoryImpl implements TagRepository {
 		return tagJpaRepository.saveAndFlush(tag);
 	}
 
+	@Override
+	public void deleteOrphanTags() {
+		tagJpaRepository.deleteOrphanTags();
+	}
 }

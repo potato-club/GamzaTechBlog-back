@@ -8,6 +8,7 @@ import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
+import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
 	private final PostRepository postRepository;
 	private final CommentRepository commentRepository;
 	private final S3ImageStorage s3ImageStorage;
+	private final TagRepository tagRepository;
 
 	private final ProfileImageValidator profileImageValidator;
 
@@ -107,15 +109,27 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
-
+		deleteAllPostImages(user);
 		unlinkAndDeleteProfileImage(user);
-
 		userRepository.deleteUser(user);
+		tagRepository.deleteOrphanTags();
 	}
 
 	@Override
 	public User getUserByGithubId(String githubId) {
 		return userValidator.validateAndGetUserByGithubId(githubId);
+	}
+
+	private void deleteAllPostImages(User user) {
+		user.getPosts().forEach(post ->
+			post.getImages().forEach(img -> {
+				try {
+					s3ImageStorage.deleteByUrl(img.getPostImageUrl());
+				} catch (BusinessException e) {
+					log.warn("포스트 이미지 S3 삭제 실패(무시): {}", e.getMessage());
+				}
+			})
+		);
 	}
 
 	private void unlinkAndDeleteProfileImage(User user) {
