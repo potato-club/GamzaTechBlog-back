@@ -74,6 +74,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		cookieUtils.addAccessTokenCookie(response, accessToken, DOMAIN, ACCESS_TOKEN_TTL);
 		cookieUtils.addRefreshTokenCookie(response, refreshToken, DOMAIN, REFRESH_TOKEN_TTL);
 
-		response.sendRedirect("https://dev.gamzatech.site:3000");
+		response.sendRedirect("https://app.gamzatech.site");
 	}
 }
