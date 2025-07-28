@@ -159,6 +159,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
 		Page<PostListResponse> pageData = postQueryPort.searchPostsByTitle(pageable, keyword);
 		return PagedResponse.pagedFrom(pageData);
