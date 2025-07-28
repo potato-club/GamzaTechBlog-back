@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,10 +29,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @ApiController("/api/v1/posts")
 @RequiredArgsConstructor
+@Validated
 public class PostController {
 
 	private final PostService postService;
@@ -103,5 +106,14 @@ public class PostController {
 	) {
 		PagedResponse<PostListResponse> page = postService.getPostsByTag(tagName, pageable);
 		return ResponseDto.of(HttpStatus.OK, String.format("'%s' 태그 게시물 조회 성공", tagName), page);
+	}
+
+	@Operation(summary = "게시물 검색", tags = "게시물 조회 기능")
+	@GetMapping("/search")
+	public ResponseDto<PagedResponse<PostListResponse>> searchPosts(
+		@PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
+		@RequestParam("keyword") @NotBlank(message = "검색 키워드는 필수입니다") String keyword) {
+		PagedResponse<PostListResponse> page = postService.searchPostsByTitle(pageable, keyword);
+		return ResponseDto.of(HttpStatus.OK, "게시물 검색 조회 성공", page);
 	}
 }

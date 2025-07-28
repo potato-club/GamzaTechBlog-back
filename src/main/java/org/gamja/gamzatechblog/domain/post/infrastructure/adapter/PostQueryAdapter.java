@@ -1,9 +1,11 @@
 package org.gamja.gamzatechblog.domain.post.infrastructure.adapter;
 
+import static org.gamja.gamzatechblog.core.auth.oauth.model.entity.QGithubOauthToken.*;
 import static org.gamja.gamzatechblog.domain.post.model.entity.QPost.*;
 import static org.gamja.gamzatechblog.domain.postimage.model.entity.QPostImage.*;
 import static org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag.*;
 import static org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage.*;
+import static org.gamja.gamzatechblog.domain.repository.model.entity.QGitHubRepo.*;
 import static org.gamja.gamzatechblog.domain.tag.model.entity.QTag.*;
 import static org.gamja.gamzatechblog.domain.user.model.entity.QUser.*;
 
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -57,6 +60,12 @@ public class PostQueryAdapter implements PostQueryPort {
 		return fetchPosts(pageable, where);
 	}
 
+	@Override
+	public Page<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
+		BooleanExpression where = post.title.containsIgnoreCase(keyword);
+		return fetchPosts(pageable, where);
+	}
+
 	private Page<PostListResponse> fetchPosts(Pageable pageable, BooleanExpression where) {
 		// 1) 페이징용 ID 조회
 		List<Long> ids = queryFactory
@@ -75,14 +84,12 @@ public class PostQueryAdapter implements PostQueryPort {
 		}
 
 		// 2) fetch join 으로 N+1 방지
-		List<Post> posts = queryFactory
-			.selectDistinct(post)
-			.from(post)
-			.leftJoin(post.postTags, postTag).fetchJoin()
-			.leftJoin(postTag.tag, tag).fetchJoin()
-			.leftJoin(post.user, user).fetchJoin()
-			.leftJoin(user.profileImage, profileImage).fetchJoin()
-			.where(post.id.in(ids))
+		List<Post> posts = applyFetchJoins(
+			queryFactory
+				.selectDistinct(post)
+				.from(post)
+				.where(post.id.in(ids))
+		)
 			.orderBy(post.createdAt.desc())
 			.fetch();
 
@@ -160,14 +167,12 @@ public class PostQueryAdapter implements PostQueryPort {
 			return List.of();
 		}
 
-		List<Post> posts = queryFactory
-			.selectDistinct(post)
-			.from(post)
-			.leftJoin(post.postTags, postTag).fetchJoin()
-			.leftJoin(postTag.tag, tag).fetchJoin()
-			.leftJoin(post.user, user).fetchJoin()
-			.leftJoin(user.profileImage, profileImage).fetchJoin()
-			.where(post.id.in(ids))
+		List<Post> posts = applyFetchJoins(
+			queryFactory
+				.selectDistinct(post)
+				.from(post)
+				.where(post.id.in(ids))
+		)
 			.fetch();
 
 		Map<Long, Post> map = posts.stream()
@@ -176,4 +181,16 @@ public class PostQueryAdapter implements PostQueryPort {
 			.map(map::get)
 			.toList();
 	}
+
+	private JPAQuery<Post> applyFetchJoins(JPAQuery<Post> base) {
+		return base
+			.leftJoin(post.postTags, postTag).fetchJoin()
+			.leftJoin(postTag.tag, tag).fetchJoin()
+			.leftJoin(post.user, user).fetchJoin()
+			.leftJoin(user.profileImage, profileImage).fetchJoin()
+			.leftJoin(user.githubRepo, gitHubRepo).fetchJoin()
+			.leftJoin(user.oauthToken, githubOauthToken).fetchJoin();
+	}
 }
+
+
