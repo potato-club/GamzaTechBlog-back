@@ -40,4 +40,28 @@ public class CookieUtils {
 			.build();
 		res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 	}
+
+	public void expireAccessTokenCookie(HttpServletResponse res, String domain) {
+		ResponseCookie expired = ResponseCookie.from("authorization", "")
+			.domain(domain)
+			.path("/")
+			.httpOnly(false)
+			.secure(true)
+			.sameSite("Lax")
+			.maxAge(0)
+			.build();
+		res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
+	}
+
+	public void expireRefreshTokenCookie(HttpServletResponse res, String domain) {
+		ResponseCookie expired = ResponseCookie.from("refreshToken", "")
+			.domain(domain)
+			.path("/")
+			.httpOnly(true)
+			.secure(true)
+			.sameSite("None")
+			.maxAge(0)
+			.build();
+		res.addHeader(HttpHeaders.SET_COOKIE, expired.toString());
+	}
 }

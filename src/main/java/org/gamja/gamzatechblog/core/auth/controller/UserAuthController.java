@@ -51,8 +51,11 @@ public class UserAuthController {
 
 	@Operation(summary = "로그아웃", tags = {"인증,인가"})
 	@PostMapping("/me/logout")
-	public ResponseDto<String> logout(@CurrentUser User user) {
+	public ResponseDto<String> logout(@CurrentUser User user, HttpServletResponse response) {
 		authService.logout(user.getGithubId());
+		cookieUtils.expireAccessTokenCookie(response, DOMAIN);
+		cookieUtils.expireRefreshTokenCookie(response, DOMAIN);
+
 		return ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다.");
 	}
 
