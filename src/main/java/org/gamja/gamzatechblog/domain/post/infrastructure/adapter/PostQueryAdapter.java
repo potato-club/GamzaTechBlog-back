@@ -57,6 +57,12 @@ public class PostQueryAdapter implements PostQueryPort {
 		return fetchPosts(pageable, where);
 	}
 
+	@Override
+	public Page<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
+		BooleanExpression where = post.title.containsIgnoreCase(keyword);
+		return fetchPosts(pageable, where);
+	}
+
 	private Page<PostListResponse> fetchPosts(Pageable pageable, BooleanExpression where) {
 		// 1) 페이징용 ID 조회
 		List<Long> ids = queryFactory

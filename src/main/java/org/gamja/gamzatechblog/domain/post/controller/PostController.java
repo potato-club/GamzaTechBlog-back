@@ -104,4 +104,10 @@ public class PostController {
 		PagedResponse<PostListResponse> page = postService.getPostsByTag(tagName, pageable);
 		return ResponseDto.of(HttpStatus.OK, String.format("'%s' 태그 게시물 조회 성공", tagName), page);
 	}
+
+	@Operation(summary = "게시물 검색", tags = "게시물 조회 기능")
+	@GetMapping("/search")
+	public PagedResponse<PostListResponse> searchPosts(Pageable pageable, @RequestParam("keyword") String keyword) {
+		return postService.searchPostsByTitle(pageable, keyword);
+	}
 }

@@ -33,7 +33,8 @@ public class SecurityConfig {
 		"/login/oauth2/code/**",
 		"/api/v1/posts/tags/**",
 		"/api/v1/posts/popular",
-		"/jenkins/**"
+		"/jenkins/**",
+		"/api/v1/posts/search"
 	};
 
 	@Bean

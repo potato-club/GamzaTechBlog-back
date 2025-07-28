@@ -22,7 +22,8 @@ public class JwtSkipPathMatcher {
 		"/api/v1/posts/popular",
 		"/api/v1/tags",
 		"/api/v1/posts/tags",
-		"/jenkins"
+		"/jenkins",
+		"/api/v1/posts/search"
 	);
 
 	public boolean shouldSkip(HttpServletRequest request) {

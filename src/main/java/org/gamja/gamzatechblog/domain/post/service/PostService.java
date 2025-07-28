@@ -27,4 +27,6 @@ public interface PostService {
 	List<PostPopularResponse> getWeeklyPopularPosts();
 
 	PagedResponse<PostListResponse> getPostsByTag(String tagName, Pageable pageable);
+
+	PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword);
 }

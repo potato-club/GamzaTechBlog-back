@@ -157,4 +157,10 @@ public class PostServiceImpl implements PostService {
 		Page<PostListResponse> page = postQueryPort.findAllPosts(pageable, filterTags);
 		return PagedResponse.pagedFrom(page);
 	}
+
+	@Override
+	public PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
+		Page<PostListResponse> pageData = postQueryPort.searchPostsByTitle(pageable, keyword);
+		return PagedResponse.pagedFrom(pageData);
+	}
 }
