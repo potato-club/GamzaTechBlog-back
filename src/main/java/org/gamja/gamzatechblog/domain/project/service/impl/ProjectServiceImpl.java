@@ -1,16 +1,17 @@
 package org.gamja.gamzatechblog.domain.project.service.impl;
 
-import java.util.List;
-
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.domain.project.controller.response.ProjectListResponse;
 import org.gamja.gamzatechblog.domain.project.model.dto.ProjectRequest;
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.gamja.gamzatechblog.domain.project.model.mapper.ProjectMapper;
 import org.gamja.gamzatechblog.domain.project.service.ProjectService;
+import org.gamja.gamzatechblog.domain.project.service.port.ProjectQueryPort;
 import org.gamja.gamzatechblog.domain.project.service.port.ProjectRepository;
 import org.gamja.gamzatechblog.domain.project.validator.ProjectValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,25 +29,22 @@ public class ProjectServiceImpl implements ProjectService {
 	private final ProjectValidator projectValidator;
 	private final S3ImageStorage s3ImageStorage;
 	private final ProjectMapper projectMapper;
+	private final ProjectQueryPort projectQueryPort;
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ProjectListResponse> getAllProjects() {
-		return projectRepository.findAll()
-			.stream()
-			.map(projectMapper::toListResponse)
-			.toList();
+	public Page<ProjectListResponse> getAllProjects(Pageable pageable) {
+		return projectQueryPort.findAllProjects(pageable);
 	}
 
 	@Override
 	public ProjectListResponse createProject(User currentUser, ProjectRequest request, MultipartFile thumbnail) {
 
 		projectValidator.validateThumbnail(thumbnail);
-		String thumbnailUrl = s3ImageStorage.uploadFile(thumbnail, PREFIX);
-
-		Project project = projectMapper.toProject(request, currentUser, thumbnailUrl);
+		Project project = projectMapper.toProject(request, currentUser, null);
 		projectRepository.save(project);
-
+		String thumbnailUrl = s3ImageStorage.uploadFile(thumbnail, PREFIX);
+		project.change(project.getTitle(), project.getDescription(), thumbnailUrl);
 		return projectMapper.toListResponse(project);
 	}
 

@@ -9,6 +9,10 @@ import org.gamja.gamzatechblog.domain.project.controller.response.ProjectListRes
 import org.gamja.gamzatechblog.domain.project.model.dto.ProjectRequest;
 import org.gamja.gamzatechblog.domain.project.service.ProjectService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,8 +35,10 @@ public class ProjectController {
 
 	@Operation(summary = "전체 프로젝트 목록 조회", tags = "프로젝트 기능")
 	@GetMapping
-	public ResponseDto<List<ProjectListResponse>> getAllProjects() {
-		List<ProjectListResponse> list = projectService.getAllProjects();
+	public ResponseDto<List<ProjectListResponse>> getAllProjects(@PageableDefault(size = 20, sort = "createdAt",
+		direction = Sort.Direction.DESC) Pageable pageable) {
+		Page<ProjectListResponse> page = projectService.getAllProjects(pageable);
+		List<ProjectListResponse> list = page.getContent();
 		return ResponseDto.of(HttpStatus.OK, "프로젝트 목록 조회 성공", list);
 	}
 
@@ -43,11 +49,7 @@ public class ProjectController {
 		@RequestPart("request") @Valid ProjectRequest request,
 		@RequestPart("thumbnail") MultipartFile thumbnail
 	) {
-		return ResponseDto.of(
-			HttpStatus.CREATED,
-			"프로젝트 등록 성공",
-			projectService.createProject(user, request, thumbnail)
-		);
+		return ResponseDto.of(HttpStatus.CREATED, "프로젝트 등록 성공", projectService.createProject(user, request, thumbnail));
 	}
 
 	@Operation(summary = "프로젝트 수정", tags = "프로젝트 기능")

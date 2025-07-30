@@ -24,9 +24,8 @@ public class ProjectValidator {
 	}
 
 	public void validateOwnership(Project project, User currentUser) {
-		if (!project.getOwner().equals(currentUser)) {
-			throw new ProjectNotOwnerException(
-				ErrorCode.PROJECT_NOT_OWNER);
+		if (!project.getOwner().getId().equals(currentUser.getId())) {
+			throw new ProjectNotOwnerException(ErrorCode.PROJECT_NOT_OWNER);
 		}
 	}
 
