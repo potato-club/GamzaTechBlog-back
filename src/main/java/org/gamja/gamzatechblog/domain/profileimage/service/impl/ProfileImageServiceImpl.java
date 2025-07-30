@@ -34,7 +34,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 	private final UserRepository userRepository;
 
-	private static final String POST_IMAGES_PREFIX = "post-images";
+	private static final String POST_IMAGES_PREFIX = "profile-images";
 	// @Override
 	// @Transactional
 	// public ProfileImage uploadProfileImage(MultipartFile file, User user) {
