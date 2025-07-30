@@ -71,7 +71,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		ProfileImage profileImage = ProfileImage.builder()
 			.profileImageUrl(url)
 			.build();
-		user.setProfileImage(profileImage);
+		user.changeProfileImage(profileImage);
 
 		User saved = userRepository.saveUser(user);
 
