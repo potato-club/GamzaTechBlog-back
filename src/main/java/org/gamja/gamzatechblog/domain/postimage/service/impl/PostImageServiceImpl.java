@@ -29,12 +29,24 @@ public class PostImageServiceImpl implements PostImageService {
 	@Override
 	@Transactional
 	public void syncImages(Post post) {
-		String newContent = postImageServiceUtil.replaceAndUploadAllImages(post, post.getContent());
+		List<String> oldUrls = postImageRepository.findAllByPostOrderById(post).stream()
+			.map(PostImage::getPostImageUrl)
+			.toList();
+
+		String newContent = postImageServiceUtil.replaceAndUploadNewImages(post, post.getContent());
 		post.setContent(newContent);
 
-		List<String> urls = postImageServiceUtil.extractImageUrls(newContent);
+		List<String> newUrls = postImageServiceUtil.extractImageUrls(newContent);
+
+		List<String> toDelete = oldUrls.stream()
+			.filter(url -> !newUrls.contains(url))
+			.toList();
+		toDelete.forEach(url -> {
+			s3ImageStorage.deleteByUrl(url);
+		});
 		postImageRepository.deleteAllByPost(post);
-		List<PostImage> postImages = urls.stream()
+
+		List<PostImage> postImages = newUrls.stream()
 			.map(url -> PostImage.builder()
 				.post(post)
 				.postImageUrl(url)
