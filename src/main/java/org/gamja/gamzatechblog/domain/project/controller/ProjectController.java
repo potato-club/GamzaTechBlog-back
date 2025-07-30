@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @ApiController("/api/v1/projects")
@@ -39,7 +40,7 @@ public class ProjectController {
 	@PostMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseDto<ProjectListResponse> createProject(
 		@CurrentUser User user,
-		@RequestPart("request") ProjectRequest request,
+		@RequestPart("request") @Valid ProjectRequest request,
 		@RequestPart("thumbnail") MultipartFile thumbnail
 	) {
 		return ResponseDto.of(
@@ -54,7 +55,7 @@ public class ProjectController {
 	public ResponseDto<ProjectListResponse> updateProject(
 		@CurrentUser User user,
 		@PathVariable Long projectId,
-		@RequestPart("request") ProjectRequest request,
+		@RequestPart("request") @Valid ProjectRequest request,
 		@RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail
 	) {
 		return ResponseDto.of(
