@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.project.controller;
+package org.gamja.gamzatechblog.domain.project.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
