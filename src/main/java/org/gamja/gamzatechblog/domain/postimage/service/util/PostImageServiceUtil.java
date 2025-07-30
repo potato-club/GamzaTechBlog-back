@@ -43,7 +43,7 @@ public class PostImageServiceUtil {
 				InputStream in = new ByteArrayInputStream(bytes);
 				String filename = String.format("post-%d-%d.%s",
 					post.getId(), System.currentTimeMillis(), ext);
-				String s3Url = s3ImageStorage.uploadStream(in, filename);
+				String s3Url = s3ImageStorage.uploadStream(in, filename, "post-images");
 				dataMatcher.appendReplacement(sb, "![](" + s3Url + ")");
 			} catch (Exception e) {
 				log.warn("Base64 이미지 처리 실패 postId={} mime={} error={}",
@@ -59,7 +59,7 @@ public class PostImageServiceUtil {
 		while (extMatcher.find()) {
 			String url = extMatcher.group(1);
 			try {
-				String s3Url = s3ImageStorage.uploadFromUrl(url);
+				String s3Url = s3ImageStorage.uploadFromUrl(url, "post-images");
 				extMatcher.appendReplacement(sb, "![](" + s3Url + ")");
 			} catch (Exception e) {
 				log.warn("외부 이미지 처리 실패 postId={} url={} error={}",

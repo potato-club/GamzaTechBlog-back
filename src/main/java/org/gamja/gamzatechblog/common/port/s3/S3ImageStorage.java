@@ -6,11 +6,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface S3ImageStorage {
 
-	String uploadStream(InputStream stream, String filename);
+	String uploadStream(InputStream stream, String filename, String prefix);
 
-	String uploadFile(MultipartFile file);
+	String uploadFile(MultipartFile file, String prefix);
 
-	String uploadFromUrl(String imageUrl);
+	String uploadFromUrl(String imageUrl, String prefix);
 
 	void deleteByUrl(String fileUrl);
 }

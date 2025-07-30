@@ -61,7 +61,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		validator.validateFile(file);
 		unlinkAndDeleteProfileImage(user);
 
-		String url = s3ImageStorage.uploadFile(file);
+		String url = s3ImageStorage.uploadFile(file, "profile-images");
 		ProfileImage newImg = ProfileImage.builder()
 			.user(user)
 			.profileImageUrl(url)
@@ -77,7 +77,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 				"프로필 이미지 URL이 없습니다."
 			);
 		}
-		String url = s3ImageStorage.uploadFromUrl(imageUrl);
+		String url = s3ImageStorage.uploadFromUrl(imageUrl, "profile-images");
 		ProfileImage pi = mapper.toProfileImage(user, url);
 		return profileImageRepository.saveProfileImage(pi);
 	}
@@ -131,7 +131,6 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		} catch (BusinessException e) {
 			log.warn("S3 삭제 실패(무시): {}", e.getMessage());
 		}
-
 		user.setProfileImage(null);
 	}
 
