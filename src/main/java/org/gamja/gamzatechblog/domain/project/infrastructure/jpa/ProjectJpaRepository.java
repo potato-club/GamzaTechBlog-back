@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.project.infrastructure;
+package org.gamja.gamzatechblog.domain.project.infrastructure.jpa;
 
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;

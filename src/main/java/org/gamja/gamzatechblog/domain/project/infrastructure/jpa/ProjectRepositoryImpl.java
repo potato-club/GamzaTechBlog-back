@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.project.infrastructure;
+package org.gamja.gamzatechblog.domain.project.infrastructure.jpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,5 +28,10 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
 	public void deleteById(Long id) {
 		projectJpaRepository.deleteById(id);
+	}
+
+	@Override
+	public void delete(Project project) {
+		projectJpaRepository.delete(project);
 	}
 }
