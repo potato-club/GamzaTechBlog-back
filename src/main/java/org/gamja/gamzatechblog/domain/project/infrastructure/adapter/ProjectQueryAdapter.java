@@ -26,31 +26,21 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 
 	@Override
 	public Page<ProjectListResponse> findAllProjects(Pageable pageable) {
-		List<Long> ids = queryFactory
-			.select(project.id)
+
+		List<Tuple> tuples = queryFactory
+			.select(project.id, project.title, project.description, project.thumbnailUrl, project.duration,
+				project.createdAt)
 			.from(project)
 			.orderBy(project.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		if (ids.isEmpty()) {
-			return new PageImpl<>(List.of(), pageable, 0);
-		}
-
-		List<Tuple> tuples = queryFactory
-			.select(project.id, project.title, project.description, project.thumbnailUrl, project.duration,
-				project.createdAt)
-			.from(project)
-			.where(project.id.in(ids))
-			.orderBy(project.createdAt.desc())
-			.fetch();
-
 		List<ProjectListResponse> content = tuples.stream()
 			.map(t -> ProjectListResponse.builder()
 				.id(t.get(project.id))
 				.title(t.get(project.title))
-				.snippet(projectUtil.makeSnippet(t.get(project.description), 100))
+				.snippet(projectUtil.makeSnippet(t.get(project.description), 80))
 				.thumbnailUrl(t.get(project.thumbnailUrl))
 				.build()
 			)
