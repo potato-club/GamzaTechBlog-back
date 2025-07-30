@@ -55,7 +55,13 @@ public enum ErrorCode {
 	PROFILE_IMAGE_SIZE_EXCEEDED(400, "U009", "파일 크기가 최대 용량을 초과했습니다."),
 	PROFILE_IMAGE_INVALID_TYPE(400, "U010", "지원하지 않는 파일 형식입니다."),
 	PROFILE_IMAGE_UPLOAD_FAILED(500, "U011", "프로필 이미지 업로드에 실패했습니다."),
-	PROFILE_IMAGE_DELETE_FAILED(500, "U012", "프로필 이미지 삭제에 실패했습니다.");
+	PROFILE_IMAGE_DELETE_FAILED(500, "U012", "프로필 이미지 삭제에 실패했습니다."),
+
+	// Project
+	PROJECT_NOT_FOUND(404, "PR001", "프로젝트를 찾을 수 없습니다."),
+	PROJECT_IMAGE_EMPTY(400, "PR002", "업로드할 프로젝트 이미지가 없습니다."),
+	PROJECT_IMAGE_INVALID_TYPE(400, "PR003", "지원하지 않는 프로젝트 이미지 형식입니다."),
+	PROJECT_NOT_OWNER(403, "PR004", "프로젝트 소유자가 아닙니다.");
 
 	private final String code;
 	private final String message;
