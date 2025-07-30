@@ -43,7 +43,7 @@ public class ProjectController {
 	}
 
 	@Operation(summary = "프로젝트 생성", tags = "프로젝트 기능")
-	@PostMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseDto<ProjectListResponse> createProject(
 		@CurrentUser User user,
 		@RequestPart("request") @Valid ProjectRequest request,
@@ -53,7 +53,7 @@ public class ProjectController {
 	}
 
 	@Operation(summary = "프로젝트 수정", tags = "프로젝트 기능")
-	@PutMapping(value = "/me/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "/update/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseDto<ProjectListResponse> updateProject(
 		@CurrentUser User user,
 		@PathVariable Long projectId,
@@ -68,7 +68,7 @@ public class ProjectController {
 	}
 
 	@Operation(summary = "프로젝트 삭제", tags = "프로젝트 기능")
-	@DeleteMapping("/me/{projectId}")
+	@DeleteMapping("/delete/{projectId}")
 	public ResponseDto<String> deleteProject(
 		@CurrentUser User user,
 		@PathVariable Long projectId
