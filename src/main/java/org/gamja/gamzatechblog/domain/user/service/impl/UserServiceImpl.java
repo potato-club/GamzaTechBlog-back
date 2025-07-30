@@ -49,10 +49,13 @@ public class UserServiceImpl implements UserService {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 
 		User user = userMapper.toEntity(info);
+		String githubImageUrl = info.getProfileImageUrl();
 
 		if (info.getProfileImageUrl() != null && !info.getProfileImageUrl().isBlank()) {
+			profileImageValidator.validateUrl(githubImageUrl);
+			String s3Url = s3ImageStorage.uploadFromUrl(githubImageUrl, "profile-images");
 			ProfileImage pi = ProfileImage.builder()
-				.profileImageUrl(info.getProfileImageUrl())
+				.profileImageUrl(s3Url)
 				.build();
 			user.changeProfileImage(pi);
 		}

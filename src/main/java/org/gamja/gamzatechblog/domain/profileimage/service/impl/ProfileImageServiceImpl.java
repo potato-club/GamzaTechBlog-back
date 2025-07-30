@@ -57,16 +57,24 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	public ProfileImage uploadProfileImage(MultipartFile file, User currentUser) {
 		User user = userRepository.findByGithubId(currentUser.getGithubId())
 			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
-
 		validator.validateFile(file);
-		unlinkAndDeleteProfileImage(user);
+
+		ProfileImage old = user.getProfileImage();
+		if (old != null) {
+			s3ImageStorage.deleteByUrl(old.getProfileImageUrl());
+			user.setProfileImage(null);
+			profileImageRepository.flush();
+		}
 
 		String url = s3ImageStorage.uploadFile(file, "profile-images");
-		ProfileImage newImg = ProfileImage.builder()
-			.user(user)
+		ProfileImage profileImage = ProfileImage.builder()
 			.profileImageUrl(url)
 			.build();
-		return profileImageRepository.saveProfileImage(newImg);
+		user.setProfileImage(profileImage);
+
+		User saved = userRepository.saveUser(user);
+
+		return saved.getProfileImage();
 	}
 
 	@Override
