@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.profileimage.validator;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,9 +55,20 @@ public class ProfileImageValidator {
 		if (!StringUtils.hasText(imageUrl)) {
 			throw new ProfileImageEmptyException(ErrorCode.PROFILE_IMAGE_EMPTY);
 		}
+		URI uri;
+		try {
+			uri = URI.create(imageUrl);
+		} catch (Exception e) {
+			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
+		}
 
-		String path = imageUrl.split("[?#]")[0];
+		String host = uri.getHost() != null ? uri.getHost().toLowerCase() : "";
 
+		if (host.endsWith("githubusercontent.com") || host.endsWith("github.com")) {
+			return;
+		}
+
+		String path = uri.getPath();
 		int lastSlash = path.lastIndexOf('/');
 		if (lastSlash == -1) {
 			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
