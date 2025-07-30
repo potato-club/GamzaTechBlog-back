@@ -34,6 +34,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 	private final UserRepository userRepository;
 
+	private static final String POST_IMAGES_PREFIX = "post-images";
 	// @Override
 	// @Transactional
 	// public ProfileImage uploadProfileImage(MultipartFile file, User user) {
@@ -66,7 +67,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			profileImageRepository.flush();
 		}
 
-		String url = s3ImageStorage.uploadFile(file, "profile-images");
+		String url = s3ImageStorage.uploadFile(file, POST_IMAGES_PREFIX);
 		ProfileImage profileImage = ProfileImage.builder()
 			.profileImageUrl(url)
 			.build();
@@ -85,7 +86,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 				"프로필 이미지 URL이 없습니다."
 			);
 		}
-		String url = s3ImageStorage.uploadFromUrl(imageUrl, "profile-images");
+		String url = s3ImageStorage.uploadFromUrl(imageUrl, POST_IMAGES_PREFIX);
 		ProfileImage pi = mapper.toProfileImage(user, url);
 		return profileImageRepository.saveProfileImage(pi);
 	}

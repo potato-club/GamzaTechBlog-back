@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class PostImageServiceUtil {
 	private final S3ImageStorage s3ImageStorage;
 	private static final Logger log = LoggerFactory.getLogger(PostImageServiceUtil.class);
+	private static final String POST_IMAGES_PREFIX = "post-images";
 
 	private static final Pattern DATA_IMG =
 		Pattern.compile("!\\[[^\\]]*\\]\\((data:image/[^)]+)\\)");
@@ -43,7 +44,7 @@ public class PostImageServiceUtil {
 				InputStream in = new ByteArrayInputStream(bytes);
 				String filename = String.format("post-%d-%d.%s",
 					post.getId(), System.currentTimeMillis(), ext);
-				String s3Url = s3ImageStorage.uploadStream(in, filename, "post-images");
+				String s3Url = s3ImageStorage.uploadStream(in, filename, POST_IMAGES_PREFIX);
 				dataMatcher.appendReplacement(sb, "![](" + s3Url + ")");
 			} catch (Exception e) {
 				log.warn("Base64 이미지 처리 실패 postId={} mime={} error={}",
@@ -59,7 +60,7 @@ public class PostImageServiceUtil {
 		while (extMatcher.find()) {
 			String url = extMatcher.group(1);
 			try {
-				String s3Url = s3ImageStorage.uploadFromUrl(url, "post-images");
+				String s3Url = s3ImageStorage.uploadFromUrl(url, POST_IMAGES_PREFIX);
 				extMatcher.appendReplacement(sb, "![](" + s3Url + ")");
 			} catch (Exception e) {
 				log.warn("외부 이미지 처리 실패 postId={} url={} error={}",
