@@ -23,7 +23,7 @@ public class PostImageServiceImpl implements PostImageService {
 
 	@Override
 	public String uploadImage(MultipartFile file) {
-		return s3ImageStorage.uploadFile(file);
+		return s3ImageStorage.uploadFile(file, "post-images");
 	}
 
 	@Override

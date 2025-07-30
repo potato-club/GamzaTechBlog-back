@@ -11,6 +11,7 @@ import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,29 @@ public class ProfileImageValidator {
 
 	public Optional<ProfileImage> findExistingByUser(User user) {
 		return profileImageRepository.findByUser(user);
+	}
+
+	public void validateUrl(String imageUrl) {
+		if (!StringUtils.hasText(imageUrl)) {
+			throw new ProfileImageEmptyException(ErrorCode.PROFILE_IMAGE_EMPTY);
+		}
+
+		String path = imageUrl.split("[?#]")[0];
+
+		int lastSlash = path.lastIndexOf('/');
+		if (lastSlash == -1) {
+			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
+		}
+		String filename = path.substring(lastSlash + 1);
+
+		int idx = filename.lastIndexOf('.');
+		if (idx == -1) {
+			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
+		}
+		String ext = filename.substring(idx + 1).toLowerCase();
+
+		if (!ALLOWED_EXTENSIONS.contains(ext)) {
+			throw new ProfileImageInvalidTypeException(ErrorCode.PROFILE_IMAGE_INVALID_TYPE);
+		}
 	}
 }

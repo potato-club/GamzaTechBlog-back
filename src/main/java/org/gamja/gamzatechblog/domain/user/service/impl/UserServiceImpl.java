@@ -42,6 +42,7 @@ public class UserServiceImpl implements UserService {
 	private final TagRepository tagRepository;
 
 	private final ProfileImageValidator profileImageValidator;
+	private static final String PROFILE_IMAGES_PREFIX = "profile-images";
 
 	@Override
 	@Transactional
@@ -49,10 +50,13 @@ public class UserServiceImpl implements UserService {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 
 		User user = userMapper.toEntity(info);
+		String githubImageUrl = info.getProfileImageUrl();
 
-		if (info.getProfileImageUrl() != null && !info.getProfileImageUrl().isBlank()) {
+		if (githubImageUrl != null && !githubImageUrl.isBlank()) {
+			profileImageValidator.validateUrl(githubImageUrl);
+			String s3Url = s3ImageStorage.uploadFromUrl(githubImageUrl, PROFILE_IMAGES_PREFIX);
 			ProfileImage pi = ProfileImage.builder()
-				.profileImageUrl(info.getProfileImageUrl())
+				.profileImageUrl(s3Url)
 				.build();
 			user.changeProfileImage(pi);
 		}

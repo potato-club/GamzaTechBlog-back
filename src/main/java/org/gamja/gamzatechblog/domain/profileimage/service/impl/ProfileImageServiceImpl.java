@@ -34,6 +34,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final @Qualifier("profileImageMapperImpl") ProfileImageMapper mapper;
 	private final UserRepository userRepository;
 
+	private static final String POST_IMAGES_PREFIX = "post-images";
 	// @Override
 	// @Transactional
 	// public ProfileImage uploadProfileImage(MultipartFile file, User user) {
@@ -57,16 +58,24 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	public ProfileImage uploadProfileImage(MultipartFile file, User currentUser) {
 		User user = userRepository.findByGithubId(currentUser.getGithubId())
 			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
-
 		validator.validateFile(file);
-		unlinkAndDeleteProfileImage(user);
 
-		String url = s3ImageStorage.uploadFile(file);
-		ProfileImage newImg = ProfileImage.builder()
-			.user(user)
+		ProfileImage old = user.getProfileImage();
+		if (old != null) {
+			s3ImageStorage.deleteByUrl(old.getProfileImageUrl());
+			user.setProfileImage(null);
+			profileImageRepository.flush();
+		}
+
+		String url = s3ImageStorage.uploadFile(file, POST_IMAGES_PREFIX);
+		ProfileImage profileImage = ProfileImage.builder()
 			.profileImageUrl(url)
 			.build();
-		return profileImageRepository.saveProfileImage(newImg);
+		user.changeProfileImage(profileImage);
+
+		User saved = userRepository.saveUser(user);
+
+		return saved.getProfileImage();
 	}
 
 	@Override
@@ -77,7 +86,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 				"프로필 이미지 URL이 없습니다."
 			);
 		}
-		String url = s3ImageStorage.uploadFromUrl(imageUrl);
+		String url = s3ImageStorage.uploadFromUrl(imageUrl, POST_IMAGES_PREFIX);
 		ProfileImage pi = mapper.toProfileImage(user, url);
 		return profileImageRepository.saveProfileImage(pi);
 	}
@@ -131,7 +140,6 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		} catch (BusinessException e) {
 			log.warn("S3 삭제 실패(무시): {}", e.getMessage());
 		}
-
 		user.setProfileImage(null);
 	}
 
