@@ -5,11 +5,11 @@ import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.project.model.entity.Project;
 import org.gamja.gamzatechblog.domain.project.service.port.ProjectRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class ProjectRepositoryImpl implements ProjectRepository {
 	private final ProjectJpaRepository projectJpaRepository;
