@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class PostImageServiceImpl implements PostImageService {
 	private final S3ImageStorage s3ImageStorage;
@@ -68,6 +70,25 @@ public class PostImageServiceImpl implements PostImageService {
 			.map(u -> PostImage.builder().post(post).postImageUrl(u).build())
 			.toList();
 		postImageRepository.saveAll(entities);
+	}
+
+	@Override
+	@Transactional
+	public void deleteImagesForPost(Post post) {
+		List<String> urls = postImageRepository.findAllByPostOrderById(post)
+			.stream()
+			.map(PostImage::getPostImageUrl)
+			.toList();
+
+		urls.forEach(url -> {
+			try {
+				s3ImageStorage.deleteByUrl(url);
+			} catch (Exception e) {
+				log.warn("이미지 삭제 실패 (url={}), 계속 진행합니다.", url, e);
+			}
+		});
+
+		postImageRepository.deleteAllByPost(post);
 	}
 
 	@Override
