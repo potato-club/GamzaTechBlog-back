@@ -13,4 +13,6 @@ public interface PostImageService {
 	List<String> getImageUrls(Post post);
 
 	void syncDatabaseRecords(Post post);
+
+	void deleteImagesForPost(Post post);
 }

@@ -116,6 +116,8 @@ public class PostServiceImpl implements PostService {
 			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
 		}
 
+		postImageService.deleteImagesForPost(post);
+
 		postRepository.delete(post);
 		tagRepository.deleteOrphanTags();
 	}
