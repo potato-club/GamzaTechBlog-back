@@ -88,4 +88,15 @@ public class S3ImageStorageImpl implements S3ImageStorage {
 		log.info("S3 객체 삭제 완료 → bucket='{}', key='{}'", bucketName, key);
 	}
 
+	@Override
+	public String move(String sourceUrl, String destPrefix) {
+		String bucketUrl = amazonS3.getUrl(bucketName, "").toString();
+		String sourceKey = validator.extractKey(bucketUrl, sourceUrl);
+		String fileName = sourceKey.substring(sourceKey.lastIndexOf('/') + 1);
+		String destKey = destPrefix + "/" + fileName;
+
+		amazonS3.copyObject(bucketName, sourceKey, bucketName, destKey);
+		amazonS3.deleteObject(bucketName, sourceKey);
+		return amazonS3.getUrl(bucketName, destKey).toString();
+	}
 }

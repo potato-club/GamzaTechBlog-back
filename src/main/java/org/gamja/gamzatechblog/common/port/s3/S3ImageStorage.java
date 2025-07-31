@@ -13,4 +13,6 @@ public interface S3ImageStorage {
 	String uploadFromUrl(String imageUrl, String prefix);
 
 	void deleteByUrl(String fileUrl);
+
+	String move(String sourceUrl, String destPrefix);
 }

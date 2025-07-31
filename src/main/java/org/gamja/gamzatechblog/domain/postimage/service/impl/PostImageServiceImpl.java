@@ -23,29 +23,36 @@ public class PostImageServiceImpl implements PostImageService {
 
 	@Override
 	public String uploadImage(MultipartFile file) {
-		return s3ImageStorage.uploadFile(file, "post-images");
+		return s3ImageStorage.uploadFile(file, "tmp_images");
 	}
 
 	@Override
 	@Transactional
 	public void syncImages(Post post) {
-		List<String> oldUrls = postImageRepository.findAllByPostOrderById(post).stream()
+		List<String> oldUrls = postImageRepository.findAllByPostOrderById(post)
+			.stream()
 			.map(PostImage::getPostImageUrl)
 			.toList();
 
-		String newContent = postImageServiceUtil.replaceAndUploadNewImages(post, post.getContent());
-		post.setContent(newContent);
-
-		List<String> newUrls = postImageServiceUtil.extractImageUrls(newContent);
-
-		List<String> toDelete = oldUrls.stream()
-			.filter(url -> !newUrls.contains(url))
+		String content = post.getContent();
+		List<String> tmpUrls = postImageServiceUtil.extractImageUrls(content).stream()
+			.filter(url -> url.contains("/tmp_images/"))
 			.toList();
-		toDelete.forEach(url -> {
-			s3ImageStorage.deleteByUrl(url);
-		});
-		postImageRepository.deleteAllByPost(post);
 
+		String postPrefix = "post_images/" + post.getId();
+		for (String tmpUrl : tmpUrls) {
+			String movedUrl = s3ImageStorage.move(tmpUrl, postPrefix);
+			content = content.replace(tmpUrl, movedUrl);
+		}
+		post.setContent(content);
+
+		List<String> newUrls = postImageServiceUtil.extractImageUrls(content);
+
+		oldUrls.stream()
+			.filter(url -> !newUrls.contains(url))
+			.forEach(s3ImageStorage::deleteByUrl);
+
+		postImageRepository.deleteAllByPost(post);
 		List<PostImage> postImages = newUrls.stream()
 			.map(url -> PostImage.builder()
 				.post(post)
