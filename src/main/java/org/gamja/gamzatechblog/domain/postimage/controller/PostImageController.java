@@ -29,7 +29,7 @@ public class PostImageController {
 		)
 		@RequestPart("file") MultipartFile file
 	) {
-		String url = postImageService.uploadImage(file);
+		String url = postImageService.saveTemporaryImage(file);
 		return ResponseDto.of(HttpStatus.CREATED, "이미지 업로드 성공", url);
 	}
 }

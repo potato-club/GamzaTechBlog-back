@@ -22,44 +22,52 @@ public class PostImageServiceImpl implements PostImageService {
 	private final PostImageServiceUtil postImageServiceUtil;
 
 	@Override
-	public String uploadImage(MultipartFile file) {
+	public String saveTemporaryImage(MultipartFile file) {
 		return s3ImageStorage.uploadFile(file, "tmp_images");
 	}
 
 	@Override
-	@Transactional
 	public void syncImages(Post post) {
-		List<String> oldUrls = postImageRepository.findAllByPostOrderById(post)
-			.stream()
-			.map(PostImage::getPostImageUrl)
-			.toList();
+		String updatedContent = moveTemporaryToPost(post.getContent(), post.getId());
+		post.setContent(updatedContent);
+		syncDatabaseRecords(post);
+	}
 
-		String content = post.getContent();
+	private String moveTemporaryToPost(String content, Long postId) {
 		List<String> tmpUrls = postImageServiceUtil.extractImageUrls(content).stream()
-			.filter(url -> url.contains("/tmp_images/"))
+			.filter(u -> u.contains("/tmp_images/"))
 			.toList();
 
-		String postPrefix = "post_images/" + post.getId();
+		String prefix = "post_images/" + postId;
+		String result = content;
+
 		for (String tmpUrl : tmpUrls) {
-			String movedUrl = s3ImageStorage.move(tmpUrl, postPrefix);
-			content = content.replace(tmpUrl, movedUrl);
+			String moved = s3ImageStorage.move(tmpUrl, prefix);
+			result = result.replace(tmpUrl, moved);
 		}
-		post.setContent(content);
+		return result;
+	}
 
-		List<String> newUrls = postImageServiceUtil.extractImageUrls(content);
+	@Override
+	@Transactional
+	public void syncDatabaseRecords(Post post) {
+		List<String> oldUrls = postImageRepository
+			.findAllByPostOrderById(post)
+			.stream().map(PostImage::getPostImageUrl).toList();
 
+		List<String> newUrls = postImageServiceUtil.extractImageUrls(post.getContent());
+
+		// 사용되지 않는 URL 삭제
 		oldUrls.stream()
 			.filter(url -> !newUrls.contains(url))
 			.forEach(s3ImageStorage::deleteByUrl);
 
+		// 레코드 교체
 		postImageRepository.deleteAllByPost(post);
-		List<PostImage> postImages = newUrls.stream()
-			.map(url -> PostImage.builder()
-				.post(post)
-				.postImageUrl(url)
-				.build())
+		List<PostImage> entities = newUrls.stream()
+			.map(u -> PostImage.builder().post(post).postImageUrl(u).build())
 			.toList();
-		postImageRepository.saveAll(postImages);
+		postImageRepository.saveAll(entities);
 	}
 
 	@Override
