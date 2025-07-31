@@ -10,6 +10,7 @@ import org.gamja.gamzatechblog.domain.like.model.dto.response.LikeResponse;
 import org.gamja.gamzatechblog.domain.like.model.entity.QLike;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeQueryPort;
 import org.gamja.gamzatechblog.domain.post.model.entity.QPost;
+import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.postimage.model.entity.QPostImage;
 import org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class LikeQueryAdapter implements LikeQueryPort {
 
 	private final JPAQueryFactory queryFactory;
+	private final PostUtil postUtil;
 
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
@@ -115,10 +117,7 @@ public class LikeQueryAdapter implements LikeQueryPort {
 					.orElse(null);
 
 				Tuple first = list.get(0);
-				String fullContent = first.get(post.content);
-				String snippet = fullContent.length() > 100
-					? fullContent.substring(0, 100)
-					: fullContent;
+				String snippet = postUtil.makeSnippet(first.get(post.content), 100);
 
 				List<String> tags = list.stream()
 					.map(t -> t.get(tag.tagName))
