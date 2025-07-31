@@ -22,37 +22,52 @@ public class PostImageServiceImpl implements PostImageService {
 	private final PostImageServiceUtil postImageServiceUtil;
 
 	@Override
-	public String uploadImage(MultipartFile file) {
-		return s3ImageStorage.uploadFile(file, "post-images");
+	public String saveTemporaryImage(MultipartFile file) {
+		return s3ImageStorage.uploadFile(file, "tmp_images");
+	}
+
+	@Override
+	public void syncImages(Post post) {
+		String updatedContent = moveTemporaryToPost(post.getContent(), post.getId());
+		post.setContent(updatedContent);
+		syncDatabaseRecords(post);
+	}
+
+	private String moveTemporaryToPost(String content, Long postId) {
+		List<String> tmpUrls = postImageServiceUtil.extractImageUrls(content).stream()
+			.filter(u -> u.contains("/tmp_images/"))
+			.toList();
+
+		String prefix = "post_images/" + postId;
+		String result = content;
+
+		for (String tmpUrl : tmpUrls) {
+			String moved = s3ImageStorage.move(tmpUrl, prefix);
+			result = result.replace(tmpUrl, moved);
+		}
+		return result;
 	}
 
 	@Override
 	@Transactional
-	public void syncImages(Post post) {
-		List<String> oldUrls = postImageRepository.findAllByPostOrderById(post).stream()
-			.map(PostImage::getPostImageUrl)
-			.toList();
+	public void syncDatabaseRecords(Post post) {
+		List<String> oldUrls = postImageRepository
+			.findAllByPostOrderById(post)
+			.stream().map(PostImage::getPostImageUrl).toList();
 
-		String newContent = postImageServiceUtil.replaceAndUploadNewImages(post, post.getContent());
-		post.setContent(newContent);
+		List<String> newUrls = postImageServiceUtil.extractImageUrls(post.getContent());
 
-		List<String> newUrls = postImageServiceUtil.extractImageUrls(newContent);
-
-		List<String> toDelete = oldUrls.stream()
+		// 사용되지 않는 URL 삭제
+		oldUrls.stream()
 			.filter(url -> !newUrls.contains(url))
-			.toList();
-		toDelete.forEach(url -> {
-			s3ImageStorage.deleteByUrl(url);
-		});
-		postImageRepository.deleteAllByPost(post);
+			.forEach(s3ImageStorage::deleteByUrl);
 
-		List<PostImage> postImages = newUrls.stream()
-			.map(url -> PostImage.builder()
-				.post(post)
-				.postImageUrl(url)
-				.build())
+		// 레코드 교체
+		postImageRepository.deleteAllByPost(post);
+		List<PostImage> entities = newUrls.stream()
+			.map(u -> PostImage.builder().post(post).postImageUrl(u).build())
 			.toList();
-		postImageRepository.saveAll(postImages);
+		postImageRepository.saveAll(entities);
 	}
 
 	@Override

@@ -88,4 +88,28 @@ public class S3ImageStorageImpl implements S3ImageStorage {
 		log.info("S3 객체 삭제 완료 → bucket='{}', key='{}'", bucketName, key);
 	}
 
+	@Override
+	public String move(String sourceUrl, String destPrefix) {
+		if (destPrefix == null || destPrefix.isBlank()) {
+			throw new BusinessException(ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED, "이동 대상 경로(destPrefix)는 필수입니다.");
+		}
+
+		String bucketUrl = amazonS3.getUrl(bucketName, "").toString();
+		log.info("S3 이동 요청 → sourceUrl='{}', destPrefix='{}'", sourceUrl, destPrefix);
+
+		String sourceKey = validator.extractKey(bucketUrl, sourceUrl);
+		String fileName = sourceKey.substring(sourceKey.lastIndexOf('/') + 1);
+		String destKey = destPrefix + "/" + fileName;
+
+		try {
+			amazonS3.copyObject(bucketName, sourceKey, bucketName, destKey);
+			amazonS3.deleteObject(bucketName, sourceKey);
+			log.info("S3 객체 이동 완료 → sourceKey='{}', destKey='{}'", sourceKey, destKey);
+			return amazonS3.getUrl(bucketName, destKey).toString();
+		} catch (Exception e) {
+			log.error("S3 객체 이동 실패 → sourceKey='{}', destKey='{}'", sourceKey, destKey, e);
+			throw new BusinessException(ErrorCode.PROFILE_IMAGE_UPLOAD_FAILED, "이미지 이동 중 오류가 발생했습니다.");
+		}
+	}
+
 }
