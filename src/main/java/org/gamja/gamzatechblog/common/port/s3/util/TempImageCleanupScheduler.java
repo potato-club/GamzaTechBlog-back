@@ -26,10 +26,10 @@ public class TempImageCleanupScheduler {
 	@Value("${cloud.aws.s3.bucket-name}")
 	private String bucketName;
 
-	@Value("${app.temp-image-cleanup.hours:24}")
+	@Value("${app.temp-image-cleanup.hours:8}")
 	private long cleanupThresholdHours;
 
-	@Scheduled(cron = "0 0 3 * * *")
+	@Scheduled(cron = "0 0 0/8 * * *")
 	public void cleanupOldTempImages() {
 		log.info("▶ 임시 이미지 정리 시작 ({}시간 이전 tmp_images/*)", cleanupThresholdHours);
 		try {
