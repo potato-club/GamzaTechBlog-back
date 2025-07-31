@@ -38,7 +38,7 @@ public class PostImageServiceImpl implements PostImageService {
 			.filter(u -> u.contains("/tmp_images/"))
 			.toList();
 
-		String prefix = "post_images/" + postId;
+		String prefix = "post-images/" + postId;
 		String result = content;
 
 		for (String tmpUrl : tmpUrls) {
