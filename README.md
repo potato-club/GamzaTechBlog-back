@@ -1,5 +1,9 @@
 # 🥔 감자테크 블로그 프로젝트
 
+홍보 사이트 : https://www.gamzatech.site/
+
+기술 블로그 사이트 : https://app.gamzatech.site/
+
 > **현재 구상 단계이며, 기능은 주기적으로 확장될 예정입니다.**
 
 ---
