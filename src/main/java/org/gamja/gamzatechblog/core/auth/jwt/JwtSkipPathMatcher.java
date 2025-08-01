@@ -23,18 +23,21 @@ public class JwtSkipPathMatcher {
 		"/api/v1/tags",
 		"/api/v1/posts/tags",
 		"/jenkins",
-		"/api/v1/posts/search",
-		"/api/v1/projects"
+		"/api/v1/posts/search"
 	);
 
 	public boolean shouldSkip(HttpServletRequest request) {
 		String path = request.getRequestURI();
 		String method = request.getMethod();
 
+		if ("GET".equalsIgnoreCase(method) && path.equals("/api/v1/projects")) {
+			return true;
+		}
 		if (SKIP_PREFIXES.stream().anyMatch(path::startsWith)) {
 			return true;
 		}
 		if ("GET".equalsIgnoreCase(method)
+
 			&& path.startsWith("/api/v1/posts")
 			&& !path.equals("/api/v1/posts/me")) {
 			return true;
