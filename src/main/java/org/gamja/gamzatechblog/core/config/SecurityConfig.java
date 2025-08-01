@@ -35,7 +35,6 @@ public class SecurityConfig {
 		"/api/v1/posts/popular",
 		"/jenkins/**",
 		"/api/v1/posts/search",
-		"/api/v1/projects"
 	};
 
 	@Bean
@@ -62,7 +61,8 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/tags",
 					"/api/v1/posts",
-					"/api/v1/posts/{id:[0-9]+}"
+					"/api/v1/posts/{id:[0-9]+}",
+					"/api/v1/projects"
 				).permitAll()
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/posts/me")
