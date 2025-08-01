@@ -26,10 +26,9 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 
 	@Override
 	public Page<ProjectListResponse> findAllProjects(Pageable pageable) {
-
 		List<Tuple> tuples = queryFactory
-			.select(project.id, project.title, project.description, project.thumbnailUrl, project.duration,
-				project.createdAt)
+			.select(project.id, project.title, project.description,
+				project.thumbnailUrl, project.duration, project.createdAt)
 			.from(project)
 			.orderBy(project.createdAt.desc())
 			.offset(pageable.getOffset())
@@ -42,19 +41,17 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 				.title(t.get(project.title))
 				.snippet(projectUtil.makeSnippet(t.get(project.description), 80))
 				.thumbnailUrl(t.get(project.thumbnailUrl))
-				.build()
-			)
+				.build())
 			.toList();
 
-		Long total = queryFactory
+		return new PageImpl<>(content, pageable, 0);
+	}
+
+	@Override
+	public long countAllProjects() {
+		return queryFactory
 			.select(project.count())
 			.from(project)
 			.fetchOne();
-
-		return new PageImpl<>(
-			content,
-			pageable,
-			total == null ? 0L : total
-		);
 	}
 }

@@ -37,7 +37,6 @@ public class JwtSkipPathMatcher {
 			return true;
 		}
 		if ("GET".equalsIgnoreCase(method)
-
 			&& path.startsWith("/api/v1/posts")
 			&& !path.equals("/api/v1/posts/me")) {
 			return true;

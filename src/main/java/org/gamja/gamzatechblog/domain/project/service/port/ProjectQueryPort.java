@@ -7,4 +7,5 @@ import org.springframework.data.domain.Pageable;
 public interface ProjectQueryPort {
 	Page<ProjectListResponse> findAllProjects(Pageable pageable);
 
+	long countAllProjects();
 }

@@ -28,6 +28,8 @@ import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,8 @@ public class PostServiceImpl implements PostService {
 	private final PostImageService postImageService;
 
 	@Override
+	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
+		"postsByTag"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		//개인 레포지토리 없으면 생성 GamzaTechBlog
@@ -82,6 +86,8 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
+		"postsByTag"}, allEntries = true)
 	public PostResponse revisePost(User currentUser, Long postId, PostRequest request) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
@@ -101,6 +107,8 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
+		"postsByTag"}, allEntries = true)
 	@Transactional(noRollbackFor = HttpClientErrorException.NotFound.class)
 	public void removePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
@@ -123,12 +131,23 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	@Cacheable(
+		value = "postsList",
+		key = "#pageable.pageNumber + '-' + #pageable.pageSize +"
+			+ " '-' +(#filterTags != null ? #filterTags.toString() : 'all')"
+		, unless = "#result.content.isEmpty()")
 	public PagedResponse<PostListResponse> getPosts(Pageable pageable, List<String> filterTags) {
 		Page<PostListResponse> dtoPage = postQueryPort.findAllPosts(pageable, filterTags);
 		return PagedResponse.pagedFrom(dtoPage);
 	}
 
 	@Override
+	@Cacheable(
+		value = "postDetail",
+		key = "#postId",
+		unless = "#result == null"
+	)
 	public PostDetailResponse getPostDetail(Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		List<CommentResponse> comments = commentService.getCommentsByPostId(postId);
@@ -137,6 +156,11 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(
+		value = "myPosts",
+		key = "#currentUser.id + '-' + #pageable.pageNumber + '-' + #pageable.pageSize",
+		unless = "#result.content.isEmpty()"
+	)
 	public PagedResponse<PostListResponse> getMyPosts(User currentUser, Pageable pageable) {
 		Page<PostListResponse> dtoPage = postQueryPort.findMyPosts(pageable, currentUser);
 		return PagedResponse.pagedFrom(dtoPage);
@@ -144,6 +168,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "hotPosts", key = "'weekly'", unless = "#result.isEmpty()")
 	public List<PostPopularResponse> getWeeklyPopularPosts() {
 		LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
 		List<Post> posts = postQueryPort.findWeeklyPopularPosts(oneWeekAgo, 3);
@@ -154,6 +179,11 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(
+		value = "postsByTag",
+		key = "#p0 + '-' + #p1.pageNumber + '-' + #p1.pageSize",
+		unless = "#result.content.isEmpty()"
+	)
 	public PagedResponse<PostListResponse> getPostsByTag(String tagName, Pageable pageable) {
 		List<String> filterTags = List.of(tagName);
 		Page<PostListResponse> page = postQueryPort.findAllPosts(pageable, filterTags);
@@ -162,6 +192,11 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(
+		value = "searchPosts",
+		key = "#keyword + '-' + #pageable.pageNumber + '-' + #pageable.pageSize",
+		unless = "#result.content.isEmpty()"
+	)
 	public PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
 		Page<PostListResponse> pageData = postQueryPort.searchPostsByTitle(pageable, keyword);
 		return PagedResponse.pagedFrom(pageData);
