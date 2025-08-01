@@ -50,7 +50,8 @@ public class CacheConfig {
 		Map<String, RedisCacheConfiguration> configs = Map.of(
 			"hotPosts", defaultConfig.entryTtl(Duration.ofMinutes(30)),
 			"frequentPosts", defaultConfig.entryTtl(Duration.ofMinutes(10)),
-			"projectsList", defaultConfig.entryTtl(Duration.ofMinutes(30))
+			"projectsListContent", defaultConfig.entryTtl(Duration.ofMinutes(30)),
+			"projectsTotal", defaultConfig.entryTtl(Duration.ofMinutes(30))
 		);
 
 		return RedisCacheManager.builder(redisConnectionFactory)

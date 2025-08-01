@@ -19,7 +19,7 @@ public class ProjectCacheFacade {
 
 	@Cacheable(
 		value = "projectsListContent",
-		key = "#pageable.pageNumber + '-' + #pageable.pageSize",
+		key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()",
 		unless = "#result.isEmpty()"
 	)
 	@Transactional(readOnly = true)

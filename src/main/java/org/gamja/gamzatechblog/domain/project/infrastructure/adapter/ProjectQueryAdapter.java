@@ -44,7 +44,8 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 				.build())
 			.toList();
 
-		return new PageImpl<>(content, pageable, 0);
+		long totalCount = countAllProjects();
+		return new PageImpl<>(content, pageable, totalCount);
 	}
 
 	@Override
