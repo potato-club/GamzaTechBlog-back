@@ -1,8 +1,10 @@
 package org.gamja.gamzatechblog.domain.user.infrastructure;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.springframework.stereotype.Repository;
 
@@ -47,5 +49,15 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public void deleteUser(User user) {
 		userJpaRepository.delete(user);
+	}
+
+	@Override
+	public Optional<User> findById(Long id) {
+		return userJpaRepository.findById(id);
+	}
+
+	@Override
+	public List<User> findAllByRole(UserRole role) {
+		return userJpaRepository.findAllByRole(role);
 	}
 }

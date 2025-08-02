@@ -23,5 +23,4 @@ public interface UserService {
 	UserProfileResponse setupUserProfile(String githubId, UserProfileRequest userProfileRequest);
 
 	UserActivityResponse getActivitySummary(User user);
-
 }

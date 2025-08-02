@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 		userValidator.validateProfileRequest(userProfileRequest);
 		User user = userValidator.validateAndGetUserByGithubId(githubId);
 		userProfileMapper.completeProfile(userProfileRequest, user);
-		user.setUserRole(UserRole.USER);
+		user.setUserRole(UserRole.PENDING);
 		User saved = userRepository.saveUser(user);
 		return userProfileMapper.toUserProfileResponse(saved);
 	}

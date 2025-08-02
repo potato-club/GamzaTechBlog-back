@@ -61,7 +61,10 @@ public enum ErrorCode {
 	PROJECT_NOT_FOUND(404, "PR001", "프로젝트를 찾을 수 없습니다."),
 	PROJECT_IMAGE_EMPTY(400, "PR002", "업로드할 프로젝트 이미지가 없습니다."),
 	PROJECT_IMAGE_INVALID_TYPE(400, "PR003", "지원하지 않는 프로젝트 이미지 형식입니다."),
-	PROJECT_NOT_OWNER(403, "PR004", "프로젝트 소유자가 아닙니다.");
+	PROJECT_NOT_OWNER(403, "PR004", "프로젝트 소유자가 아닙니다."),
+
+	// ADMIN
+	ADMIN_ACCESS_FORBIDDEN(403, "A001", "어드민 권한이 필요합니다.");
 
 	private final String code;
 	private final String message;

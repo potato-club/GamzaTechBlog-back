@@ -68,9 +68,9 @@ public class SecurityConfig {
 					"/api/v1/posts/me")
 				.hasRole("USER")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
-				.hasAnyRole("USER", "PRE_REGISTER")
+				.hasAnyRole("USER", "PRE_REGISTER", "PENDING", "ADMIN")
 				.requestMatchers("/api/admin/**").hasRole("ADMIN")
-				.anyRequest().hasRole("USER")
+				.anyRequest().hasAnyRole("USER", "ADMIN")
 			)
 			.addFilterAfter(
 				jwtAuthenticationFilter,
