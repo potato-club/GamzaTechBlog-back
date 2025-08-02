@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @ApiController("/api/admin/users")
@@ -32,7 +33,7 @@ public class AdminUserController {
 	@Operation(summary = "특정 사용자 승인 (PENDING → USER)", tags = "관리자 기능")
 	@PutMapping("/{id}/approve")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseDto<Void> approveUserProfile(@PathVariable("id") Long userId) {
+	public ResponseDto<Void> approveUserProfile(@PathVariable("id") @Positive Long userId) {
 		adminService.approveUserProfile(userId);
 		return ResponseDto.of(HttpStatus.OK, "사용자 승인 완료", null);
 	}

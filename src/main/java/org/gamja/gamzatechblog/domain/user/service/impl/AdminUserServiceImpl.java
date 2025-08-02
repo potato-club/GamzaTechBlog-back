@@ -23,6 +23,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 	private final UserProfileMapper userProfileMapper;
 	private final AdminUserValidator adminUserValidator;
 
+	@Override
 	public List<UserProfileResponse> getPendingUsers() {
 		List<User> pendings = userRepository.findAllByRole(UserRole.PENDING);
 		return pendings.stream()
@@ -30,6 +31,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 			.toList();
 	}
 
+	@Override
 	@Transactional
 	public void approveUserProfile(Long userId) {
 		User user = adminUserValidator.validateAndGetUser(userId);

@@ -18,7 +18,7 @@ public class AdminUserValidator {
 
 	public User validateAndGetUser(Long userId) {
 		return userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> new UserNotFoundException(userId));
 	}
 
 	public void validatePending(User user) {
