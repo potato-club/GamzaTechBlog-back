@@ -68,10 +68,9 @@ public class UserController {
 
 	@Operation(summary = "역할 조회", tags = "유저 기능")
 	@GetMapping("/me/role")
-	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER')")
+	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER','ADMIN', 'PENDING')")
 	public ResponseDto<String> getCurrentUserRole(@CurrentUser User currentUser) {
 		String role = currentUser.getRole().name();
 		return ResponseDto.of(HttpStatus.OK, "역할 조회 성공", role);
 	}
-
 }

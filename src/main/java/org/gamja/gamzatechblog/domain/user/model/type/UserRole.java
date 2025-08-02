@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum UserRole {
 	ADMIN,
 	USER,
-	PRE_REGISTER
+	PRE_REGISTER,
+	PENDING
 }
