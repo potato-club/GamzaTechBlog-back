@@ -39,7 +39,7 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 			.map(t -> ProjectListResponse.builder()
 				.id(t.get(project.id))
 				.title(t.get(project.title))
-				.snippet(projectUtil.makeSnippet(t.get(project.description), 80))
+				.snippet(projectUtil.makeSnippet(t.get(project.description), 100))
 				.thumbnailUrl(t.get(project.thumbnailUrl))
 				.build())
 			.toList();
