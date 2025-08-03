@@ -90,8 +90,15 @@ public class PostImageServiceUtil {
 	public List<String> extractImageUrls(String content) {
 		Matcher matcher = MD_IMG.matcher(content);
 		List<String> urls = new ArrayList<>();
+		String bucketDomain = String.format("%s.s3.%s.amazonaws.com", bucketName, region);
 		while (matcher.find()) {
-			urls.add(matcher.group(1));
+			String url = matcher.group(1).trim();
+			if (url.startsWith("data:image/")) {
+				urls.add(url);
+			} else if ((url.startsWith("http://") || url.startsWith("https://"))
+				&& url.contains(bucketDomain)) {
+				urls.add(url);
+			}
 		}
 		return urls;
 	}
