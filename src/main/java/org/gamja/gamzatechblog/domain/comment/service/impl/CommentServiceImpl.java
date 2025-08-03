@@ -14,7 +14,7 @@ import org.gamja.gamzatechblog.domain.comment.validator.CommentValidator;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
 	private final CommentMapper commentMapper;
 	private final CommentValidator commentValidator;
 	private final PostValidator postValidator;
+	private final CacheManager cacheManager;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -44,24 +45,22 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	@CacheEvict(value = "postDetail", key = "#postId")
 	public CommentResponse createComment(User user, Long postId, CommentRequest req) {
 		Post post = postValidator.validatePostExists(postId);
 		Comment parent = commentValidator.resolveParent(req.getParentCommentId());
 		Comment comment = buildComment(post, user, parent, req.getContent());
 		Comment saved = commentRepository.saveComment(comment);
+		cacheManager.getCache("postDetail").evict(postId);
 		return commentMapper.mapToCommentTree(saved);
 	}
 
 	@Override
-	@CacheEvict(
-		value = "postDetail",
-		key = "#commentValidator.validateCommentExists(#commentId).post.id"
-	)
 	public void deleteComment(User currentUser, Long commentId) {
 		Comment existing = commentValidator.validateCommentExists(commentId);
 		commentValidator.validateCommentOwnership(existing, currentUser);
+		Long postId = existing.getPost().getId();
 		commentRepository.deleteComment(existing);
+		cacheManager.getCache("postDetail").evict(postId);
 	}
 
 	@Override
