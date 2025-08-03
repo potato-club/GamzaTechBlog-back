@@ -66,7 +66,7 @@ public class SecurityConfig {
 				).permitAll()
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/posts/me")
-				.hasRole("USER")
+				.hasAnyRole("USER", "ADMIN")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
 				.hasAnyRole("USER", "PRE_REGISTER", "PENDING", "ADMIN")
 				.requestMatchers("/api/admin/**").hasRole("ADMIN")
