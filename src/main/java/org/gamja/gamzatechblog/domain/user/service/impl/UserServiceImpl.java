@@ -73,8 +73,9 @@ public class UserServiceImpl implements UserService {
 	/*
 	필터로 유효성검사를 하지만, 서비스코드에서 한번 더 실행합니다.
 	 */
+	@Override
 	@Transactional(readOnly = true)
-	@Cacheable(value = "userProfile", key = "#currentUser.githubId", unless = "#result == null")
+	@Cacheable(value = "userProfile", key = "#p0.githubId", unless = "#result == null")
 	public UserProfileResponse getCurrentUserProfile(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		return userProfileMapper.toUserProfileResponse(user);
