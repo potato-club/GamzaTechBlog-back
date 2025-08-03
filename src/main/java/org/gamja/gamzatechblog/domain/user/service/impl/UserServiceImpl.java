@@ -20,6 +20,8 @@ import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +73,9 @@ public class UserServiceImpl implements UserService {
 	/*
 	필터로 유효성검사를 하지만, 서비스코드에서 한번 더 실행합니다.
 	 */
+	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "userProfile", key = "#p0.githubId", unless = "#result == null")
 	public UserProfileResponse getCurrentUserProfile(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		return userProfileMapper.toUserProfileResponse(user);
@@ -98,6 +102,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional
+	@CacheEvict(value = "userProfile", key = "#currentUser.githubId")
 	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
 		log.info(">> updateProfile 시작: githubId={}, req={}", currentUser.getGithubId(), req);
 
