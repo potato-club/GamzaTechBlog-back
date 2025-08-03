@@ -37,6 +37,10 @@ public class PostImageServiceUtil {
 	private static final Pattern MD_IMG =
 		Pattern.compile("!\\[[^\\]]*\\]\\(([^)]+)\\)");
 
+	private String getBucketDomain() {
+		return String.format("%s.s3.%s.amazonaws.com", bucketName, region);
+	}
+
 	public String replaceAndUploadNewImages(Post post, String content) {
 		Matcher dataMatcher = DATA_IMG.matcher(content);
 		StringBuilder sb = new StringBuilder();
@@ -62,9 +66,7 @@ public class PostImageServiceUtil {
 		String interim = sb.toString();
 		Matcher extMatcher = EXTERNAL_IMG.matcher(interim);
 		sb = new StringBuilder();
-
-		String bucketDomain = String.format("%s.s3.%s.amazonaws.com", bucketName, region);
-
+		String bucketDomain = getBucketDomain();
 		while (extMatcher.find()) {
 			String url = extMatcher.group(1);
 			if (url.contains(bucketDomain)) {
@@ -90,7 +92,7 @@ public class PostImageServiceUtil {
 	public List<String> extractImageUrls(String content) {
 		Matcher matcher = MD_IMG.matcher(content);
 		List<String> urls = new ArrayList<>();
-		String bucketDomain = String.format("%s.s3.%s.amazonaws.com", bucketName, region);
+		String bucketDomain = getBucketDomain();
 		while (matcher.find()) {
 			String url = matcher.group(1).trim();
 			if (url.startsWith("data:image/")) {
