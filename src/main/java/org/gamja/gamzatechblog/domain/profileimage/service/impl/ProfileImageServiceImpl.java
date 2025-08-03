@@ -11,6 +11,7 @@ import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidat
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -35,26 +36,10 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 	private final UserRepository userRepository;
 
 	private static final String POST_IMAGES_PREFIX = "profile-images";
-	// @Override
-	// @Transactional
-	// public ProfileImage uploadProfileImage(MultipartFile file, User user) {
-	// 	validator.validateFile(file);
-	// 	user.setProfileImage(null);
-	// 	profileImageRepository.deleteByUser(user);
-	// 	profileImageRepository.flush();
-	// 	String url = s3ImageStorage.uploadFile(file);
-	// 	ProfileImage newImg = ProfileImage.builder()
-	// 		.user(user)
-	// 		.profileImageUrl(url)
-	// 		.build();
-	// 	ProfileImage saved = profileImageRepository.saveProfileImage(newImg);
-	// 	user.setProfileImage(saved);
-	//
-	// 	return saved;
-	// }
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "userProfile", key = "#currentUser.githubId")
 	public ProfileImage uploadProfileImage(MultipartFile file, User currentUser) {
 		User user = userRepository.findByGithubId(currentUser.getGithubId())
 			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
@@ -93,6 +78,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "userProfile", key = "#currentUser.githubId")
 	public ProfileImage updateProfileImage(MultipartFile newFile, User currentUser) {
 		log.info(">> updateProfileImage 시작: userId={}", currentUser.getId());
 		ProfileImage uploadProfileImage = uploadProfileImage(newFile, currentUser);
@@ -110,17 +96,9 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			));
 	}
 
-	// @Override
-	// @Transactional
-	// public void deleteProfileImage(User user) {
-	// 	profileImageRepository.findByUser(user).ifPresent(pi -> {
-	// 		validator.validateForDelete(pi);
-	// 		s3ImageStorage.deleteByUrl(pi.getProfileImageUrl());
-	// 		profileImageRepository.deleteProfileImageById(pi.getId());
-	// 	});
-	// }
 	@Override
 	@Transactional
+	@CacheEvict(value = "userProfile", key = "#currentUser.githubId")
 	public void deleteProfileImage(User currentUser) {
 		User user = userRepository.findByGithubId(currentUser.getGithubId())
 			.orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
@@ -142,5 +120,4 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		}
 		user.setProfileImage(null);
 	}
-
 }
