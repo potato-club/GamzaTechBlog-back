@@ -11,6 +11,7 @@ import org.gamja.gamzatechblog.domain.like.validator.LikeValidator;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class LikeServiceImpl implements LikeService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "postDetail", key = "#postId")
 	public LikeResponse likePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		likeValidator.validateNotAlreadyLiked(currentUser, post);
@@ -44,6 +46,7 @@ public class LikeServiceImpl implements LikeService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "postDetail", key = "#postId")
 	public void unlikePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		likeValidator.validateExists(currentUser, post);
