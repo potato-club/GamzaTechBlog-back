@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.user.model.mapper;
 
+import org.gamja.gamzatechblog.domain.user.controller.response.PendingUserResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
@@ -22,4 +23,7 @@ public interface UserProfileMapper {
 	void applyProfileUpdates(UpdateProfileRequest dto, @MappingTarget User user);
 
 	void completeProfile(UserProfileRequest dto, @MappingTarget User user);
+
+	@Mapping(source = "id", target = "userId")
+	PendingUserResponse toPendingUserResponse(User user);
 }

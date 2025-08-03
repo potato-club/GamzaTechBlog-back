@@ -2,7 +2,7 @@ package org.gamja.gamzatechblog.domain.user.service.impl;
 
 import java.util.List;
 
-import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.controller.response.PendingUserResponse;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
@@ -24,10 +24,10 @@ public class AdminUserServiceImpl implements AdminUserService {
 	private final AdminUserValidator adminUserValidator;
 
 	@Override
-	public List<UserProfileResponse> getPendingUsers() {
+	public List<PendingUserResponse> getPendingUsers() {
 		List<User> pendings = userRepository.findAllByRole(UserRole.PENDING);
 		return pendings.stream()
-			.map(userProfileMapper::toUserProfileResponse)
+			.map(userProfileMapper::toPendingUserResponse)
 			.toList();
 	}
 

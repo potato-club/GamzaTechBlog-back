@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.controller.response.PendingUserResponse;
 import org.gamja.gamzatechblog.domain.user.service.AdminUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,8 +25,8 @@ public class AdminUserController {
 	@Operation(summary = "대기 중인(PENDING) 사용자 전체 조회", tags = "관리자 기능")
 	@GetMapping("/pending")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseDto<List<UserProfileResponse>> getPendingUsers() {
-		List<UserProfileResponse> pendings = adminService.getPendingUsers();
+	public ResponseDto<List<PendingUserResponse>> getPendingUsers() {
+		List<PendingUserResponse> pendings = adminService.getPendingUsers();
 		return ResponseDto.of(HttpStatus.OK, "대기 중인 사용자 조회 성공", pendings);
 	}
 
