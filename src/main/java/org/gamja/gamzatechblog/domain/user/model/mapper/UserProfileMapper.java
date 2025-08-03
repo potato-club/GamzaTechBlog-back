@@ -25,8 +25,5 @@ public interface UserProfileMapper {
 	void completeProfile(UserProfileRequest dto, @MappingTarget User user);
 
 	@Mapping(source = "id", target = "userId")
-	@Mapping(source = "gamjaBatch", target = "gamjaBatch")
-	@Mapping(source = "name", target = "name")
-	@Mapping(source = "position", target = "position")
 	PendingUserResponse toPendingUserResponse(User user);
 }
