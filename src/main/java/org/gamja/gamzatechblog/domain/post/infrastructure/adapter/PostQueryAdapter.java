@@ -69,11 +69,12 @@ public class PostQueryAdapter implements PostQueryPort {
 	private Page<PostListResponse> fetchPosts(Pageable pageable, BooleanExpression where) {
 		// 1) 페이징용 ID 조회
 		List<Long> ids = queryFactory
-			.select(post.id)
+			.selectDistinct(post.id)
 			.from(post)
 			.leftJoin(post.postTags, postTag)
 			.leftJoin(postTag.tag, tag)
 			.where(where)
+			.groupBy(post.id)
 			.orderBy(post.createdAt.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -93,7 +94,6 @@ public class PostQueryAdapter implements PostQueryPort {
 			.orderBy(post.createdAt.desc())
 			.fetch();
 
-		// 3) 썸네일 이미지 URL만 별도 조회
 		NumberPath<Long> postIdPath = post.id;
 		List<Tuple> imageTuples = queryFactory
 			.select(postIdPath, postImage.postImageUrl)
@@ -111,7 +111,6 @@ public class PostQueryAdapter implements PostQueryPort {
 			);
 		}
 
-		// 4) DTO 매핑
 		List<PostListResponse> content = posts.stream()
 			.map(p -> {
 				PostListResponse dto = new PostListResponse();
