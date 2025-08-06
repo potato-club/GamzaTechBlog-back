@@ -25,7 +25,7 @@ public interface LikeControllerSwagger {
 		responses = @ApiResponse(
 			responseCode = "200",
 			description = "좋아요 목록 조회 성공",
-			content = @Content(schema = @Schema(implementation = PagedResponse.class))
+			content = @Content(schema = @Schema(implementation = ResponseDto.class))
 		)
 	)
 	ResponseDto<PagedResponse<LikeResponse>> getMyLikes(
