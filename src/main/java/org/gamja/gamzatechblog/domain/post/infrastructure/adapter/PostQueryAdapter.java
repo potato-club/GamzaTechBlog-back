@@ -112,26 +112,7 @@ public class PostQueryAdapter implements PostQueryPort {
 		}
 
 		List<PostListResponse> content = posts.stream()
-			.map(p -> {
-				PostListResponse dto = new PostListResponse();
-				dto.setPostId(p.getId());
-				dto.setTitle(p.getTitle());
-				dto.setContentSnippet(
-					postUtil.makeSnippet(p.getContent(), 100)
-				);
-				dto.setWriter(p.getUser().getNickname());
-				dto.setWriterProfileImageUrl(
-					p.getUser().getProfileImage() != null
-						? p.getUser().getProfileImage().getProfileImageUrl()
-						: null
-				);
-				dto.setCreatedAt(p.getCreatedAt());
-				dto.setTags(p.getPostTags().stream()
-					.map(pt -> pt.getTag().getTagName())
-					.toList());
-				dto.setThumbnailImageUrl(firstImageByPost.get(p.getId()));
-				return dto;
-			})
+			.map(p -> new PostListResponse(p, postUtil, firstImageByPost))
 			.toList();
 
 		// 5) 전체 카운트
