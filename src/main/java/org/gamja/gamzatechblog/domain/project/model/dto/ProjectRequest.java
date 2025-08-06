@@ -1,15 +1,13 @@
 package org.gamja.gamzatechblog.domain.project.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProjectRequest {
-	private String title;
-	private String description;
+@Schema(description = "프로젝트 생성/수정 요청 DTO")
+public record ProjectRequest(
+	@Schema(description = "프로젝트 제목", example = "Gamza Tech Blog 리뉴얼")
+	String title,
+
+	@Schema(description = "프로젝트 설명", example = "Gradle, Docker, Jenkins 를 활용한 블로그 플랫폼 개발")
+	String description
+) {
 }
