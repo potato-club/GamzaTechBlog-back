@@ -15,7 +15,7 @@ public record PagedResponse<T>(
 	public static <T> PagedResponse<T> pagedFrom(Page<T> pageData) {
 		return new PagedResponse<>(
 			pageData.getContent(),
-			pageData.getNumber() + 1,
+			pageData.getNumber(),
 			pageData.getSize(),
 			pageData.getTotalElements(),
 			pageData.getTotalPages()
@@ -29,7 +29,7 @@ public record PagedResponse<T>(
 
 		return new PagedResponse<>(
 			content,
-			pageData.getNumber() + 1,
+			pageData.getNumber(),
 			pageData.getSize(),
 			pageData.getTotalElements(),
 			pageData.getTotalPages()
