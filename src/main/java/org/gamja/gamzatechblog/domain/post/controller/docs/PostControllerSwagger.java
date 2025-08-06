@@ -71,7 +71,7 @@ public interface PostControllerSwagger {
 		summary = "게시물 삭제",
 		tags = "게시물 기능",
 		responses = @ApiResponse(
-			responseCode = "200",
+			responseCode = "204",
 			description = "게시물 삭제 성공",
 			content = @Content(schema = @Schema(implementation = Void.class))
 		)
@@ -160,7 +160,6 @@ public interface PostControllerSwagger {
 		@ParameterObject Pageable pageable,
 		@Parameter(description = "검색 키워드", example = "Redis")
 		@RequestParam("keyword")
-		@NotBlank(message = "검색 키워드는 필수입니다")
-		String keyword
+		@NotBlank(message = "검색 키워드는 필수입니다") String keyword
 	);
 }
