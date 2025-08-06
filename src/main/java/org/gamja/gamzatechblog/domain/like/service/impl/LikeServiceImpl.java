@@ -13,6 +13,7 @@ import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class LikeServiceImpl implements LikeService {
 	@Transactional(readOnly = true)
 	@Cacheable(
 		value = "myLikes",
-		key = "#user.id + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+		key = "#user.id + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()"
 	)
 	public PagedResponse<LikeResponse> getMyLikes(User user, Pageable pageable) {
 		return likeQueryPort.findMyLikesByUser(user, pageable);
@@ -40,7 +41,10 @@ public class LikeServiceImpl implements LikeService {
 
 	@Override
 	@Transactional
-	@CacheEvict(value = {"postDetail", "myLikes"}, key = "#postId", allEntries = true)
+	@Caching(evict = {
+		@CacheEvict(value = "postDetail", key = "#postId"),
+		@CacheEvict(value = "myLikes", allEntries = true)
+	})
 	public LikeResponse likePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		likeValidator.validateNotAlreadyLiked(currentUser, post);
@@ -51,7 +55,10 @@ public class LikeServiceImpl implements LikeService {
 
 	@Override
 	@Transactional
-	@CacheEvict(value = {"postDetail", "myLikes"}, key = "#postId", allEntries = true)
+	@Caching(evict = {
+		@CacheEvict(value = "postDetail", key = "#postId"),
+		@CacheEvict(value = "myLikes", allEntries = true)
+	})
 	public void unlikePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
 		likeValidator.validateExists(currentUser, post);
