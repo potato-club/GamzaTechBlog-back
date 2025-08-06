@@ -77,10 +77,10 @@ public class PostServiceImpl implements PostService {
 			);
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
-		postTagUtil.syncPostTags(post, request.getTags());
+		postTagUtil.syncPostTags(post, request.tags());
 		postImageService.syncImages(post);
-		String sha = postUtil.syncToGitHub(token, null, null, post, request.getTags(), "Add",
-			request.getCommitMessage());
+		String sha = postUtil.syncToGitHub(token, null, null, post, request.tags(), "Add",
+			request.commitMessage());
 		commitHistoryService.registerCommitHistory(post, repo, request, sha);
 		return postMapper.buildPostResponseFromEntity(post);
 	}
@@ -95,13 +95,13 @@ public class PostServiceImpl implements PostService {
 			.map(pt -> pt.getTag().getTagName())
 			.toList();
 		String prevTitle = post.getTitle();
-		post.update(request.getTitle(), request.getContent());
+		post.update(request.title(), request.content());
 		postRepository.save(post);
-		postTagUtil.syncPostTags(post, request.getTags());
+		postTagUtil.syncPostTags(post, request.tags());
 		postImageService.syncImages(post);
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		String sha = postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.getTags(), "Update",
-			request.getCommitMessage());
+		String sha = postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.tags(), "Update",
+			request.commitMessage());
 		commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), request, sha);
 		return postMapper.buildPostResponseFromEntity(post);
 	}
