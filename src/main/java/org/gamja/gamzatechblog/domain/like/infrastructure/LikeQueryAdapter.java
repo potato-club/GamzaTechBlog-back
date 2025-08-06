@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -34,16 +35,24 @@ public class LikeQueryAdapter implements LikeQueryPort {
 
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
-		long total = countLikes(user);
-		List<Tuple> rows = fetchLikeTuples(user, pageable);
-		List<LikeResponse> content = mapTuplesToResponses(rows);
+		List<Tuple> allTuples = fetchLikeTuples(user, Pageable.unpaged());
+		List<LikeResponse> allLikes = mapTuplesToResponses(allTuples);
 
-		int totalPages = (int)Math.ceil((double)total / pageable.getPageSize());
+		int pageIndex = pageable.getPageNumber();
+		int pageSize = pageable.getPageSize();
+		int startIndex = (int)Math.min(pageable.getOffset(), allLikes.size());
+		int endIndex = Math.min(startIndex + pageSize, allLikes.size());
+
+		List<LikeResponse> pageContent = allLikes.subList(startIndex, endIndex);
+
+		long totalElements = allLikes.size();
+		int totalPages = (int)Math.ceil((double)totalElements / pageSize);
+
 		return new PagedResponse<>(
-			content,
-			pageable.getPageNumber(),
-			pageable.getPageSize(),
-			total,
+			pageContent,
+			pageIndex,
+			pageSize,
+			totalElements,
 			totalPages
 		);
 	}
@@ -66,7 +75,7 @@ public class LikeQueryAdapter implements LikeQueryPort {
 		QTag tag = QTag.tag;
 		QPostImage postImage = QPostImage.postImage;
 
-		return queryFactory
+		JPAQuery<Tuple> query = queryFactory
 			.select(
 				like.id,
 				post.id,
@@ -74,8 +83,8 @@ public class LikeQueryAdapter implements LikeQueryPort {
 				post.content,
 				post.user.nickname,
 				profileImage.profileImageUrl,
-				postImage.id,            // 이미지 ID
-				postImage.postImageUrl,  // 이미지 URL
+				postImage.id,
+				postImage.postImageUrl,
 				like.createdAt,
 				tag.tagName
 			)
@@ -85,12 +94,17 @@ public class LikeQueryAdapter implements LikeQueryPort {
 			.leftJoin(qUser.profileImage, profileImage)
 			.leftJoin(post.postTags, pt)
 			.leftJoin(pt.tag, tag)
-			.leftJoin(post.images, postImage)   // 포스트 → 이미지 조인
+			.leftJoin(post.images, postImage)
 			.where(like.user.eq(user))
-			.orderBy(like.createdAt.desc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
-			.fetch();
+			.orderBy(like.createdAt.desc());
+
+		if (!pageable.isUnpaged()) {
+			query = query
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize());
+		}
+
+		return query.fetch();
 	}
 
 	private List<LikeResponse> mapTuplesToResponses(List<Tuple> rows) {
