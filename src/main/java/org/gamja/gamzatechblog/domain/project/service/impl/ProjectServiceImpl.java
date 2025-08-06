@@ -74,7 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
 			}
 		}
 
-		project.change(request.getTitle(), request.getDescription(), thumbnailUrl);
+		project.change(request.title(), request.description(), thumbnailUrl);
 		return projectMapper.toListResponse(project);
 	}
 

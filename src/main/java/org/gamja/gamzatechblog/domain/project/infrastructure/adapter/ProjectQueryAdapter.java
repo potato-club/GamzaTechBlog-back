@@ -36,12 +36,12 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
 			.fetch();
 
 		List<ProjectListResponse> content = tuples.stream()
-			.map(t -> ProjectListResponse.builder()
-				.id(t.get(project.id))
-				.title(t.get(project.title))
-				.snippet(projectUtil.makeSnippet(t.get(project.description), 100))
-				.thumbnailUrl(t.get(project.thumbnailUrl))
-				.build())
+			.map(t -> new ProjectListResponse(
+				t.get(project.id),
+				t.get(project.title),
+				projectUtil.makeSnippet(t.get(project.description), 100),
+				t.get(project.thumbnailUrl)
+			))
 			.toList();
 
 		long totalCount = countAllProjects();
