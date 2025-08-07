@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class TagController {
 	private final TagService tagService;
 
-	@Operation(summary = "전체 태그 조회", tags = "태그 기능")
+	@Operation(summary = "전체 태그 조회", tags = "태그 기능", description = "태그 목록 조회 성공")
 	@GetMapping
 	public ResponseDto<List<String>> getAllTags() {
 		List<String> tags = tagService.getAllTags();
