@@ -5,7 +5,6 @@ import java.util.List;
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.domain.project.controller.docs.ProjectControllerSwagger;
 import org.gamja.gamzatechblog.domain.project.controller.response.ProjectListResponse;
 import org.gamja.gamzatechblog.domain.project.model.dto.ProjectRequest;
 import org.gamja.gamzatechblog.domain.project.service.ProjectService;
@@ -24,23 +23,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @ApiController("/api/v1/projects")
 @RequiredArgsConstructor
-public class ProjectController implements ProjectControllerSwagger {
+public class ProjectController {
 
 	private final ProjectService projectService;
 
+	@Operation(summary = "전체 프로젝트 목록 조회", tags = "프로젝트 기능")
 	@GetMapping
-	public ResponseDto<List<ProjectListResponse>> getAllProjects(@PageableDefault(size = 10, sort = "createdAt",
+	public ResponseDto<List<ProjectListResponse>> getAllProjects(@PageableDefault(size = 20, sort = "createdAt",
 		direction = Sort.Direction.DESC) Pageable pageable) {
 		Page<ProjectListResponse> page = projectService.getAllProjects(pageable);
 		List<ProjectListResponse> list = page.getContent();
 		return ResponseDto.of(HttpStatus.OK, "프로젝트 목록 조회 성공", list);
 	}
 
+	@Operation(summary = "프로젝트 생성", tags = "프로젝트 기능")
 	@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseDto<ProjectListResponse> createProject(
 		@CurrentUser User user,
@@ -50,6 +52,7 @@ public class ProjectController implements ProjectControllerSwagger {
 		return ResponseDto.of(HttpStatus.CREATED, "프로젝트 등록 성공", projectService.createProject(user, request, thumbnail));
 	}
 
+	@Operation(summary = "프로젝트 수정", tags = "프로젝트 기능")
 	@PutMapping(value = "/update/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseDto<ProjectListResponse> updateProject(
 		@CurrentUser User user,
@@ -64,6 +67,7 @@ public class ProjectController implements ProjectControllerSwagger {
 		);
 	}
 
+	@Operation(summary = "프로젝트 삭제", tags = "프로젝트 기능")
 	@DeleteMapping("/delete/{projectId}")
 	public ResponseDto<String> deleteProject(
 		@CurrentUser User user,
