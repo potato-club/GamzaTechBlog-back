@@ -18,13 +18,12 @@ import org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage;
 import org.gamja.gamzatechblog.domain.tag.model.entity.QTag;
 import org.gamja.gamzatechblog.domain.user.model.entity.QUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -38,19 +37,37 @@ public class LikeQueryAdapter implements LikeQueryPort {
 
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
-		QueryResults<Tuple> results = fetchTuplesWithPaging(user, pageable);
-		List<LikeResponse> content = convertTuplesToResponses(results.getResults());
-
-		long totalElements = queryFactory
+		List<Long> likeIds = fetchLikeIds(user, pageable);
+		List<Tuple> tuples = fetchTuplesByLikeIds(user, likeIds);
+		List<LikeResponse> content = convertTuplesToResponses(tuples);
+		long total = queryFactory
 			.select(QLike.like.id.countDistinct())
 			.from(QLike.like)
 			.where(QLike.like.user.eq(user))
 			.fetchOne();
-		Page<LikeResponse> page = new PageImpl<>(content, pageable, totalElements);
-		return PagedResponse.pagedFrom(page);
+
+		return PagedResponse.pagedFrom(
+			new PageImpl<>(content, pageable, total)
+		);
 	}
 
-	private QueryResults<Tuple> fetchTuplesWithPaging(User user, Pageable pageable) {
+	private List<Long> fetchLikeIds(User user, Pageable pageable) {
+		QLike like = QLike.like;
+		return queryFactory
+			.select(like.id)
+			.from(like)
+			.where(like.user.eq(user))
+			.orderBy(like.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+	}
+
+	private List<Tuple> fetchTuplesByLikeIds(User user, List<Long> likeIds) {
+		if (likeIds.isEmpty()) {
+			return List.of();
+		}
+
 		QLike like = QLike.like;
 		QPost post = QPost.post;
 		QUser qUser = QUser.user;
@@ -59,7 +76,7 @@ public class LikeQueryAdapter implements LikeQueryPort {
 		QTag tag = QTag.tag;
 		QPostImage postImage = QPostImage.postImage;
 
-		return queryFactory
+		JPAQuery<Tuple> query = queryFactory
 			.select(
 				like.id,
 				post.id,
@@ -79,11 +96,11 @@ public class LikeQueryAdapter implements LikeQueryPort {
 			.leftJoin(post.postTags, pt)
 			.leftJoin(pt.tag, tag)
 			.leftJoin(post.images, postImage)
-			.where(like.user.eq(user))
-			.orderBy(like.createdAt.desc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
-			.fetchResults();
+			.where(like.user.eq(user)
+				.and(like.id.in(likeIds)))
+			.orderBy(like.createdAt.desc(), like.id.asc());
+
+		return query.fetch();
 	}
 
 	private List<LikeResponse> convertTuplesToResponses(List<Tuple> rows) {
