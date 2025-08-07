@@ -6,11 +6,9 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-@Schema(name = "ResponseDto", description = "공통 API 응답 래퍼")
 public class ResponseDto<T> {
 	private final int status;
 	private final String message;
