@@ -40,7 +40,13 @@ public class LikeQueryAdapter implements LikeQueryPort {
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
 		QueryResults<Tuple> results = fetchTuplesWithPaging(user, pageable);
 		List<LikeResponse> content = convertTuplesToResponses(results.getResults());
-		Page<LikeResponse> page = new PageImpl<>(content, pageable, results.getTotal());
+
+		long totalElements = queryFactory
+			.select(QLike.like.id.countDistinct())
+			.from(QLike.like)
+			.where(QLike.like.user.eq(user))
+			.fetchOne();
+		Page<LikeResponse> page = new PageImpl<>(content, pageable, totalElements);
 		return PagedResponse.pagedFrom(page);
 	}
 
