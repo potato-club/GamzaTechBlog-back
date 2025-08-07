@@ -1,6 +1,7 @@
 package org.gamja.gamzatechblog.domain.like.infrastructure;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,11 +18,13 @@ import org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage;
 import org.gamja.gamzatechblog.domain.tag.model.entity.QTag;
 import org.gamja.gamzatechblog.domain.user.model.entity.QUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -35,54 +38,29 @@ public class LikeQueryAdapter implements LikeQueryPort {
 
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
-		List<Tuple> allTuples = fetchLikeTuples(user, Pageable.unpaged());
-		List<LikeResponse> allLikes = mapTuplesToResponses(allTuples);
-
-		int pageIndex = pageable.getPageNumber();
-		int pageSize = pageable.getPageSize();
-		int startIndex = (int)Math.min(pageable.getOffset(), allLikes.size());
-		int endIndex = Math.min(startIndex + pageSize, allLikes.size());
-
-		List<LikeResponse> pageContent = allLikes.subList(startIndex, endIndex);
-
-		long totalElements = allLikes.size();
-		int totalPages = (int)Math.ceil((double)totalElements / pageSize);
-
-		return new PagedResponse<>(
-			pageContent,
-			pageIndex,
-			pageSize,
-			totalElements,
-			totalPages
-		);
+		QueryResults<Tuple> results = fetchTuplesWithPaging(user, pageable);
+		List<LikeResponse> content = convertTuplesToResponses(results.getResults());
+		Page<LikeResponse> page = new PageImpl<>(content, pageable, results.getTotal());
+		return PagedResponse.pagedFrom(page);
 	}
 
-	private long countLikes(User user) {
-		QLike like = QLike.like;
-		return queryFactory
-			.select(like.count())
-			.from(like)
-			.where(like.user.eq(user))
-			.fetchOne();
-	}
-
-	private List<Tuple> fetchLikeTuples(User user, Pageable pageable) {
+	private QueryResults<Tuple> fetchTuplesWithPaging(User user, Pageable pageable) {
 		QLike like = QLike.like;
 		QPost post = QPost.post;
 		QUser qUser = QUser.user;
-		QProfileImage profileImage = QProfileImage.profileImage;
+		QProfileImage pi = QProfileImage.profileImage;
 		QPostTag pt = QPostTag.postTag;
 		QTag tag = QTag.tag;
 		QPostImage postImage = QPostImage.postImage;
 
-		JPAQuery<Tuple> query = queryFactory
+		return queryFactory
 			.select(
 				like.id,
 				post.id,
 				post.title,
 				post.content,
 				post.user.nickname,
-				profileImage.profileImageUrl,
+				pi.profileImageUrl,
 				postImage.id,
 				postImage.postImageUrl,
 				like.createdAt,
@@ -91,65 +69,65 @@ public class LikeQueryAdapter implements LikeQueryPort {
 			.from(like)
 			.leftJoin(like.post, post)
 			.leftJoin(post.user, qUser)
-			.leftJoin(qUser.profileImage, profileImage)
+			.leftJoin(qUser.profileImage, pi)
 			.leftJoin(post.postTags, pt)
 			.leftJoin(pt.tag, tag)
 			.leftJoin(post.images, postImage)
 			.where(like.user.eq(user))
-			.orderBy(like.createdAt.desc());
-
-		if (!pageable.isUnpaged()) {
-			query = query
-				.offset(pageable.getOffset())
-				.limit(pageable.getPageSize());
-		}
-
-		return query.fetch();
+			.orderBy(like.createdAt.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetchResults();
 	}
 
-	private List<LikeResponse> mapTuplesToResponses(List<Tuple> rows) {
+	private List<LikeResponse> convertTuplesToResponses(List<Tuple> rows) {
 		QLike like = QLike.like;
 		QPost post = QPost.post;
-		QProfileImage profileImage = QProfileImage.profileImage;
+		QProfileImage pi = QProfileImage.profileImage;
 		QTag tag = QTag.tag;
 		QPostImage postImage = QPostImage.postImage;
 
-		// Like ID별로 묶기
 		Map<Long, List<Tuple>> grouped = rows.stream()
-			.collect(Collectors.groupingBy(t -> t.get(like.id)));
+			.collect(Collectors.groupingBy(
+				t -> t.get(like.id),
+				LinkedHashMap::new,
+				Collectors.toList()
+			));
 
 		return grouped.entrySet().stream()
-			.map(entry -> {
-				Long likeId = entry.getKey();
-				List<Tuple> list = entry.getValue();
-
-				// 좋아요당 첫 번째(가장 작은 ID) 이미지를 thumbnail로 선택
-				String thumbnail = list.stream()
-					.filter(t -> t.get(postImage.postImageUrl) != null)
-					.min(Comparator.comparing(t -> t.get(postImage.id)))
-					.map(t -> t.get(postImage.postImageUrl))
-					.orElse(null);
-
-				Tuple first = list.get(0);
-				String snippet = postUtil.makeSnippet(first.get(post.content), 100);
-
-				List<String> tags = list.stream()
-					.map(t -> t.get(tag.tagName))
-					.distinct()
-					.toList();
-
-				return new LikeResponse(
-					likeId,
-					first.get(post.id),
-					first.get(post.title),
-					snippet,
-					first.get(post.user.nickname),
-					first.get(profileImage.profileImageUrl),
-					thumbnail,
-					first.get(like.createdAt),
-					tags
-				);
-			})
+			.map(entry -> buildLikeResponse(entry.getKey(), entry.getValue()))
 			.toList();
+	}
+
+	private LikeResponse buildLikeResponse(Long likeId, List<Tuple> tuples) {
+		QLike like = QLike.like;
+		QPost post = QPost.post;
+		QProfileImage pi = QProfileImage.profileImage;
+		QTag tag = QTag.tag;
+		QPostImage postImage = QPostImage.postImage;
+
+		Tuple first = tuples.get(0);
+		String snippet = postUtil.makeSnippet(first.get(post.content), 100);
+		String thumbnail = tuples.stream()
+			.filter(t -> t.get(postImage.postImageUrl) != null)
+			.min(Comparator.comparing(t -> t.get(postImage.id)))
+			.map(t -> t.get(postImage.postImageUrl))
+			.orElse(null);
+		List<String> tags = tuples.stream()
+			.map(t -> t.get(tag.tagName))
+			.distinct()
+			.toList();
+
+		return new LikeResponse(
+			likeId,
+			first.get(post.id),
+			first.get(post.title),
+			snippet,
+			first.get(post.user.nickname),
+			first.get(pi.profileImageUrl),
+			thumbnail,
+			first.get(like.createdAt),
+			tags
+		);
 	}
 }
