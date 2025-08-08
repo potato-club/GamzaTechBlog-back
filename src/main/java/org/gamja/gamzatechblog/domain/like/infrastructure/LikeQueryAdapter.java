@@ -19,12 +19,12 @@ import org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage;
 import org.gamja.gamzatechblog.domain.tag.model.entity.QTag;
 import org.gamja.gamzatechblog.domain.user.model.entity.QUser;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Repository
 public class LikeQueryAdapter implements LikeQueryPort {
-	private static final int IN_CLAUSE_LIMIT = 500;
+	@Value("${like.in-clause-limit:500}")
+	private int inClauseLimit;
 
 	private final JPAQueryFactory queryFactory;
 	private final PostUtil postUtil;
@@ -41,7 +42,7 @@ public class LikeQueryAdapter implements LikeQueryPort {
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
 		List<Long> likeIds = fetchLikeIds(user, pageable);
 		Map<Long, List<Tuple>> tuplesById = fetchTuplesByLikeIds(user, likeIds);
-		List<LikeResponse> content = convertGroupedTuplesToResponses(tuplesById);
+		List<LikeResponse> content = convertGroupedTuplesToResponses(tuplesById, likeIds);
 		long total = queryFactory
 			.select(QLike.like.id.count())
 			.from(QLike.like)
@@ -79,14 +80,21 @@ public class LikeQueryAdapter implements LikeQueryPort {
 		QPostImage postImage = QPostImage.postImage;
 
 		Map<Long, List<Tuple>> resultMap = new LinkedHashMap<>();
-		for (int i = 0; i < likeIds.size(); i += IN_CLAUSE_LIMIT) {
-			List<Long> chunk = likeIds.subList(i, Math.min(i + IN_CLAUSE_LIMIT, likeIds.size()));
-			JPAQuery<Tuple> query = queryFactory
+
+		for (int i = 0; i < likeIds.size(); i += inClauseLimit) {
+			List<Long> chunk = likeIds.subList(i, Math.min(i + inClauseLimit, likeIds.size()));
+			List<Tuple> fetched = queryFactory
 				.select(
-					like.id, post.id, post.title, post.content,
-					post.user.nickname, pi.profileImageUrl,
-					postImage.id, postImage.postImageUrl,
-					like.createdAt, tag.tagName
+					like.id,
+					post.id,
+					post.title,
+					post.content,
+					post.user.nickname,
+					pi.profileImageUrl,
+					postImage.id,
+					postImage.postImageUrl,
+					like.createdAt,
+					tag.tagName
 				)
 				.from(like)
 				.leftJoin(like.post, post)
@@ -97,28 +105,28 @@ public class LikeQueryAdapter implements LikeQueryPort {
 				.leftJoin(post.images, postImage)
 				.where(like.user.eq(user)
 					.and(like.id.in(chunk)))
-				.orderBy(
-					like.createdAt.desc(),
-					like.id.asc()
-				);
+				.orderBy(like.createdAt.desc(), like.id.asc())
+				.fetch();
 
-			List<Tuple> fetched = query.fetch();
-			// 피드백: chunk 내 항목별 그룹핑 및 순서 보존
-			fetched.stream()
+			Map<Long, List<Tuple>> grouped = fetched.stream()
 				.collect(Collectors.groupingBy(
-					t -> t.get(QLike.like.id),
+					t -> t.get(like.id),
 					LinkedHashMap::new,
 					Collectors.toList()
-				))
-				.forEach((id, list) -> resultMap.computeIfAbsent(id, __ -> new ArrayList<>()).addAll(list));
+				));
+
+			grouped.forEach((id, list) ->
+				resultMap.computeIfAbsent(id, key -> new ArrayList<>()).addAll(list)
+			);
 		}
 
-		return resultMap;                      // Map을 그대로 반환하여 중복 그룹핑 제거
+		return resultMap;
 	}
 
-	private List<LikeResponse> convertGroupedTuplesToResponses(Map<Long, List<Tuple>> grouped) {
-		return grouped.entrySet().stream()
-			.map(entry -> buildLikeResponse(entry.getKey(), entry.getValue()))
+	private List<LikeResponse> convertGroupedTuplesToResponses(Map<Long, List<Tuple>> grouped, List<Long> likeIds) {
+		return likeIds.stream()
+			.filter(grouped::containsKey)
+			.map(id -> buildLikeResponse(id, grouped.get(id)))
 			.collect(Collectors.toList());
 	}
 

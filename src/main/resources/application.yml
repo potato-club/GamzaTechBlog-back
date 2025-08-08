@@ -1,6 +1,9 @@
 openapi:
   server-url: https://gamzatech.site
 
+like:
+  in-clause-limit: 500
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
