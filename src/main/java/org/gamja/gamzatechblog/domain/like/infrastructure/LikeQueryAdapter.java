@@ -41,7 +41,7 @@ public class LikeQueryAdapter implements LikeQueryPort {
 		List<Tuple> tuples = fetchTuplesByLikeIds(user, likeIds);
 		List<LikeResponse> content = convertTuplesToResponses(tuples);
 		long total = queryFactory
-			.select(QLike.like.id.countDistinct())
+			.select(QLike.like.id.count())
 			.from(QLike.like)
 			.where(QLike.like.user.eq(user))
 			.fetchOne();
@@ -100,7 +100,21 @@ public class LikeQueryAdapter implements LikeQueryPort {
 				.and(like.id.in(likeIds)))
 			.orderBy(like.createdAt.desc(), like.id.asc());
 
-		return query.fetch();
+		List<Tuple> fetchedTuples = query.fetch();
+
+		Map<Long, List<Tuple>> tupleMap = fetchedTuples.stream()
+			.collect(Collectors.groupingBy(
+				t -> t.get(QLike.like.id),
+				LinkedHashMap::new,
+				Collectors.toList()
+			));
+
+		return likeIds.stream()
+			.flatMap(id -> tupleMap
+				.getOrDefault(id, List.of())
+				.stream()
+			)
+			.collect(Collectors.toList());
 	}
 
 	private List<LikeResponse> convertTuplesToResponses(List<Tuple> rows) {
