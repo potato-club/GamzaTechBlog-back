@@ -27,6 +27,8 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import io.jsonwebtoken.lang.Assert;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,6 +39,12 @@ public class LikeQueryAdapter implements LikeQueryPort {
 
 	private final JPAQueryFactory queryFactory;
 	private final PostUtil postUtil;
+
+	@PostConstruct
+	private void validateInClauseLimit() {
+		Assert.isTrue(inClauseLimit > 0,
+			"like.in-clause-limit은 양수여야 합니다. 현재 값: " + inClauseLimit);
+	}
 
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
