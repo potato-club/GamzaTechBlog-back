@@ -1,5 +1,6 @@
 package org.gamja.gamzatechblog.domain.like.infrastructure;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Repository
 public class LikeQueryAdapter implements LikeQueryPort {
+	private static final int IN_CLAUSE_LIMIT = 500;
 
 	private final JPAQueryFactory queryFactory;
 	private final PostUtil postUtil;
@@ -38,8 +40,8 @@ public class LikeQueryAdapter implements LikeQueryPort {
 	@Override
 	public PagedResponse<LikeResponse> findMyLikesByUser(User user, Pageable pageable) {
 		List<Long> likeIds = fetchLikeIds(user, pageable);
-		List<Tuple> tuples = fetchTuplesByLikeIds(user, likeIds);
-		List<LikeResponse> content = convertTuplesToResponses(tuples);
+		Map<Long, List<Tuple>> tuplesById = fetchTuplesByLikeIds(user, likeIds);
+		List<LikeResponse> content = convertGroupedTuplesToResponses(tuplesById);
 		long total = queryFactory
 			.select(QLike.like.id.count())
 			.from(QLike.like)
@@ -57,15 +59,15 @@ public class LikeQueryAdapter implements LikeQueryPort {
 			.select(like.id)
 			.from(like)
 			.where(like.user.eq(user))
-			.orderBy(like.createdAt.desc())
+			.orderBy(like.createdAt.desc(), like.id.asc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
 	}
 
-	private List<Tuple> fetchTuplesByLikeIds(User user, List<Long> likeIds) {
+	private Map<Long, List<Tuple>> fetchTuplesByLikeIds(User user, List<Long> likeIds) {
 		if (likeIds.isEmpty()) {
-			return List.of();
+			return Map.of();
 		}
 
 		QLike like = QLike.like;
@@ -76,64 +78,48 @@ public class LikeQueryAdapter implements LikeQueryPort {
 		QTag tag = QTag.tag;
 		QPostImage postImage = QPostImage.postImage;
 
-		JPAQuery<Tuple> query = queryFactory
-			.select(
-				like.id,
-				post.id,
-				post.title,
-				post.content,
-				post.user.nickname,
-				pi.profileImageUrl,
-				postImage.id,
-				postImage.postImageUrl,
-				like.createdAt,
-				tag.tagName
-			)
-			.from(like)
-			.leftJoin(like.post, post)
-			.leftJoin(post.user, qUser)
-			.leftJoin(qUser.profileImage, pi)
-			.leftJoin(post.postTags, pt)
-			.leftJoin(pt.tag, tag)
-			.leftJoin(post.images, postImage)
-			.where(like.user.eq(user)
-				.and(like.id.in(likeIds)))
-			.orderBy(like.createdAt.desc(), like.id.asc());
+		Map<Long, List<Tuple>> resultMap = new LinkedHashMap<>();
+		for (int i = 0; i < likeIds.size(); i += IN_CLAUSE_LIMIT) {
+			List<Long> chunk = likeIds.subList(i, Math.min(i + IN_CLAUSE_LIMIT, likeIds.size()));
+			JPAQuery<Tuple> query = queryFactory
+				.select(
+					like.id, post.id, post.title, post.content,
+					post.user.nickname, pi.profileImageUrl,
+					postImage.id, postImage.postImageUrl,
+					like.createdAt, tag.tagName
+				)
+				.from(like)
+				.leftJoin(like.post, post)
+				.leftJoin(post.user, qUser)
+				.leftJoin(qUser.profileImage, pi)
+				.leftJoin(post.postTags, pt)
+				.leftJoin(pt.tag, tag)
+				.leftJoin(post.images, postImage)
+				.where(like.user.eq(user)
+					.and(like.id.in(chunk)))
+				.orderBy(
+					like.createdAt.desc(),
+					like.id.asc()
+				);
 
-		List<Tuple> fetchedTuples = query.fetch();
+			List<Tuple> fetched = query.fetch();
+			// 피드백: chunk 내 항목별 그룹핑 및 순서 보존
+			fetched.stream()
+				.collect(Collectors.groupingBy(
+					t -> t.get(QLike.like.id),
+					LinkedHashMap::new,
+					Collectors.toList()
+				))
+				.forEach((id, list) -> resultMap.computeIfAbsent(id, __ -> new ArrayList<>()).addAll(list));
+		}
 
-		Map<Long, List<Tuple>> tupleMap = fetchedTuples.stream()
-			.collect(Collectors.groupingBy(
-				t -> t.get(QLike.like.id),
-				LinkedHashMap::new,
-				Collectors.toList()
-			));
-
-		return likeIds.stream()
-			.flatMap(id -> tupleMap
-				.getOrDefault(id, List.of())
-				.stream()
-			)
-			.collect(Collectors.toList());
+		return resultMap;                      // Map을 그대로 반환하여 중복 그룹핑 제거
 	}
 
-	private List<LikeResponse> convertTuplesToResponses(List<Tuple> rows) {
-		QLike like = QLike.like;
-		QPost post = QPost.post;
-		QProfileImage pi = QProfileImage.profileImage;
-		QTag tag = QTag.tag;
-		QPostImage postImage = QPostImage.postImage;
-
-		Map<Long, List<Tuple>> grouped = rows.stream()
-			.collect(Collectors.groupingBy(
-				t -> t.get(like.id),
-				LinkedHashMap::new,
-				Collectors.toList()
-			));
-
+	private List<LikeResponse> convertGroupedTuplesToResponses(Map<Long, List<Tuple>> grouped) {
 		return grouped.entrySet().stream()
 			.map(entry -> buildLikeResponse(entry.getKey(), entry.getValue()))
-			.toList();
+			.collect(Collectors.toList());
 	}
 
 	private LikeResponse buildLikeResponse(Long likeId, List<Tuple> tuples) {
