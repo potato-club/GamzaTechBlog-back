@@ -23,11 +23,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import io.jsonwebtoken.lang.Assert;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
