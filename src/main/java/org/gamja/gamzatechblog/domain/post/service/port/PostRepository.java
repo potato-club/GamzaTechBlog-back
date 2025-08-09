@@ -18,4 +18,5 @@ public interface PostRepository {
 
 	void delete(Post post);
 
+	void flush();
 }
