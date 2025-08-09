@@ -17,6 +17,7 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostPopularMapper;
+import org.gamja.gamzatechblog.domain.post.service.PostProcessingService;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
@@ -58,13 +59,13 @@ public class PostServiceImpl implements PostService {
 	private final CommitHistoryServiceImpl commitHistoryService;
 	private final PostPopularMapper postPopularMapper;
 	private final PostImageService postImageService;
+	private final PostProcessingService postProcessingService;
 
-	@Override
+	@Override //리팩토링 예정
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
 		"postsByTag"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		//개인 레포지토리 없으면 생성 GamzaTechBlog
 		String repoName = "GamzaTechBlog";
 		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
 			.orElseGet(() ->
@@ -77,11 +78,14 @@ public class PostServiceImpl implements PostService {
 			);
 		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		post = postRepository.save(post);
+		postRepository.flush();
 		postTagUtil.syncPostTags(post, request.tags());
-		postImageService.syncImages(post);
-		String sha = postUtil.syncToGitHub(token, null, null, post, request.tags(), "Add",
-			request.commitMessage());
-		commitHistoryService.registerCommitHistory(post, repo, request, sha);
+		postProcessingService.processPostPublishing(
+			post.getId(),
+			token,
+			request.commitMessage(),
+			request.tags()
+		);
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
