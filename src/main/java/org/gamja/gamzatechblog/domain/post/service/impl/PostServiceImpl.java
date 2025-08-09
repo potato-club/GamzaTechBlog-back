@@ -1,5 +1,7 @@
 package org.gamja.gamzatechblog.domain.post.service.impl;
 
+import static org.gamja.gamzatechblog.domain.post.util.TxSync.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -76,17 +78,16 @@ public class PostServiceImpl implements PostService {
 					.build()
 				)
 			);
-		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
-		post = postRepository.save(post);
+		Post draft = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
+		Post savedPost = postRepository.save(draft);
 		postRepository.flush();
-		postTagUtil.syncPostTags(post, request.tags());
-		postProcessingService.processPostPublishing(
-			post.getId(),
-			token,
-			request.commitMessage(),
-			request.tags()
-		);
-		return postMapper.buildPostResponseFromEntity(post);
+		postImageService.syncImages(savedPost);
+		postTagUtil.syncPostTags(savedPost, request.tags());
+		afterCommit(() -> postProcessingService.processPostPublishing(
+			savedPost.getId(), token, request.commitMessage(), request.tags()
+		));
+
+		return postMapper.buildPostResponseFromEntity(savedPost);
 	}
 
 	@Override
