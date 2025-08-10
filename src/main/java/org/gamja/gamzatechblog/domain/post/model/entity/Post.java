@@ -25,6 +25,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,8 +62,9 @@ public class Post extends BaseTime {
 	@Column(name = "commit_message", length = 255)
 	private String commitMessage;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = true)
-	@JoinColumn(name = "repository_id", nullable = true)
+	@NotNull
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "repository_id", nullable = false)
 	private GitHubRepo githubRepo;
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

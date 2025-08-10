@@ -1,5 +1,7 @@
 package org.gamja.gamzatechblog.domain.post.service.impl;
 
+import static org.gamja.gamzatechblog.domain.post.util.TxSync.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
+import org.gamja.gamzatechblog.domain.commithistory.repository.CommitHistoryRepository;
 import org.gamja.gamzatechblog.domain.commithistory.service.impl.CommitHistoryServiceImpl;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
@@ -17,6 +20,7 @@ import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.model.mapper.PostMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostDetailMapper;
 import org.gamja.gamzatechblog.domain.post.model.mapper.impl.PostPopularMapper;
+import org.gamja.gamzatechblog.domain.post.service.PostProcessingService;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
@@ -58,13 +62,14 @@ public class PostServiceImpl implements PostService {
 	private final CommitHistoryServiceImpl commitHistoryService;
 	private final PostPopularMapper postPopularMapper;
 	private final PostImageService postImageService;
+	private final PostProcessingService postProcessingService;
+	private final CommitHistoryRepository commitHistoryRepository;
 
-	@Override
+	@Override //리팩토링 예정
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
 		"postsByTag"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		//개인 레포지토리 없으면 생성 GamzaTechBlog
 		String repoName = "GamzaTechBlog";
 		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
 			.orElseGet(() ->
@@ -75,14 +80,15 @@ public class PostServiceImpl implements PostService {
 					.build()
 				)
 			);
-		Post post = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
-		post = postRepository.save(post);
-		postTagUtil.syncPostTags(post, request.tags());
-		postImageService.syncImages(post);
-		String sha = postUtil.syncToGitHub(token, null, null, post, request.tags(), "Add",
-			request.commitMessage());
-		commitHistoryService.registerCommitHistory(post, repo, request, sha);
-		return postMapper.buildPostResponseFromEntity(post);
+		Post draft = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
+		Post savedPost = postRepository.save(draft);
+		postRepository.flush();
+		postTagUtil.syncPostTags(savedPost, request.tags());
+		afterCommit(() -> postProcessingService.processPostPublishing(
+			savedPost.getId(), token, request.commitMessage(), request.tags()
+		));
+
+		return postMapper.buildPostResponseFromEntity(savedPost);
 	}
 
 	@Override
@@ -124,6 +130,7 @@ public class PostServiceImpl implements PostService {
 			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
 		}
 
+		commitHistoryRepository.deleteByPost(post);
 		postImageService.deleteImagesForPost(post);
 
 		postRepository.delete(post);
