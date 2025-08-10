@@ -61,8 +61,8 @@ public class Post extends BaseTime {
 	@Column(name = "commit_message", length = 255)
 	private String commitMessage;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = true)
-	@JoinColumn(name = "repository_id", nullable = true)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "repository_id", nullable = false)
 	private GitHubRepo githubRepo;
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
