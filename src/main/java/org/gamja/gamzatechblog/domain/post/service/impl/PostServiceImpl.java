@@ -9,6 +9,7 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
+import org.gamja.gamzatechblog.domain.commithistory.repository.CommitHistoryRepository;
 import org.gamja.gamzatechblog.domain.commithistory.service.impl.CommitHistoryServiceImpl;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
@@ -62,6 +63,7 @@ public class PostServiceImpl implements PostService {
 	private final PostPopularMapper postPopularMapper;
 	private final PostImageService postImageService;
 	private final PostProcessingService postProcessingService;
+	private final CommitHistoryRepository commitHistoryRepository;
 
 	@Override //리팩토링 예정
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
@@ -81,7 +83,6 @@ public class PostServiceImpl implements PostService {
 		Post draft = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		Post savedPost = postRepository.save(draft);
 		postRepository.flush();
-		postImageService.syncImages(savedPost);
 		postTagUtil.syncPostTags(savedPost, request.tags());
 		afterCommit(() -> postProcessingService.processPostPublishing(
 			savedPost.getId(), token, request.commitMessage(), request.tags()
@@ -129,6 +130,7 @@ public class PostServiceImpl implements PostService {
 			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
 		}
 
+		commitHistoryRepository.deleteByPost(post);
 		postImageService.deleteImagesForPost(post);
 
 		postRepository.delete(post);
