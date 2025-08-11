@@ -54,6 +54,6 @@ public class Comment extends BaseTime {
 	private List<Comment> replies = new ArrayList<>();
 
 	@Lob
-	@Column(name = "content", nullable = false)
+	@Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")
 	private String content;
 }
