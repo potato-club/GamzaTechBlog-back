@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 public interface CommentRepository {
 	Optional<Comment> findCommentById(Long commentId);
 
-	List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(Long postId);
+	List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtDesc(Long postId);
 
 	int countByUser(User user);
 

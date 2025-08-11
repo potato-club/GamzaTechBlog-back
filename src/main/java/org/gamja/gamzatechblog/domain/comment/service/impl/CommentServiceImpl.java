@@ -38,7 +38,7 @@ public class CommentServiceImpl implements CommentService {
 	public List<CommentResponse> getCommentsByPostId(Long postId) {
 		postValidator.validatePostExists(postId);
 		return commentRepository
-			.findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(postId)
+			.findAllByPostIdAndParentIsNullOrderByCreatedAtDesc(postId)
 			.stream()
 			.map(commentMapper::mapToCommentTree)
 			.toList();

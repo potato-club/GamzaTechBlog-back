@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentJpaRepository extends JpaRepository<Comment, Long> {
 
-	List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(Long postId);
+	List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtDesc(Long postId);
 
 	int countByUser(User user);
 

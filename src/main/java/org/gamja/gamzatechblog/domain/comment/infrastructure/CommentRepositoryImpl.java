@@ -23,8 +23,8 @@ public class CommentRepositoryImpl implements CommentRepository {
 	}
 
 	@Override
-	public List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(Long postId) {
-		return commentJpaRepository.findAllByPostIdAndParentIsNullOrderByCreatedAtAsc(postId);
+	public List<Comment> findAllByPostIdAndParentIsNullOrderByCreatedAtDesc(Long postId) {
+		return commentJpaRepository.findAllByPostIdAndParentIsNullOrderByCreatedAtDesc(postId);
 	}
 
 	@Override
