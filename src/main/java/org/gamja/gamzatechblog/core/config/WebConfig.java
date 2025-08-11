@@ -29,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
 				"http://dev.gamzatech.site:3000",
 				"https://app.gamzatech.site",
 				"http://app.gamzatech.site",
-				"https://gamza-tech-blog-front.vercel.app/",
+				"https://gamza-tech-blog-front.vercel.app",
 				"http://gamza-tech-blog-front.vercel.app"
 			)
 			.allowedMethods("*")
