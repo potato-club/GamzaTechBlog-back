@@ -6,6 +6,8 @@ import java.util.List;
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,6 +56,7 @@ public class Comment extends BaseTime {
 	private List<Comment> replies = new ArrayList<>();
 
 	@Lob
+	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	@Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")
 	private String content;
 }
