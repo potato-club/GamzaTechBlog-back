@@ -47,8 +47,8 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	public CommentResponse createComment(User user, Long postId, CommentRequest req) {
 		Post post = postValidator.validatePostExists(postId);
-		Comment parent = commentValidator.resolveParent(req.getParentCommentId());
-		Comment comment = buildComment(post, user, parent, req.getContent());
+		Comment parent = commentValidator.resolveParent(req.parentCommentId());
+		Comment comment = buildComment(post, user, parent, req.content());
 		Comment saved = commentRepository.saveComment(comment);
 		cacheManager.getCache("postDetail").evict(postId);
 		return commentMapper.mapToCommentTree(saved);
