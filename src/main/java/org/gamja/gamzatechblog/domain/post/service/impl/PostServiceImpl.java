@@ -10,7 +10,6 @@ import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
 import org.gamja.gamzatechblog.domain.commithistory.repository.CommitHistoryRepository;
-import org.gamja.gamzatechblog.domain.commithistory.service.impl.CommitHistoryServiceImpl;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
@@ -24,7 +23,6 @@ import org.gamja.gamzatechblog.domain.post.service.PostProcessingService;
 import org.gamja.gamzatechblog.domain.post.service.PostService;
 import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
-import org.gamja.gamzatechblog.domain.post.util.PostUtil;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
@@ -53,13 +51,11 @@ public class PostServiceImpl implements PostService {
 	private final PostValidator postValidator;
 	private final GithubTokenValidator githubTokenValidator;
 	private final GitHubRepoRepository githubRepoRepository;
-	private final PostUtil postUtil;
 	private final PostTagUtil postTagUtil;
 	private final TagRepository tagRepository;
 	private final CommentService commentService;
 	private final PostDetailMapper postDetailMapper;
 	private final PostQueryPort postQueryPort;
-	private final CommitHistoryServiceImpl commitHistoryService;
 	private final PostPopularMapper postPopularMapper;
 	private final PostImageService postImageService;
 	private final PostProcessingService postProcessingService;
@@ -99,7 +95,10 @@ public class PostServiceImpl implements PostService {
 		postValidator.validateOwnership(post, currentUser);
 
 		List<String> prevTags = post.getPostTags().stream()
-			.map(pt -> pt.getTag().getTagName())
+			.map(pt -> pt.getTag())
+			.filter(tag -> tag != null)
+			.map(tag -> tag.getTagName())
+			.filter(name -> name != null && !name.isBlank())
 			.toList();
 		String prevTitle = post.getTitle();
 		post.update(request.title(), request.content());
@@ -123,7 +122,11 @@ public class PostServiceImpl implements PostService {
 
 		String prevTitle = post.getTitle();
 		List<String> prevTags = post.getPostTags().stream()
-			.map(pt -> pt.getTag().getTagName()).toList();
+			.map(pt -> pt.getTag())
+			.filter(tag -> tag != null)
+			.map(tag -> tag.getTagName())
+			.filter(name -> name != null && !name.isBlank())
+			.toList();
 		String commitMsg = post.getCommitMessage();
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 

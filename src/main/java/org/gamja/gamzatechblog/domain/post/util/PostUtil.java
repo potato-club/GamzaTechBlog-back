@@ -24,7 +24,7 @@ public class PostUtil {
 
 	public String syncToGitHub(GitSyncCmd cmd) {
 		Post post = cmd.post();
-		String owner = post.getUser().getNickname();
+		String owner = cmd.owner();
 		githubApiClient.createRepositoryIfNotExists(cmd.token(), REPO_NAME, owner);
 
 		String path = buildPostPath(post.getId(), post.getTitle(), cmd.tags());
@@ -54,7 +54,7 @@ public class PostUtil {
 	}
 
 	private String buildPostPath(long postId, String title, List<String> tags) {
-		String tag = primaryTag(tags);
+		String tag = sanitize(primaryTag(tags));
 		String safeTitle = sanitize(title);
 		return BASE_DIR + "/" + tag + "/" + fileName(postId, safeTitle);
 	}

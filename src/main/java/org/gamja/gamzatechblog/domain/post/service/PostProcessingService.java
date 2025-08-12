@@ -42,7 +42,10 @@ public class PostProcessingService {
 
 			postImageService.syncImages(post);
 
-			String sha = postUtil.syncToGitHub(GitSyncCmd.add(githubToken, post, tags, commitMessage));
+			String owner = post.getUser().getNickname();
+			String sha = postUtil.syncToGitHub(
+				GitSyncCmd.add(githubToken, post, tags, commitMessage, owner)
+			);
 
 			List<String> safeTags = (tags == null) ? List.of() : List.copyOf(tags);
 
@@ -71,9 +74,11 @@ public class PostProcessingService {
 				.orElseThrow(() -> new IllegalStateException("게시물을 찾을 수 없습니다 id: " + postId));
 
 			postImageService.syncImages(post);
-
+			String owner = post.getUser().getNickname();
 			String sha = postUtil.syncToGitHub(
-				GitSyncCmd.update(githubToken, prevTitle, prevTags, post, req.tags(), req.commitMessage()));
+				GitSyncCmd.update(githubToken, prevTitle, prevTags, post, req.tags(), req.commitMessage(), owner)
+			);
+
 			commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), req, sha);
 			log.info("게시물 수정 백그라운드 처리 완료: postId={}, sha={}", postId, sha);
 		} catch (Exception e) {
@@ -88,7 +93,8 @@ public class PostProcessingService {
 		List<String> prevTags, String commitMessage) {
 		try {
 			log.info("게시물 삭제 백그라운드 처리 시작: postId={}", postId);
-			postUtil.deleteFromGitHub(GitDeleteCmd.of(githubToken, owner, postId, prevTitle, prevTags, commitMessage));
+			postUtil.deleteFromGitHub(
+				GitDeleteCmd.forDeletion(githubToken, owner, postId, prevTitle, prevTags, commitMessage));
 			log.info("게시물 삭제 백그라운드 처리 완료: postId={}", postId);
 		} catch (NotFound e) {
 			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
