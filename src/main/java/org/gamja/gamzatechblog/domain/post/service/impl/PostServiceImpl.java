@@ -97,6 +97,7 @@ public class PostServiceImpl implements PostService {
 	public PostResponse revisePost(User currentUser, Long postId, PostRequest request) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
+
 		List<String> prevTags = post.getPostTags().stream()
 			.map(pt -> pt.getTag().getTagName())
 			.toList();
@@ -106,9 +107,9 @@ public class PostServiceImpl implements PostService {
 		postTagUtil.syncPostTags(post, request.tags());
 		postImageService.syncImages(post);
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		String sha = postUtil.syncToGitHub(token, prevTitle, prevTags, post, request.tags(), "Update",
-			request.commitMessage());
-		commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), request, sha);
+		afterCommit(() -> postProcessingService.processPostRevision(
+			post.getId(), token, prevTitle, prevTags, request
+		));
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
@@ -120,21 +121,21 @@ public class PostServiceImpl implements PostService {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
 
-		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		String prevTitle = post.getTitle();
-		List<String> prevTags = post.getPostTags().stream().map(pt -> pt.getTag().getTagName()).toList();
-
-		try {
-			postUtil.syncToGitHub(token, prevTitle, prevTags, post, null, "Delete", post.getCommitMessage());
-		} catch (HttpClientErrorException.NotFound e) {
-			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
-		}
+		List<String> prevTags = post.getPostTags().stream()
+			.map(pt -> pt.getTag().getTagName()).toList();
+		String commitMsg = post.getCommitMessage();
+		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 
 		commitHistoryRepository.deleteByPost(post);
 		postImageService.deleteImagesForPost(post);
 
 		postRepository.delete(post);
 		tagRepository.deleteOrphanTags();
+
+		afterCommit(() -> postProcessingService.processPostDeletion(
+			postId, token, currentUser.getNickname(), prevTitle, prevTags, commitMsg
+		));
 	}
 
 	@Override

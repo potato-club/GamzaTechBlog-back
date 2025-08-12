@@ -65,4 +65,20 @@ public class PostUtil {
 	private String buildMarkdownWithFrontmatter(Post post, List<String> tags) {
 		return post.getContent();
 	}
+
+	// PostUtil.java
+
+	public String deleteFromGitHub(String token, String owner, long postId, String prevTitle, List<String> prevTags,
+		String commitMessage) {
+		String repoName = "GamzaTechBlog";
+		String tag = (prevTags != null && !prevTags.isEmpty()) ? prevTags.get(0) : "etc";
+		String safeTitle = prevTitle.replaceAll("[^\\w가-힣ㄱ-ㅎㅏ-ㅣ]+", "_");
+		String fileName = postId + "-" + safeTitle + ".md";
+		String path = "PotatoStudy/" + tag + "/" + fileName;
+		String msg = (commitMessage != null && !commitMessage.isBlank())
+			? commitMessage
+			: "Delete: [" + tag + "] " + prevTitle;
+
+		return githubApiClient.deleteFile(token, owner, repoName, path, msg);
+	}
 }

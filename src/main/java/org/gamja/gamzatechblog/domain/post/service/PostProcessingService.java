@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,44 @@ public class PostProcessingService {
 			log.info("게시물 백그라운드 처리 완료: postId={}, sha={}", postId, sha);
 		} catch (Exception e) {
 			log.error("게시물 백그라운드 처리 중 오류 발생: postId={}", postId, e);
+		}
+	}
+
+	@Async("postExecutor")
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@CacheEvict(value = "postDetail", key = "#postId")
+	public void processPostRevision(Long postId, String githubToken, String prevTitle, List<String> prevTags,
+		PostRequest req) {
+		try {
+			log.info("게시물 수정 백그라운드 처리 시작: postId={}", postId);
+			Post post = postRepository.findById(postId)
+				.orElseThrow(() -> new IllegalStateException("게시물을 찾을 수 없습니다 id: " + postId));
+
+			postImageService.syncImages(post);
+
+			String sha = postUtil.syncToGitHub(githubToken, prevTitle, prevTags, post, req.tags(), "Update",
+				req.commitMessage());
+
+			commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), req, sha);
+			log.info("게시물 수정 백그라운드 처리 완료: postId={}, sha={}", postId, sha);
+		} catch (Exception e) {
+			log.error("게시물 수정 백그라운드 처리 중 오류: postId={}", postId, e);
+		}
+	}
+
+	@Async("postExecutor")
+	@Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = NotFound.class)
+	@CacheEvict(value = "postDetail", key = "#postId", condition = "#postId != null")
+	public void processPostDeletion(Long postId, String githubToken, String owner, String prevTitle,
+		List<String> prevTags, String commitMessage) {
+		try {
+			log.info("게시물 삭제 백그라운드 처리 시작: postId={}", postId);
+			postUtil.deleteFromGitHub(githubToken, owner, postId, prevTitle, prevTags, commitMessage);
+			log.info("게시물 삭제 백그라운드 처리 완료: postId={}", postId);
+		} catch (NotFound e) {
+			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
+		} catch (Exception e) {
+			log.error("게시물 삭제 백그라운드 처리 중 오류: postId={}", postId, e);
 		}
 	}
 }
