@@ -137,7 +137,7 @@ public class PostServiceImpl implements PostService {
 		tagRepository.deleteOrphanTags();
 
 		afterCommit(() -> postProcessingService.processPostDeletion(
-			postId, token, currentUser.getNickname(), prevTitle, prevTags, commitMsg
+			postId, token, currentUser.getNickname(), prevTitle, prevTags, null
 		));
 	}
 
