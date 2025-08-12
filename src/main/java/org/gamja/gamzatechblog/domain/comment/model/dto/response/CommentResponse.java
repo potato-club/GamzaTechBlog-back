@@ -11,4 +11,7 @@ public record CommentResponse(
 	LocalDateTime createdAt,
 	List<CommentResponse> replies
 ) {
+	public CommentResponse {
+		replies = (replies == null) ? List.of() : List.copyOf(replies);
+	}
 }
