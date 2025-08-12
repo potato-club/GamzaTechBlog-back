@@ -7,6 +7,8 @@ import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.post.util.PostUtil;
+import org.gamja.gamzatechblog.domain.post.util.github.GitDeleteCmd;
+import org.gamja.gamzatechblog.domain.post.util.github.GitSyncCmd;
 import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
@@ -40,7 +42,7 @@ public class PostProcessingService {
 
 			postImageService.syncImages(post);
 
-			String sha = postUtil.syncToGitHub(githubToken, null, null, post, tags, "Add", commitMessage);
+			String sha = postUtil.syncToGitHub(GitSyncCmd.add(githubToken, post, tags, commitMessage));
 
 			List<String> safeTags = (tags == null) ? List.of() : List.copyOf(tags);
 
@@ -70,9 +72,8 @@ public class PostProcessingService {
 
 			postImageService.syncImages(post);
 
-			String sha = postUtil.syncToGitHub(githubToken, prevTitle, prevTags, post, req.tags(), "Update",
-				req.commitMessage());
-
+			String sha = postUtil.syncToGitHub(
+				GitSyncCmd.update(githubToken, prevTitle, prevTags, post, req.tags(), req.commitMessage()));
 			commitHistoryService.registerCommitHistory(post, post.getGithubRepo(), req, sha);
 			log.info("게시물 수정 백그라운드 처리 완료: postId={}, sha={}", postId, sha);
 		} catch (Exception e) {
@@ -87,7 +88,7 @@ public class PostProcessingService {
 		List<String> prevTags, String commitMessage) {
 		try {
 			log.info("게시물 삭제 백그라운드 처리 시작: postId={}", postId);
-			postUtil.deleteFromGitHub(githubToken, owner, postId, prevTitle, prevTags, commitMessage);
+			postUtil.deleteFromGitHub(GitDeleteCmd.of(githubToken, owner, postId, prevTitle, prevTags, commitMessage));
 			log.info("게시물 삭제 백그라운드 처리 완료: postId={}", postId);
 		} catch (NotFound e) {
 			log.warn("GitHub 404 -> 무시 (path={}, postId={})", prevTitle, postId);
