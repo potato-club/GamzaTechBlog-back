@@ -88,7 +88,7 @@ public class PostProcessingService {
 
 	@Async("postExecutor")
 	@Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = NotFound.class)
-	@CacheEvict(value = "postDetail", key = "#postId", condition = "#postId != null")
+	@CacheEvict(value = "postDetail", key = "#postId")
 	public void processPostDeletion(Long postId, String githubToken, String owner, String prevTitle,
 		List<String> prevTags, String commitMessage) {
 		try {
