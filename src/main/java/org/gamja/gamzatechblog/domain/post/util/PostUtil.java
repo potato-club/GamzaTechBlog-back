@@ -48,9 +48,17 @@ public class PostUtil {
 
 	public String deleteFromGitHub(GitDeleteCmd cmd) {
 		String path = buildPostPath(cmd.postId(), cmd.prevTitle(), cmd.prevTags());
-		String msg = messageOrDefault(cmd.commitMessage(), GitAction.DELETE.value, primaryTag(cmd.prevTags()),
-			cmd.prevTitle());
+		String safeTitle = sanitize(cmd.prevTitle());
+		String fileName = fileName(cmd.postId(), safeTitle);
+
+		String defaultMsg = "Delete(old): " + fileName;
+		String msg = isEffectivelyBlank(cmd.commitMessage()) ? defaultMsg : cmd.commitMessage();
+
 		return githubApiClient.deleteFile(cmd.token(), cmd.owner(), REPO_NAME, path, msg);
+	}
+
+	private boolean isEffectivelyBlank(String s) {
+		return s == null || s.isBlank() || s.equalsIgnoreCase("string");
 	}
 
 	private String buildPostPath(long postId, String title, List<String> tags) {
