@@ -11,22 +11,18 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
 	default CommentResponse mapToCommentTree(Comment comment) {
-		return CommentResponse.builder()
-			.commentId(comment.getId())
-			.writer(comment.getUser().getNickname())
-			.writerProfileImageUrl(
-				comment.getUser().getProfileImage() != null
-					? comment.getUser().getProfileImage().getProfileImageUrl()
-					: null
-			)
-			.content(comment.getContent())
-			.createdAt(comment.getCreatedAt())
-			.replies(
-				comment.getReplies().stream()
-					.map(this::mapToCommentTree)
-					.collect(Collectors.toList())
-			)
-			.build();
+		return new CommentResponse(
+			comment.getId(),
+			comment.getUser().getNickname(),
+			comment.getUser().getProfileImage() != null
+				? comment.getUser().getProfileImage().getProfileImageUrl()
+				: null,
+			comment.getContent(),
+			comment.getCreatedAt(),
+			comment.getReplies().stream()
+				.map(this::mapToCommentTree)
+				.collect(Collectors.toList())
+		);
 	}
 
 	@Mapping(source = "id", target = "commentId")
