@@ -44,32 +44,40 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException, ServletException {
+
 		OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
 		Map<String, Object> attr = oauth2User.getAttributes();
 		GithubUser gitUser = new GithubUser(attr);
 		String githubId = gitUser.getGithubId();
 
-		OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient("github",
-			authentication.getName());
+		OAuth2AuthorizedClient client =
+			authorizedClientService.loadAuthorizedClient("github", authentication.getName());
 
-		if (!userService.existsByGithubId(gitUser.getGithubId())) {
+		boolean isNewUser = !userService.existsByGithubId(githubId);
+		if (isNewUser) {
+			if (client != null && client.getAccessToken() != null) {
+				try {
+					String email = githubApiClient.fetchPrimaryEmail(client.getAccessToken().getTokenValue());
+					gitUser.setEmail(email);
+				} catch (Exception e) {
+					log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
+				}
+			}
 			userService.registerWithProvider(gitUser);
 		}
 
 		if (client != null && client.getAccessToken() != null) {
 			String githubAccessToken = client.getAccessToken().getTokenValue();
-			githubTokenDao.saveOrUpdateByGithubId(githubId, githubAccessToken);
 			try {
-				String email = githubApiClient.fetchPrimaryEmail(githubAccessToken);
-				gitUser.setEmail(email);
+				githubTokenDao.saveOrUpdateByGithubId(githubId, githubAccessToken);
 			} catch (Exception e) {
-				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
+				log.warn("GitHub 토큰 저장 실패: {}", e.getMessage());
 			}
 		}
+
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
-
-		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, Duration.ofDays(30));
+		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, REFRESH_TOKEN_TTL);
 
 		cookieUtils.addAccessTokenCookie(response, accessToken, DOMAIN, ACCESS_TOKEN_TTL);
 		cookieUtils.addRefreshTokenCookie(response, refreshToken, DOMAIN, REFRESH_TOKEN_TTL);

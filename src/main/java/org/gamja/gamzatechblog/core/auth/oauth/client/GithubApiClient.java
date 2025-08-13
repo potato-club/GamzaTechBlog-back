@@ -43,7 +43,7 @@ public class GithubApiClient {
 	@Value("${spring.security.oauth2.client.registration.github.redirect-uri}")
 	private String redirectUri;
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
 
 	public String loginAndGetAccessToken(String code) {
 		HttpHeaders headers = new HttpHeaders();
@@ -59,10 +59,7 @@ public class GithubApiClient {
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
 		ResponseEntity<JsonNode> response = restTemplate.exchange(
-			TOKEN_URL,
-			HttpMethod.POST,
-			request,
-			JsonNode.class
+			TOKEN_URL, HttpMethod.POST, request, JsonNode.class
 		);
 
 		JsonNode body = response.getBody();
@@ -83,10 +80,7 @@ public class GithubApiClient {
 		HttpEntity<Void> request = new HttpEntity<>(headers);
 
 		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-			PROFILE_URL,
-			HttpMethod.GET,
-			request,
-			new ParameterizedTypeReference<>() {
+			PROFILE_URL, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
 			}
 		);
 		if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
@@ -103,22 +97,16 @@ public class GithubApiClient {
 		HttpEntity<Void> request = new HttpEntity<>(headers);
 
 		ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-			EMAILS_URL,
-			HttpMethod.GET,
-			request,
-			new ParameterizedTypeReference<>() {
+			EMAILS_URL, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
 			}
 		);
 
 		if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-			throw new IllegalStateException(
-				"GitHub 이메일 조회 실패: " + response.getStatusCode()
-			);
+			throw new IllegalStateException("GitHub 이메일 조회 실패: " + response.getStatusCode());
 		}
 
 		return response.getBody().stream()
-			.filter(e -> Boolean.TRUE.equals(e.get("primary"))
-				&& Boolean.TRUE.equals(e.get("verified")))
+			.filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
 			.map(e -> (String)e.get("email"))
 			.findFirst()
 			.orElseThrow(() -> new IllegalStateException("Primary 이메일을 찾을 수 없습니다."));
