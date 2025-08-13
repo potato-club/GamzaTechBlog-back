@@ -11,6 +11,13 @@ spring:
     username: ENC(cIcZ93cAM7dTYd/G6tGJSQ==)
     password: ENC(5iR/D13CNkJhRfwMkm1sYS/7ucLDY2q0)
 
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 10000
+
   servlet:
     multipart:
       max-file-size: 3MB
@@ -19,7 +26,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    open-in-view: true
+    open-in-view: false
+
     show-sql: true
     properties:
       hibernate:
