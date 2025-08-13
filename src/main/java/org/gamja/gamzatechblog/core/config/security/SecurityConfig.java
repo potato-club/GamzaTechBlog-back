@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.security;
 
 import org.gamja.gamzatechblog.core.auth.jwt.JwtAuthenticationEntryPoint;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtAuthenticationFilter;

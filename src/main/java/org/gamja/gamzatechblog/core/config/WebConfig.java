@@ -2,6 +2,7 @@ package org.gamja.gamzatechblog.core.config;
 
 import java.util.List;
 
+import org.gamja.gamzatechblog.core.config.http.MultipartJackson2HttpMessageConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

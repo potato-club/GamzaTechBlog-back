@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.security;
 
 import java.io.IOException;
 import java.time.Duration;

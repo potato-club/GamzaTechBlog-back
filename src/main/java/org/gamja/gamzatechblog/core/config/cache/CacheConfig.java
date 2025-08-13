@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.cache;
 
 import java.time.Duration;
 import java.util.Map;
