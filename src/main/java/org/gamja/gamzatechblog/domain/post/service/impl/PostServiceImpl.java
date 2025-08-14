@@ -30,6 +30,8 @@ import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -60,10 +62,11 @@ public class PostServiceImpl implements PostService {
 	private final PostImageService postImageService;
 	private final PostProcessingService postProcessingService;
 	private final CommitHistoryRepository commitHistoryRepository;
+	private final CacheManager cacheManager;
 
 	@Override //리팩토링 예정
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag", "allTags"}, allEntries = true)
+		"postsByTag"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		String repoName = "GamzaTechBlog";
@@ -84,12 +87,14 @@ public class PostServiceImpl implements PostService {
 			savedPost.getId(), token, request.commitMessage(), request.tags()
 		));
 
+		evictAllTagsAfterCommit();
+
 		return postMapper.buildPostResponseFromEntity(savedPost);
 	}
 
 	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag", "allTags"}, allEntries = true)
+		"postsByTag"}, allEntries = true)
 	public PostResponse revisePost(User currentUser, Long postId, PostRequest request) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
@@ -109,12 +114,14 @@ public class PostServiceImpl implements PostService {
 		afterCommit(() -> postProcessingService.processPostRevision(
 			post.getId(), token, prevTitle, prevTags, request
 		));
+
+		evictAllTagsAfterCommit();
 		return postMapper.buildPostResponseFromEntity(post);
 	}
 
 	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag", "allTags"}, allEntries = true)
+		"postsByTag"}, allEntries = true)
 	@Transactional(noRollbackFor = HttpClientErrorException.NotFound.class)
 	public void removePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
@@ -139,6 +146,8 @@ public class PostServiceImpl implements PostService {
 		afterCommit(() -> postProcessingService.processPostDeletion(
 			postId, token, currentUser.getNickname(), prevTitle, prevTags, null
 		));
+
+		evictAllTagsAfterCommit();
 	}
 
 	@Override
@@ -211,5 +220,15 @@ public class PostServiceImpl implements PostService {
 	public PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
 		Page<PostListResponse> pageData = postQueryPort.searchPostsByTitle(pageable, keyword);
 		return PagedResponse.pagedFrom(pageData);
+	}
+
+	private void evictAllTagsAfterCommit() {
+		afterCommit(() -> {
+			Cache cache = cacheManager.getCache("allTags");
+			if (cache != null) {
+				cache.clear();
+				log.debug("allTags 캐시를 커밋 후 무효화했습니다.");
+			}
+		});
 	}
 }

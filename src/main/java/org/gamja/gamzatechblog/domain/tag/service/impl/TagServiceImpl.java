@@ -15,7 +15,7 @@ public class TagServiceImpl implements TagService {
 	private final TagRepository tagRepository;
 
 	@Override
-	@Cacheable(value = "allTags")
+	@Cacheable(value = "allTags", key = "'all'")
 	public List<String> getAllTags() {
 		return tagRepository.findAllTagNames();
 	}
