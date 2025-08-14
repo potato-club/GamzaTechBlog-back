@@ -63,7 +63,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override //리팩토링 예정
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag"}, allEntries = true)
+		"postsByTag", "allTags"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 		String repoName = "GamzaTechBlog";
@@ -89,7 +89,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag"}, allEntries = true)
+		"postsByTag", "allTags"}, allEntries = true)
 	public PostResponse revisePost(User currentUser, Long postId, PostRequest request) {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
@@ -114,7 +114,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
-		"postsByTag"}, allEntries = true)
+		"postsByTag", "allTags"}, allEntries = true)
 	@Transactional(noRollbackFor = HttpClientErrorException.NotFound.class)
 	public void removePost(User currentUser, Long postId) {
 		Post post = postValidator.validatePostExists(postId);
