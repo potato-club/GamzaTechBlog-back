@@ -67,6 +67,7 @@ dependencies {
 
     // Jasypt
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'

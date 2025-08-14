@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.cache;
 
 import java.time.Duration;
 import java.util.Map;
@@ -51,7 +51,8 @@ public class CacheConfig {
 			"hotPosts", defaultConfig.entryTtl(Duration.ofMinutes(30)),
 			"frequentPosts", defaultConfig.entryTtl(Duration.ofMinutes(10)),
 			"projectsListContent", defaultConfig.entryTtl(Duration.ofMinutes(30)),
-			"projectsTotal", defaultConfig.entryTtl(Duration.ofMinutes(30))
+			"projectsTotal", defaultConfig.entryTtl(Duration.ofMinutes(30)),
+			"allTags", defaultConfig.entryTtl(Duration.ofMinutes(60))
 		);
 
 		return RedisCacheManager.builder(redisConnectionFactory)

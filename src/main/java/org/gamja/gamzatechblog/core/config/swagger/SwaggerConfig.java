@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.swagger;
 
 import java.util.List;
 

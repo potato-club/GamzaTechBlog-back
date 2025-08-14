@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.config;
+package org.gamja.gamzatechblog.core.config.http;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
