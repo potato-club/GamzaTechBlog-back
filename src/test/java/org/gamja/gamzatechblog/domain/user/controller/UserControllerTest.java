@@ -38,11 +38,21 @@ class UserControllerTest {
 	@DisplayName("내 프로필 조회 성공 테스트")
 	void getCurrentUserProfile_성공() {
 		User fixture = user("gh123");
+
 		UserProfileResponse mockProfile = new UserProfileResponse(
-			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), fixture.getEmail(),
-			"http://img.url/me.png", fixture.getRole().name(), fixture.getGamjaBatch(),
-			"2025-06-26T10:00:00", "2025-06-26T12:00:00"
+			fixture.getGithubId(),
+			fixture.getNickname(),
+			fixture.getName(),
+			fixture.getEmail(),
+			"http://img.url/me.png",
+			Position.BACKEND.name(),
+			fixture.getRole().name(),
+			fixture.getStudentNumber(),
+			fixture.getGamjaBatch(),
+			"2025-06-26T10:00:00",
+			"2025-06-26T12:00:00"
 		);
+
 		when(userService.getCurrentUserProfile(fixture)).thenReturn(mockProfile);
 
 		ResponseDto<UserProfileResponse> response = userController.getCurrentUserProfile(fixture);
@@ -78,10 +88,19 @@ class UserControllerTest {
 		);
 
 		UserProfileResponse updatedProfile = new UserProfileResponse(
-			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), req.getEmail(),
-			"http://img.url/new.png", fixture.getRole().name(), req.getGamjaBatch(),
-			"2025-06-27T09:00:00", "2025-06-27T10:00:00"
+			fixture.getGithubId(),
+			fixture.getNickname(),
+			fixture.getName(),
+			req.email(),
+			"http://img.url/new.png",
+			req.position().name(),
+			fixture.getRole().name(),
+			req.studentNumber(),
+			req.gamjaBatch(),
+			"2025-06-27T09:00:00",
+			"2025-06-27T10:00:00"
 		);
+
 		when(userService.updateProfile(fixture, req)).thenReturn(updatedProfile);
 
 		ResponseDto<UserProfileResponse> response = userController.updateProfile(fixture, req);
@@ -142,10 +161,19 @@ class UserControllerTest {
 		User fixture = user("gh123");
 
 		UserProfileResponse completed = new UserProfileResponse(
-			fixture.getGithubId(), fixture.getNickname(), fixture.getName(), completeReq.getEmail(),
-			"http://img.url/first.png", fixture.getRole().name(), completeReq.getGamjaBatch(),
-			"2025-06-27T08:00:00", "2025-06-27T09:00:00"
+			fixture.getGithubId(),
+			fixture.getNickname(),
+			fixture.getName(),
+			completeReq.email(),
+			"http://img.url/first.png",
+			completeReq.position().name(),
+			fixture.getRole().name(),
+			completeReq.studentNumber(),
+			completeReq.gamjaBatch(),
+			"2025-06-27T08:00:00",
+			"2025-06-27T09:00:00"
 		);
+
 		when(userService.setupUserProfile(fixture.getGithubId(), completeReq)).thenReturn(completed);
 
 		ResponseDto<UserProfileResponse> response =
@@ -207,5 +235,4 @@ class UserControllerTest {
 		assertEquals("USER", response.getData());
 		verify(fixture).getRole();
 	}
-
 }
