@@ -38,7 +38,19 @@ public class TagFakeRepository implements TagRepository {
 		return save(tag);
 	}
 
+	@Override
+	public void deleteOrphanTags() {
+	}
+
 	public void clearStore() {
 		inMemoryTagStore.clear();
+	}
+
+	public void deleteOrphanTagsByInUseNames(Iterable<String> inUseTagNames) {
+		java.util.Set<String> inUse = new java.util.HashSet<>();
+		for (String name : inUseTagNames)
+			inUse.add(name);
+
+		inMemoryTagStore.entrySet().removeIf(e -> !inUse.contains(e.getKey()));
 	}
 }
