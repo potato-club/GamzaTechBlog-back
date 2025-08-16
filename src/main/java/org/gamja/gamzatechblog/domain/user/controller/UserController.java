@@ -36,7 +36,7 @@ public class UserController {
 
 	@Operation(summary = "정보 업데이트(마이페이지용)", tags = "유저 기능")
 	@PutMapping("/me/update/profile")
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	public ResponseDto<UserProfileResponse> updateProfile(@CurrentUser User user,
 		@RequestBody UpdateProfileRequest profileRequest) {
 		UserProfileResponse updated = userService.updateProfile(user, profileRequest);
