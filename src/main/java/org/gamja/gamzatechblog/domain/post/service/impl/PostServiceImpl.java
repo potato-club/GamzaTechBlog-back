@@ -4,6 +4,7 @@ import static org.gamja.gamzatechblog.domain.post.util.TxSync.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.validator.GithubTokenValidator;
@@ -48,6 +49,9 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class PostServiceImpl implements PostService {
+
+	private static final String REPO_NAME = "GamzaTechBlog";
+
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
 	private final PostValidator postValidator;
@@ -64,21 +68,12 @@ public class PostServiceImpl implements PostService {
 	private final CommitHistoryRepository commitHistoryRepository;
 	private final CacheManager cacheManager;
 
-	@Override //리팩토링 예정
+	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
 		"postsByTag"}, allEntries = true)
 	public PostResponse publishPost(User currentUser, PostRequest request) {
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
-		String repoName = "GamzaTechBlog";
-		GitHubRepo repo = githubRepoRepository.findByUser(currentUser)
-			.orElseGet(() ->
-				githubRepoRepository.gitHubRepoSave(GitHubRepo.builder()
-					.user(currentUser)
-					.name(repoName)
-					.githubUrl("https://github.com/" + currentUser.getNickname() + "/" + repoName)
-					.build()
-				)
-			);
+		GitHubRepo repo = ensureRepo(currentUser);
 		Post draft = postMapper.buildPostEntityFromRequest(currentUser, repo, request);
 		Post savedPost = postRepository.save(draft);
 		postRepository.flush();
@@ -99,12 +94,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postValidator.validatePostExists(postId);
 		postValidator.validateOwnership(post, currentUser);
 
-		List<String> prevTags = post.getPostTags().stream()
-			.map(pt -> pt.getTag())
-			.filter(tag -> tag != null)
-			.map(tag -> tag.getTagName())
-			.filter(name -> name != null && !name.isBlank())
-			.toList();
+		List<String> prevTags = tagNamesOf(post);
 		String prevTitle = post.getTitle();
 		post.update(request.title(), request.content());
 		postRepository.save(post);
@@ -128,13 +118,7 @@ public class PostServiceImpl implements PostService {
 		postValidator.validateOwnership(post, currentUser);
 
 		String prevTitle = post.getTitle();
-		List<String> prevTags = post.getPostTags().stream()
-			.map(pt -> pt.getTag())
-			.filter(tag -> tag != null)
-			.map(tag -> tag.getTagName())
-			.filter(name -> name != null && !name.isBlank())
-			.toList();
-		String commitMsg = post.getCommitMessage();
+		List<String> prevTags = tagNamesOf(post);
 		String token = githubTokenValidator.validateAndGetGitHubAccessToken(currentUser.getGithubId());
 
 		commitHistoryRepository.deleteByPost(post);
@@ -222,6 +206,27 @@ public class PostServiceImpl implements PostService {
 		return PagedResponse.pagedFrom(pageData);
 	}
 
+	private GitHubRepo ensureRepo(User user) {
+		return githubRepoRepository.findByUser(user)
+			.orElseGet(() ->
+				githubRepoRepository.gitHubRepoSave(GitHubRepo.builder()
+					.user(user)
+					.name(REPO_NAME)
+					.githubUrl("https://github.com/" + user.getNickname() + "/" + REPO_NAME)
+					.build()
+				)
+			);
+	}
+
+	private List<String> tagNamesOf(Post post) {
+		return post.getPostTags().stream()
+			.map(pt -> pt.getTag())
+			.filter(Objects::nonNull)
+			.map(tag -> tag.getTagName())
+			.filter(name -> name != null && !name.isBlank())
+			.toList();
+	}
+
 	private void evictAllTagsAfterCommit() {
 		afterCommit(() -> {
 			Cache cache = cacheManager.getCache("allTags");
@@ -232,3 +237,4 @@ public class PostServiceImpl implements PostService {
 		});
 	}
 }
+
