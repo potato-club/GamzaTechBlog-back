@@ -2,9 +2,12 @@ package org.gamja.gamzatechblog.domain.like.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.gamja.gamzatechblog.support.like.LikeFixtures.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.domain.like.model.dto.response.LikeResponse;
@@ -56,7 +59,20 @@ class LikeServiceTest {
 	void whenValidRequest_thenSavesLike() {
 		Long postId = 1L;
 		when(postValidator.validatePostExists(postId)).thenReturn(POST_1);
-		when(likeMapper.toLikeResponse(any())).thenReturn(new LikeResponse());
+
+		when(likeMapper.toLikeResponse(any())).thenReturn(
+			new LikeResponse(
+				1L,                      // likeId
+				postId,                  // postId
+				USER.getGithubId(),      // userId
+				USER.getNickname(),      // nickname
+				null,                    // profileImageUrl (없으면 null/"" 가능)
+				POST_1.getTitle(),       // title
+				POST_1.getContent(),     // content (필드 명이 다르면 아무 String)
+				LocalDateTime.now(),     // createdAt
+				List.of("tag1", "tag2")   // tags
+			)
+		);
 
 		likeService.likePost(USER, postId);
 
@@ -79,7 +95,9 @@ class LikeServiceTest {
 	@DisplayName("목록 조회를 요청하면, 조회된 결과를 반환")
 	void whenCalled_thenReturnsPagedResponse() {
 		Pageable pageable = PageRequest.of(0, 10);
-		PagedResponse<LikeResponse> expectedResponse = new PagedResponse<>(Collections.emptyList(), 0, 10, 0L, 0);
+		PagedResponse<LikeResponse> expectedResponse =
+			new PagedResponse<>(Collections.emptyList(), 0, 10, 0L, 0);
+
 		when(likeQueryPort.findMyLikesByUser(USER, pageable)).thenReturn(expectedResponse);
 
 		PagedResponse<LikeResponse> actualResponse = likeService.getMyLikes(USER, pageable);

@@ -2,6 +2,7 @@ package org.gamja.gamzatechblog.domain.like.service.port;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.like.model.entity.Like;
@@ -15,14 +16,14 @@ public class LikeFakeRepository implements LikeRepository {
 
 	@Override
 	public Optional<Like> findByUserAndPost(User user, Post post) {
-		String userPostKey = createUserPostKey(user, post);
-		return Optional.ofNullable(likeStorage.get(userPostKey));
+		String key = createUserPostKey(user, post);
+		return Optional.ofNullable(likeStorage.get(key));
 	}
 
 	@Override
 	public void deleteByUserAndPost(User user, Post post) {
-		String userPostKey = createUserPostKey(user, post);
-		likeStorage.remove(userPostKey);
+		String key = createUserPostKey(user, post);
+		likeStorage.remove(key);
 	}
 
 	@Override
@@ -34,18 +35,19 @@ public class LikeFakeRepository implements LikeRepository {
 
 	@Override
 	public Like saveLike(Like like) {
-		Like likeToSave = createLikeWithIdIfNeeded(like);
-		String userPostKey = createUserPostKey(likeToSave.getUser(), likeToSave.getPost());
-		likeStorage.put(userPostKey, likeToSave);
-		return likeToSave;
+		Like toSave = isNewLike(like) ? createLikeWithNewId(like) : like;
+		String key = createUserPostKey(toSave.getUser(), toSave.getPost());
+		likeStorage.put(key, toSave); // 동일 user-post면 덮어쓰기
+		return toSave;
 	}
 
-	private Like createLikeWithIdIfNeeded(Like like) {
-		if (isNewLike(like)) {
-			return createLikeWithNewId(like);
-		}
-		return like;
+	@Override
+	public boolean existsByUserAndPost(User user, Post post) {
+		String key = createUserPostKey(user, post);
+		return likeStorage.containsKey(key);
 	}
+
+	/* ==== 내부 유틸 ==== */
 
 	private boolean isNewLike(Like like) {
 		return like.getId() == null;
@@ -64,6 +66,11 @@ public class LikeFakeRepository implements LikeRepository {
 	}
 
 	private String createUserPostKey(User user, Post post) {
-		return String.format("user:%d:post:%d", user.getId(), post.getId());
+		Objects.requireNonNull(user, "user must not be null");
+		Objects.requireNonNull(post, "post must not be null");
+		if (user.getId() == null || post.getId() == null) {
+			throw new IllegalArgumentException("user.id and post.id must not be null");
+		}
+		return "user:%d:post:%d".formatted(user.getId(), post.getId());
 	}
 }
