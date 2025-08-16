@@ -24,6 +24,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,29 +51,16 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
-
 		User user = userMapper.toEntity(info);
-		String githubImageUrl = info.getProfileImageUrl();
-
-		if (githubImageUrl != null && !githubImageUrl.isBlank()) {
-			profileImageValidator.validateUrl(githubImageUrl);
-			String s3Url = s3ImageStorage.uploadFromUrl(githubImageUrl, PROFILE_IMAGES_PREFIX);
-			ProfileImage pi = ProfileImage.builder()
-				.profileImageUrl(s3Url)
-				.build();
-			user.changeProfileImage(pi);
-		}
-
+		maybeAttachProfileImageFromGithub(user, info.getProfileImageUrl());
 		return userRepository.saveUser(user);
 	}
 
+	@Transactional(readOnly = true)
 	public boolean existsByGithubId(String githubId) {
 		return userRepository.existsByGithubId(githubId);
 	}
 
-	/*
-	필터로 유효성검사를 하지만, 서비스코드에서 한번 더 실행합니다.
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	@Cacheable(value = "userProfile", key = "#p0.githubId", unless = "#result == null")
@@ -93,68 +81,85 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public UserActivityResponse getActivitySummary(User user) {
 		int likedPostCount = likeRepository.countByUser(user);
 		int writtenPostCount = postRepository.countByUser(user);
 		int writtenCommentCount = commentRepository.countByUser(user);
-
 		return new UserActivityResponse(likedPostCount, writtenPostCount, writtenCommentCount);
 	}
 
 	@Transactional
-	@CacheEvict(value = "userProfile", key = "#currentUser.githubId")
+	@CacheEvict(value = "userProfile", key = "#p0.githubId")
 	public UserProfileResponse updateProfile(User currentUser, UpdateProfileRequest req) {
-		log.info(">> updateProfile 시작: githubId={}, req={}", currentUser.getGithubId(), req);
-
+		if (log.isDebugEnabled()) {
+			log.debug("updateProfile start githubId={}", currentUser.getGithubId());
+		}
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 		userProfileMapper.applyProfileUpdates(req, user);
-		UserProfileResponse userProfileResponse = userProfileMapper.toUserProfileResponse(user);
-
-		log.info("<< updateProfile 완료: userId={}, response={}", user.getId(), userProfileResponse);
-		return userProfileResponse;
+		UserProfileResponse resp = userProfileMapper.toUserProfileResponse(user);
+		if (log.isDebugEnabled()) {
+			log.debug("updateProfile done userId={}", user.getId());
+		}
+		return resp;
 	}
 
 	@Override
 	@Transactional
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
-		deleteAllPostImages(user);
-		unlinkAndDeleteProfileImage(user);
+
+		deleteAllPostImagesSafely(user);
+		unlinkAndDeleteProfileImageSafely(user);
+
 		userRepository.deleteUser(user);
 		tagRepository.deleteOrphanTags();
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public User getUserByGithubId(String githubId) {
 		return userValidator.validateAndGetUserByGithubId(githubId);
 	}
 
-	private void deleteAllPostImages(User user) {
-		user.getPosts().forEach(post ->
+	private void maybeAttachProfileImageFromGithub(User user, String githubImageUrl) {
+		if (!StringUtils.hasText(githubImageUrl))
+			return;
+		profileImageValidator.validateUrl(githubImageUrl);
+		try {
+			String s3Url = s3ImageStorage.uploadFromUrl(githubImageUrl, PROFILE_IMAGES_PREFIX);
+			user.changeProfileImage(ProfileImage.builder().profileImageUrl(s3Url).build());
+		} catch (BusinessException ex) {
+			log.warn("프로필 이미지 업로드 실패(계속 진행): {}", ex.getMessage());
+		}
+	}
+
+	private void deleteAllPostImagesSafely(User user) {
+		if (user.getPosts() == null)
+			return;
+		user.getPosts().forEach(post -> {
+			if (post.getImages() == null)
+				return;
 			post.getImages().forEach(img -> {
 				try {
 					s3ImageStorage.deleteByUrl(img.getPostImageUrl());
 				} catch (BusinessException e) {
 					log.warn("포스트 이미지 S3 삭제 실패(무시): {}", e.getMessage());
 				}
-			})
-		);
+			});
+		});
 	}
 
-	private void unlinkAndDeleteProfileImage(User user) {
+	private void unlinkAndDeleteProfileImageSafely(User user) {
 		ProfileImage img = user.getProfileImage();
 		if (img == null)
 			return;
-
 		profileImageValidator.validateForDelete(img);
-
 		try {
 			s3ImageStorage.deleteByUrl(img.getProfileImageUrl());
 		} catch (BusinessException e) {
 			log.warn("S3 삭제 실패(무시): {}", e.getMessage());
 		}
-
-		// 연관만 끊기면 orphanRemoval=true 가 DB 삭제 처리
 		user.setProfileImage(null);
 	}
 
