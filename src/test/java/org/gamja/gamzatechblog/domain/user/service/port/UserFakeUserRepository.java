@@ -1,10 +1,12 @@
 package org.gamja.gamzatechblog.domain.user.service.port;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 
 public class UserFakeUserRepository implements UserRepository {
 	private final Map<String, User> userHashMap = new HashMap<>();
@@ -47,4 +49,19 @@ public class UserFakeUserRepository implements UserRepository {
 	public void deleteUser(User user) {
 		userHashMap.remove(user.getGithubId());
 	}
+
+	@Override
+	public List<User> findAllByRole(UserRole role) {
+		return userHashMap.values().stream()
+			.filter(u -> u.getRole() == role)
+			.toList();
+	}
+
+	@Override
+	public Optional<User> findById(Long id) {
+		return userHashMap.values().stream()
+			.filter(u -> id.equals(u.getId()))
+			.findFirst();
+	}
+
 }

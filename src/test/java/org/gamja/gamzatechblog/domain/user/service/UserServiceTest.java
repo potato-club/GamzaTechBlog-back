@@ -4,41 +4,65 @@ import static org.assertj.core.api.Assertions.*;
 import static org.gamja.gamzatechblog.support.user.UserFixtures.*;
 import static org.mockito.Mockito.*;
 
-import org.gamja.gamzatechblog.domain.profileimage.model.mapper.ProfileImageMapper;
-import org.gamja.gamzatechblog.domain.profileimage.service.port.ProfileImageRepository;
+import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
+import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
+import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
+import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
+import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
+import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.exception.UserNotFoundException;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
-import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapperImpl;
+import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
 import org.gamja.gamzatechblog.domain.user.service.impl.UserServiceImpl;
 import org.gamja.gamzatechblog.domain.user.service.port.UserFakeUserRepository;
+import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("UserService 메서드 단위 테스트")
-public class UserServiceTest {
+class UserServiceTest {
 
 	private static final String EXISTING_ID = "git2";
-	private UserService userService;
-	private UserFakeUserRepository repository;
 
-	//Support패키지 userFixtures를 사용합니다.
+	private UserService userService;
+	private UserRepository repository;
+
+	private LikeRepository likeRepository;
+	private PostRepository postRepository;
+	private CommentRepository commentRepository;
+	private S3ImageStorage s3ImageStorage;
+	private TagRepository tagRepository;
+	private ProfileImageValidator profileImageValidator;
+	private UserProfileMapper userProfileMapper;
+
 	@BeforeEach
 	void setUp() {
 		repository = new UserFakeUserRepository();
 		repository.saveUser(user(EXISTING_ID));
 
-		ProfileImageRepository mockProfileImageRepo = mock(ProfileImageRepository.class);
-		ProfileImageMapper mockProfileImageMapper = mock(ProfileImageMapper.class);
+		likeRepository = mock(LikeRepository.class);
+		postRepository = mock(PostRepository.class);
+		commentRepository = mock(CommentRepository.class);
+		s3ImageStorage = mock(S3ImageStorage.class);
+		tagRepository = mock(TagRepository.class);
+		profileImageValidator = mock(ProfileImageValidator.class);
+		userProfileMapper = mock(UserProfileMapper.class);
 
 		userService = new UserServiceImpl(
 			repository,
 			new UserMapper(),
 			new UserValidator(repository),
-			new UserProfileMapperImpl(),
-			null, null, null, mockProfileImageRepo, mockProfileImageMapper);
+			userProfileMapper,
+			likeRepository,
+			postRepository,
+			commentRepository,
+			s3ImageStorage,
+			tagRepository,
+			profileImageValidator
+		);
 	}
 
 	@Test
@@ -52,9 +76,7 @@ public class UserServiceTest {
 	@DisplayName("유저의 아이디를 성공적으로 찾았을 경우")
 	void getUserByGithubId_success() {
 		User saved = repository.saveUser(user("git123"));
-
 		User result = userService.getUserByGithubId("git123");
-
 		assertThat(result.getName()).isEqualTo(saved.getName());
 	}
 
@@ -73,6 +95,11 @@ public class UserServiceTest {
 		assertThat(existingUser).isNotNull();
 
 		userService.withdraw(existingUser);
-		assertThatThrownBy(() -> userService.getUserByGithubId(EXISTING_ID)).isInstanceOf(UserNotFoundException.class);
+
+		assertThatThrownBy(() -> userService.getUserByGithubId(EXISTING_ID))
+			.isInstanceOf(UserNotFoundException.class);
+
+		verify(tagRepository, times(1)).deleteOrphanTags();
+		verifyNoInteractions(s3ImageStorage);
 	}
 }
