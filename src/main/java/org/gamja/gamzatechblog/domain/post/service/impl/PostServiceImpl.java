@@ -26,9 +26,11 @@ import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
+import org.gamja.gamzatechblog.domain.posttag.model.entity.PostTag;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
+import org.gamja.gamzatechblog.domain.tag.model.entity.Tag;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.cache.Cache;
@@ -50,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PostServiceImpl implements PostService {
 
-	private static final String REPO_NAME = "GamzaTechBlog";
+	private static final String BLOG_REPO_NAME = "GamzaTechBlog";
 
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
@@ -128,7 +130,7 @@ public class PostServiceImpl implements PostService {
 		tagRepository.deleteOrphanTags();
 
 		afterCommit(() -> postProcessingService.processPostDeletion(
-			postId, token, currentUser.getNickname(), prevTitle, prevTags, null
+			postId, token, currentUser.getGithubId(), prevTitle, prevTags, null
 		));
 
 		evictAllTagsAfterCommit();
@@ -211,8 +213,8 @@ public class PostServiceImpl implements PostService {
 			.orElseGet(() ->
 				githubRepoRepository.gitHubRepoSave(GitHubRepo.builder()
 					.user(user)
-					.name(REPO_NAME)
-					.githubUrl("https://github.com/" + user.getNickname() + "/" + REPO_NAME)
+					.name(BLOG_REPO_NAME)
+					.githubUrl("https://github.com/" + user.getGithubId() + "/" + BLOG_REPO_NAME)
 					.build()
 				)
 			);
@@ -220,9 +222,9 @@ public class PostServiceImpl implements PostService {
 
 	private List<String> tagNamesOf(Post post) {
 		return post.getPostTags().stream()
-			.map(pt -> pt.getTag())
+			.map(PostTag::getTag)
 			.filter(Objects::nonNull)
-			.map(tag -> tag.getTagName())
+			.map(Tag::getTagName)
 			.filter(name -> name != null && !name.isBlank())
 			.toList();
 	}

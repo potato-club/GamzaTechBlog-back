@@ -38,7 +38,7 @@ public class UserController {
 	@PutMapping("/me/update/profile")
 	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	public ResponseDto<UserProfileResponse> updateProfile(@CurrentUser User user,
-		@RequestBody UpdateProfileRequest profileRequest) {
+		@Valid @RequestBody UpdateProfileRequest profileRequest) {
 		UserProfileResponse updated = userService.updateProfile(user, profileRequest);
 		return ResponseDto.of(HttpStatus.OK, "프로필이 수정되었습니다", updated);
 	}
