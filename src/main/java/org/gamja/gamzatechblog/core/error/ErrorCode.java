@@ -42,6 +42,8 @@ public enum ErrorCode {
 	COMMENT_NOT_FOUND(404, "CM001", "댓글을 찾을 수 없습니다."),
 	COMMENT_FORBIDDEN(403, "CM002", "댓글 작성자만 수정/삭제할 수 있습니다."),
 	PARENT_COMMENT_NOT_FOUND(404, "CM003", "상위 댓글을 찾을 수 없습니다."),
+	COMMENT_INVALID_PARENT(400, "CM004", "상위 댓글이 게시글에 속하지 않습니다."),
+	COMMENT_UNSUPPORTED_ACTION(400, "CM005", "지원하지 않는 댓글 작업입니다."),
 
 	// 500 Internal Server Error: 서비스/서버 오류
 	OAUTH_PROVIDER_ERROR(500, "S5001", "OAuth 프로바이더 오류입니다."),

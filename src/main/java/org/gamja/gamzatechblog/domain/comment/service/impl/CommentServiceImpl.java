@@ -3,7 +3,8 @@ package org.gamja.gamzatechblog.domain.comment.service.impl;
 import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
-import org.gamja.gamzatechblog.domain.comment.model.dto.request.CommentRequest;
+import org.gamja.gamzatechblog.domain.comment.model.dto.CreateCommentCommand;
+import org.gamja.gamzatechblog.domain.comment.model.dto.DeleteCommentCommand;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentListResponse;
 import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
@@ -14,6 +15,7 @@ import org.gamja.gamzatechblog.domain.comment.validator.CommentValidator;
 import org.gamja.gamzatechblog.domain.post.model.entity.Post;
 import org.gamja.gamzatechblog.domain.post.validator.PostValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +26,10 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService {
+
+	private static final String POST_DETAIL_CACHE = "postDetail";
 
 	private final CommentRepository commentRepository;
 	private final CommentMapper commentMapper;
@@ -45,22 +49,28 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public CommentResponse createComment(User user, Long postId, CommentRequest req) {
-		Post post = postValidator.validatePostExists(postId);
-		Comment parent = commentValidator.resolveParent(req.parentCommentId());
-		Comment comment = buildComment(post, user, parent, req.content());
-		Comment saved = commentRepository.saveComment(comment);
-		cacheManager.getCache("postDetail").evict(postId);
+	@Transactional
+	public CommentResponse createComment(CreateCommentCommand createCommand) {
+		Post post = postValidator.validatePostExists(createCommand.postId());
+		Comment parent = commentValidator.resolveParent(createCommand.parentCommentId());
+		commentValidator.validateParentBelongsToPost(createCommand.postId(), parent);
+
+		Comment toSave = buildComment(post, createCommand.user(), parent, createCommand.content());
+		Comment saved = commentRepository.saveComment(toSave);
+
+		evictPostDetailCache(createCommand.postId());
 		return commentMapper.mapToCommentTree(saved);
 	}
 
 	@Override
-	public void deleteComment(User currentUser, Long commentId) {
-		Comment existing = commentValidator.validateCommentExists(commentId);
-		commentValidator.validateCommentOwnership(existing, currentUser);
+	@Transactional
+	public void deleteComment(DeleteCommentCommand deleteCommand) {
+		Comment existing = commentValidator.validateCommentExists(deleteCommand.commentId());
+		commentValidator.validateCommentOwnership(existing, deleteCommand.currentUser());
+
 		Long postId = existing.getPost().getId();
 		commentRepository.deleteComment(existing);
-		cacheManager.getCache("postDetail").evict(postId);
+		evictPostDetailCache(postId);
 	}
 
 	@Override
@@ -77,5 +87,12 @@ public class CommentServiceImpl implements CommentService {
 			.parent(parent)
 			.content(content)
 			.build();
+	}
+
+	private void evictPostDetailCache(Long postId) {
+		Cache cache = cacheManager.getCache(POST_DETAIL_CACHE);
+		if (cache != null) {
+			cache.evict(postId);
+		}
 	}
 }
