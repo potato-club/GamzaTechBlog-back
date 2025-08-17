@@ -28,6 +28,7 @@ public interface PostDetailMapper {
 	@Mapping(target = "tags", expression = "java(post.getPostTags().stream()  \n" +
 		"    .map(pt -> pt.getTag().getTagName())  \n" +
 		"    .collect(Collectors.toList()))")
+	@Mapping(target = "githubId", source = "post.user.githubId")
 	@Mapping(target = "createdAt", source = "post.createdAt")
 	@Mapping(target = "updatedAt", source = "post.updatedAt")
 	@Mapping(target = "comments", source = "comments")
