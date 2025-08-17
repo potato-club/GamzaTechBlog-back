@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.domain.comment.exception.CommentAccessDeniedException;
 import org.gamja.gamzatechblog.domain.comment.exception.CommentNotFoundException;
+import org.gamja.gamzatechblog.domain.comment.exception.InvalidParentCommentException;
 import org.gamja.gamzatechblog.domain.comment.model.entity.Comment;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -37,5 +38,14 @@ public class CommentValidator {
 
 	public Comment resolveParent(Long parentCommentId) {
 		return (parentCommentId == null) ? null : validateCommentExists(parentCommentId);
+	}
+
+	public void validateParentBelongsToPost(Long postId, Comment parent) {
+		if (parent == null) {
+			return;
+		}
+		if (!postId.equals(parent.getPost().getId())) {
+			throw new InvalidParentCommentException(ErrorCode.COMMENT_INVALID_PARENT);
+		}
 	}
 }
