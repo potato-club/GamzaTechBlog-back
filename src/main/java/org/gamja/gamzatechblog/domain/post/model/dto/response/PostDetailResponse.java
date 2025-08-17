@@ -12,6 +12,7 @@ public record PostDetailResponse(
 	String writer,
 	String writerProfileImageUrl,
 	int likesCount,
+	String githubId,
 	LocalDateTime createdAt,
 	LocalDateTime updatedAt,
 	List<String> tags,
