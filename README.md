@@ -1,130 +1,181 @@
-# 🥔 감자테크 블로그 프로젝트
+# 🥔 GamzaTechBlog (감자테크 블로그)
 
-홍보 사이트 : https://www.gamzatech.site/
+> 동아리 구성원들이 **개발 지식**과 **프로젝트 경험**을 공유하는 기술 블로그 플랫폼.  
+> 글은 **개인 GitHub 저장소와 자동 동기화**되어 포트폴리오 자산으로 축적됩니다.
 
-기술 블로그 사이트 : https://app.gamzatech.site/
-
-> **현재 구상 단계이며, 기능은 주기적으로 확장될 예정입니다.**
-
----
-
-## 프로젝트 개요
-
-**감자테크 블로그**는 감자 동아리 구성원들을 위한 기술 블로그 플랫폼입니다.  
-동아리원들이 개발 경험과 기술 지식을 공유하며 함께 성장할 수 있는 공간을 목표로 합니다.
-
-각자의 프로젝트, 학습 내용 등을 문서화하여 기록하고,  
-게시글은 개인 GitHub 레포지토리와 연동되어 버전 관리가 가능하며,  
-이를 통해 포트폴리오로도 활용할 수 있도록 설계되었습니다.
+- 홍보 사이트: https://www.gamzatech.site/
+- 블로그 앱: https://app.gamzatech.site/
+- 백엔드 스웨거: https://gamzatech.site/swagger-ui/index.html
 
 ---
 
-## 운영 및 협업
+## TL;DR
 
-- **코드 스타일**: [네이버 Java 코드 컨벤션](https://naver.github.io/hackday-conventions-java/) 준수
-- **커뮤니케이션**: Slack
-- **운영 방식**: 주 1회 정기 **코드 리뷰 및 회고** 진행
-- **Git 전략**: 기능 단위 브랜치 관리 및 이슈 기반 협업
-
----
-
-## 회원가입 (SIGNUP)
-
-- 감자 동아리 소속만 회원가입 가능 (어드민 승인 필요)
-- GitHub OAuth 로그인 사용
-    - 가져올 정보: `name`, `email`, `repo` 등
-- 추가 정보 입력 (기수, 이름, 학번 등)
+- **동아리 전용** 가입 → GitHub OAuth → **JWT(Access) + Redis(Refresh)**
+- 글/프로젝트/댓글 **작성·수정·삭제**
+- 글은 **개인 GitHub 레포지토리(.md)** 로 **자동 커밋/버전관리**
+- 댓글/대댓글, 구성원 프로필, 프로젝트 소개
+- (WIP) **AI 코드 품질 피드백**
 
 ---
 
-## 로그인 / 인증 (LOGIN)
+## 주요 기능
 
-- JWT 기반 인증 방식 (Access + Refresh Token)
-- Redis를 활용한 Refresh Token 저장 및 만료 처리
-- Authorization 헤더를 통한 토큰 전송
+### 1) 회원 & 인증
 
----
+- 동아리 소속만 회원가입(관리자 승인)
+- GitHub OAuth 로그인(필요 최소 범위: name, email, repo 등)
+- JWT 발급, **Refresh Token은 Redis에서 관리**(만료/블랙리스트)
 
-## 게시물 (POST)
+### 2) 게시물(Post)
 
-- 게시물 작성 시 개인 GitHub 레포지토리에도 자동 업로드
-- GitHub 디렉토리 구조 예시:
-    ```
-    /감자/
-      ├─ Java/
-      │    ├─ 001-감자란.md
-      │    └─ 005-개발환경.md
-      ├─ JS/
-      │    └─ 003-JS기초.md
-    ```
+- 마크다운 기반 작성/미리보기
+- 생성/수정/삭제 시 **개인 GitHub 레포지토리에 자동 반영**
+- 태그별 디렉토리 구조 & 일관된 파일 네이밍(`{postId}-{title}.md`)
+- 커밋 메시지 규칙 예시
+    - `Add: [Java] 감자란 무엇인가`
+    - `Update: [JS] JS 이벤트 핸들링`
+    - `Delete: [Java] 감자 구조 이해하기`
 
-### 동작 흐름
+### 3) GitHub 동기화 정책
 
-1. 첫 게시물 작성 시 → 개인 레포지토리 자동 생성
-2. 이후 → 태그 기반 디렉토리에 `.md` 파일로 저장
-3. 게시물의 **생성/수정/삭제** 시 → GitHub와 동기화
-4. 커밋 메시지 → **게시물 제목을 기반으로 자동 생성**
+- 첫 게시물 작성 시 **개인 레포 자동 생성**(동아리 전용 네임스페이스/디렉토리)
+- 앱 → GitHub **단방향 동기화**(현재)
+- (로드맵) GitHub에서 직접 수정된 .md를 **역동기화(양방향)**
 
-### 파일 정리 기준
+예시 디렉토리 구조:
 
-- 태그별 폴더 구분 (`/감자/Java/`, `/감자/JS/` 등)
-- 파일명은 `post_id-제목.md` 형식으로 관리
-- 식별자는 내부 post_id를 기반으로 사용
+- /감자/
+    - Java/
+        - 001-감자란.md
+        - 005-개발환경.md
+    - JS/
+        - 003-JS기초.md
 
-### 예시 커밋 메시지
+### 4) 댓글(Comments)
 
-```bash
-Add: [Java] 감자란 무엇인가
-Update: [JS] JS 이벤트 핸들링
-Delete: [Java] 감자 구조 이해하기
-```
+- 댓글/대댓글(무제한 깊이)
+- 작성·수정·삭제, (옵션) 신고/모더레이션
 
----
+### 5) 구성원(Profiles)
 
-## 댓글 (COMMENT)
+- 닉네임/기수/전공/한 줄 소개/소셜 링크
+- (로드맵) 개인 GitHub 커밋 수, 활동 통계 시각화
 
-- 게시글 단위 댓글 작성 가능
-- 대댓글(무제한 깊이) 지원
-- 댓글/대댓글 수정 및 삭제 가능
+### 6) 프로젝트(Projects)
 
----
+- 구성원 프로젝트 문서화(주요 기능, 사용 기술, 인원, 기간)
+- 마크다운 작성 & GitHub 레포 링크 연계
 
-## 감자 구성원 (GAMJA)
+### 7) AI 코드 품질 피드백 (WIP)
 
-- 감자 동아리원들의 활동 이력 및 프로필 페이지
-- 닉네임, 기수, 전공, 한 줄 소개 등 표시
-- GitHub 커밋 수, 활동 통계도 함께 제공 예정
-
-## AI 코드 품질 검사
-
-- 올린 글에 코드가 있을시 코드 검사 후 피드백
+- 게시글 내 코드 블록 자동 분석 → **간단 정적 피드백**
+- (로드맵) 보안/성능 룰 확장, 리팩터링 제안
 
 ---
 
-## 프로젝트 소개 (PROJECT)
+## 시스템 개요(텍스트 다이어그램)
 
-- 감자 구성원들이 수행한 프로젝트를 기록하는 공간
-- 프로젝트의 주요 기능, 사용 기술, 참여 인원, 소요 시간 등을 정리
-- 마크다운 형식으로 문서화되어 게시 가능
+사용자 → GamzaTechBlog API → (1) Auth/JWT/Redis  
+↘ (2) DB 저장  
+↘ (3) Git Sync Service → GitHub
 
----
+핵심 포인트
 
-### GitHub 연동 정책
-
-- 게시글은 **GitHub 개인 레포지토리의 특정 디렉토리**에 `.md` 파일로 저장됩니다.
-- 레포는 사용자의 GitHub 계정 내에 자동 생성되며, 디렉토리 구조 및 커밋 메시지는 자동화됩니다.
-- 게시글 수정 시 `.md` 파일도 함께 업데이트되고, 커밋 메시지가 함께 반영됩니다.
-- 삭제 시 `.md` 파일 역시 삭제되며, GitHub에서도 기록이 반영됩니다.
-- 현재는 **감자테크 블로그 → GitHub 방향**의 동기화만 제공되며,
-  추후 GitHub에서의 수정사항을 감기블로 반영하는 기능도 고려 중입니다.
+- **인증**: GitHub OAuth + JWT + Redis Refresh
+- **동기화**: 앱 트랜잭션 이후 GitHub 커밋으로 게시글 버전 관리
+- **확장성**: Sync/Comment/Profile/Project 도메인 모듈화
 
 ---
 
-## Figma
+## API 스냅샷(개요)
 
-![img.png](img.png)
+> 상세 스펙은 Swagger UI/문서 참고
+>
+> ![img_1.png](img_1.png)
+
+- Auth: `POST /auth/signup`(관리자 승인), `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`
+- Posts: `GET /posts`, `POST /posts`, `PATCH /posts/{id}`, `DELETE /posts/{id}`
+- Comments: `POST /posts/{id}/comments`, `POST /comments/{id}/replies`, `PATCH/DELETE`
+- Members: `GET /members/{id}`, `PATCH /members/{id}`
+- Projects: `POST /projects`, `GET /projects`
+
+---
+
+## 비기능 요구사항(NFR)
+
+### 보안
+
+- 입력 검증(Bean Validation), 공통 예외 응답 포맷
+- JWT 만료/재발급 플로우, Redis 블랙리스트
+- (옵션) Rate limiting, CORS 정책 명시
+
+### 신뢰성/일관성
+
+- GitHub 동기화 실패 시 **재시도/보상 처리**(큐/스케줄러)
+
+### 관측성
+
+- 표준 로그 포맷 + 요청 상관관계 ID(Correlation-ID)
+- (로드맵) Micrometer 메트릭 + Grafana 대시보드
+
+### 성능
+
+- 캐싱(태그/목록), 페이지네이션, N+1 방지 전략
+
+---
+
+## 기술 스택
+
+- **Backend**: Java 21, Spring Boot 3.x, Spring MVC, Spring Data JPA
+- **Auth**: GitHub OAuth, JWT, Redis(Refresh Token)
+- **Infra**: MySQL(or PostgreSQL), Redis
+- **Build/IDE**: Gradle, IntelliJ IDEA
+- **DevOps**: Docker, (팀 내부) Jenkins/GitHub Actions
+
+---
+
+## 운영 & 협업 원칙
+
+- 코드 스타일: **네이버 Java 컨벤션** 준수
+- Git 전략: 기능 단위 브랜치 + 이슈 기반 협업
+- 커뮤니케이션: Slack
+- 리뷰: **주 1회 정기 코드 리뷰 & 회고**
+
+---
+
+## 디자인
+
+디자인 샘플입니다 : https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0
+
+![img_2.png](img_2.png)
+
+![img_3.png](img_3.png)
+
+---
 
 ## ERD
 
-<img src="https://github.com/user-attachments/assets/8fa22484-186f-4e86-bd7a-5a9225c1db24" width="90%" alt="image" />
+![img_4.png](img_4.png)
+
+---
+
+## FAQ
+
+Q. 동아리 외 이용 가능한가요?  
+A. 현재는 **관리자 승인 기반**의 내부 플랫폼입니다. (공개 전환 논의 중)
+
+Q. GitHub 권한 범위는 어떻게 되나요?  
+A. 필요한 최소 범위만 요청하며, 개인 레포 **생성/커밋**에 필요한 권한만 사용합니다.
+
+Q. GitHub 커밋이 실패하면 글은 사라지나요?  
+A. 아니요. 먼저 DB에 안전하게 저장되며, 이후 GitHub 동기화는 **재시도/보상 플로우**로 처리됩니다.
+
+---
+
+## 기여(Contributing)
+
+- 이슈/PR 템플릿을 사용해 주세요.
+- 코드 변경 시 간단한 테스트/문서 업데이트를 함께 부탁드립니다.
+
 
