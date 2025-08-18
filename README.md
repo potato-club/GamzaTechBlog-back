@@ -92,7 +92,7 @@
 
 > 상세 스펙은 Swagger UI/문서 참고
 >
-> ![img_1.png](img_1.png)
+> ![img_1.png](images/img_1.png)
 
 - Auth: `POST /auth/signup`(관리자 승인), `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`
 - Posts: `GET /posts`, `POST /posts`, `PATCH /posts/{id}`, `DELETE /posts/{id}`
@@ -148,15 +148,15 @@
 
 디자인 샘플입니다 : https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0
 
-![img_2.png](img_2.png)
+![img_2.png](images/img_2.png)
 
-![img_3.png](img_3.png)
+![img_3.png](images/img_3.png)
 
 ---
 
 ## ERD
 
-![img_4.png](img_4.png)
+![img_4.png](images/img_4.png)
 
 ---
 
