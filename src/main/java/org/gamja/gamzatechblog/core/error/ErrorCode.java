@@ -66,7 +66,13 @@ public enum ErrorCode {
 	PROJECT_NOT_OWNER(403, "PR004", "프로젝트 소유자가 아닙니다."),
 
 	// ADMIN
-	ADMIN_ACCESS_FORBIDDEN(403, "A001", "어드민 권한이 필요합니다.");
+	ADMIN_ACCESS_FORBIDDEN(403, "A001", "어드민 권한이 필요합니다."),
+
+	// Admission
+	ADMISSION_RESULT_DUPLICATED(409, "AD001", "이미 등록된 합격/불합격 결과입니다."),
+	ADMISSION_RESULT_NOT_FOUND(404, "AD002", "합격/불합격 결과를 찾을 수 없습니다."),
+	ADMISSION_INVALID_PHONE(400, "AD003", "유효하지 않은 전화번호 형식입니다."),
+	ADMISSION_INVALID_STATUS(400, "AD004", "유효하지 않은 상태 값입니다.");
 
 	private final String code;
 	private final String message;
