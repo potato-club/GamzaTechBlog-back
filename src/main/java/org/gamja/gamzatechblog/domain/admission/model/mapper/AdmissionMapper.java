@@ -3,23 +3,28 @@ package org.gamja.gamzatechblog.domain.admission.model.mapper;
 import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
-import org.springframework.stereotype.Component;
+import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class AdmissionMapper {
+@Mapper(
+	componentModel = "spring",
+	injectionStrategy = InjectionStrategy.CONSTRUCTOR
+)
+public interface AdmissionMapper {
 
-	public AdmissionResult toEntity(CreateAdmissionResultRequest req,
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "name", source = "request.name")
+	@Mapping(target = "nameNormalized", source = "normalizedName")
+	@Mapping(target = "phoneDigits", source = "normalizedPhone")
+	@Mapping(target = "status", source = "request.status")
+	AdmissionResult toEntity(CreateAdmissionResultRequest request,
 		String normalizedName,
-		String normalizedPhone) {
-		return AdmissionResult.builder()
-			.name(req.name())
-			.nameNormalized(normalizedName)
-			.phoneDigits(normalizedPhone)
-			.status(req.status())
-			.build();
-	}
+		String normalizedPhone);
 
-	public LookupResponse toLookupResponse(AdmissionResult entity) {
-		return new LookupResponse(entity.getStatus());
+	default LookupResponse toLookupResponse(AdmissionResult entity) {
+		AdmissionStatus status = entity.getStatus();
+		return new LookupResponse(status);
 	}
 }
