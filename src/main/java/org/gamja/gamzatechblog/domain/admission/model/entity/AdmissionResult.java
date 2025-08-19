@@ -41,7 +41,7 @@ public class AdmissionResult extends BaseTime {
 	private Long id;
 
 	@Column(name = "name", length = 100, nullable = false)
-	private String name; // 원본 저장
+	private String name;
 
 	@Column(name = "name_normalized", length = 100, nullable = false)
 	private String nameNormalized;
@@ -60,7 +60,6 @@ public class AdmissionResult extends BaseTime {
 		this.phoneDigits = AdmissionNormalizer.normalizePhone(this.phoneDigits);
 	}
 
-	// 편의 메서드(선택)
 	public boolean isPassed() {
 		return this.status == AdmissionStatus.PASS;
 	}

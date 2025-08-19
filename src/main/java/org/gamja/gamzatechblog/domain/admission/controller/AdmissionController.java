@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Validated
 public class AdmissionController {
+	//여기있는 모든 코드는 리팩토링 예정입니다.
 
 	private final AdmissionService admissionService;
 
