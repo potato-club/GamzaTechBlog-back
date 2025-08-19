@@ -35,6 +35,7 @@ public class SecurityConfig {
 		"/api/v1/posts/popular",
 		"/jenkins/**",
 		"/api/v1/posts/search",
+		"/api/admissions/lookup"
 	};
 
 	@Bean
