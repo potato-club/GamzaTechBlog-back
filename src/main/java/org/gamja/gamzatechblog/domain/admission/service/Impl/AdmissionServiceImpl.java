@@ -9,7 +9,9 @@ import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
 import org.gamja.gamzatechblog.domain.admission.model.mapper.AdmissionMapper;
 import org.gamja.gamzatechblog.domain.admission.repository.AdmissionResultRepository;
 import org.gamja.gamzatechblog.domain.admission.service.AdmissionService;
+import org.gamja.gamzatechblog.domain.admission.service.validator.AdmissionValidator;
 import org.gamja.gamzatechblog.domain.admission.util.AdmissionNormalizer;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,41 +24,45 @@ public class AdmissionServiceImpl implements AdmissionService {
 
 	private final AdmissionResultRepository admissionResultRepository;
 	private final AdmissionMapper admissionMapper;
+	private final AdmissionValidator admissionValidator;
 
 	@Override
 	public Long createAdmissionResult(CreateAdmissionResultRequest request) {
-		String normalizedName = AdmissionNormalizer.normalizeName(request.name());
-		String normalizedPhone = AdmissionNormalizer.normalizePhone(request.phone());
+		String nameNorm = normalizeName(request.name());
+		String phoneNorm = normalizePhone(request.phone());
 
-		if (admissionResultRepository
-			.existsByNameNormalizedAndPhoneDigits(normalizedName, normalizedPhone)) {
+		admissionValidator.assertCreatable(nameNorm, phoneNorm);
+		AdmissionResult entity = admissionMapper.toEntity(request, nameNorm, phoneNorm);
+
+		try {
+			return admissionResultRepository.save(entity).getId();
+		} catch (DataIntegrityViolationException e) {
 			throw new BusinessException(ErrorCode.ADMISSION_RESULT_DUPLICATED);
 		}
-
-		// valueOf 필요 없음
-		AdmissionResult entity = admissionMapper.toEntity(request, normalizedName, normalizedPhone);
-		return admissionResultRepository.save(entity).getId();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public LookupResponse getAdmissionStatusByNameAndPhone(LookupRequest request) {
-		String normalizedName = AdmissionNormalizer.normalizeName(request.name());
-		String normalizedPhone = AdmissionNormalizer.normalizePhone(request.phone());
+		String nameNorm = normalizeName(request.name());
+		String phoneNorm = normalizePhone(request.phone());
 
-		var result = admissionResultRepository
-			.findByNameNormalizedAndPhoneDigits(normalizedName, normalizedPhone)
-			.orElseThrow(() -> new BusinessException(ErrorCode.ADMISSION_RESULT_NOT_FOUND));
-
+		AdmissionResult result = admissionValidator.requireByNameAndPhone(nameNorm, phoneNorm);
 		return admissionMapper.toLookupResponse(result);
 	}
 
 	@Override
 	public void deleteAdmissionResultById(Long admissionId) {
-		boolean exists = admissionResultRepository.existsById(admissionId);
-		if (!exists) {
-			throw new BusinessException(ErrorCode.ADMISSION_RESULT_NOT_FOUND);
-		}
-		admissionResultRepository.deleteById(admissionId);
+		AdmissionResult entity = admissionResultRepository.findById(admissionId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.ADMISSION_RESULT_NOT_FOUND));
+		admissionResultRepository.delete(entity);
+	}
+
+	private String normalizeName(String name) {
+		return AdmissionNormalizer.normalizeName(name);
+	}
+
+	private String normalizePhone(String phone) {
+		return AdmissionNormalizer.normalizePhone(phone);
 	}
 }
