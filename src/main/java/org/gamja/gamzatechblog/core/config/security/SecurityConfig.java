@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,18 +68,19 @@ public class SecurityConfig {
 				.requestMatchers(PUBLIC_MISC)
 				.permitAll()
 
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/me")
+				.hasAnyRole("USER", "ADMIN")
+
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/tags",
 					"/api/v1/posts",
-					"/api/v1/posts/{id:[0-9]+}",
+					"/api/v1/posts/*",
 					"/api/v1/projects"
 				)
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/admissions/lookup")
 				.permitAll()
 
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/me")
-				.hasAnyRole("USER", "ADMIN")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
 				.hasAnyRole("USER", "PRE_REGISTER", "PENDING", "ADMIN")
 				.requestMatchers(HttpMethod.POST, "/api/v1/users/me/complete")
@@ -93,7 +94,7 @@ public class SecurityConfig {
 				.anyRequest()
 				.hasAnyRole("USER", "ADMIN")
 			)
-			.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
