@@ -17,7 +17,7 @@ import org.gamja.gamzatechblog.domain.admission.model.mapper.AdmissionMapper;
 import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
 import org.gamja.gamzatechblog.domain.admission.repository.AdmissionResultRepository;
 import org.gamja.gamzatechblog.domain.admission.service.Impl.AdmissionServiceImpl;
-import org.gamja.gamzatechblog.domain.admission.service.validator.AdmissionValidator;
+import org.gamja.gamzatechblog.domain.admission.validator.AdmissionValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
