@@ -2,7 +2,7 @@ package org.gamja.gamzatechblog.core.config.security;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
+import java.util.Set;
 
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
@@ -14,6 +14,7 @@ import org.gamja.gamzatechblog.domain.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -37,51 +38,84 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final GithubOAuthTokenDao githubTokenDao;
 	private final CookieUtils cookieUtils;
 
-	private static final String DOMAIN = ".gamzatech.site";
+	private static final String COOKIE_DOMAIN = ".gamzatech.site";
 	private static final Duration ACCESS_TOKEN_TTL = Duration.ofHours(1);
 	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
+
+	private static final Set<String> ALLOWED_LOCATIONS = Set.of("app", "dev");
+	private static final String DEFAULT_LOCATION = "app";
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException, ServletException {
 
 		OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
-		Map<String, Object> attr = oauth2User.getAttributes();
-		GithubUser gitUser = new GithubUser(attr);
+		GithubUser gitUser = new GithubUser(oauth2User.getAttributes());
 		String githubId = gitUser.getGithubId();
 
-		OAuth2AuthorizedClient client =
-			authorizedClientService.loadAuthorizedClient("github", authentication.getName());
+		OAuth2AuthorizedClient client = resolveAuthorizedClient(authentication);
 
-		boolean isNewUser = !userService.existsByGithubId(githubId);
-		if (isNewUser) {
-			if (client != null && client.getAccessToken() != null) {
-				try {
-					String email = githubApiClient.fetchPrimaryEmail(client.getAccessToken().getTokenValue());
-					gitUser.setEmail(email);
-				} catch (Exception e) {
-					log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
-				}
-			}
-			userService.registerWithProvider(gitUser);
+		registerIfNewUser(githubId, gitUser, client);
+
+		persistGithubTokenIfPresent(githubId, client);
+
+		issueJwtCookies(response, githubId);
+
+		String redirectUrl = resolveRedirectUrl(request);
+		response.sendRedirect(redirectUrl);
+	}
+
+	private OAuth2AuthorizedClient resolveAuthorizedClient(Authentication authentication) {
+		String registrationId = "github";
+		if (authentication instanceof OAuth2AuthenticationToken token) {
+			registrationId = token.getAuthorizedClientRegistrationId();
 		}
+		return authorizedClientService.loadAuthorizedClient(registrationId, authentication.getName());
+	}
+
+	private void registerIfNewUser(String githubId, GithubUser gitUser, OAuth2AuthorizedClient client) {
+		if (userService.existsByGithubId(githubId))
+			return;
 
 		if (client != null && client.getAccessToken() != null) {
-			String githubAccessToken = client.getAccessToken().getTokenValue();
 			try {
-				githubTokenDao.saveOrUpdateByGithubId(githubId, githubAccessToken);
+				String email = githubApiClient.fetchPrimaryEmail(client.getAccessToken().getTokenValue());
+				gitUser.setEmail(email);
 			} catch (Exception e) {
-				log.warn("GitHub 토큰 저장 실패: {}", e.getMessage());
+				log.warn("GitHub 이메일 조회 실패: {}", e.getMessage());
 			}
 		}
+		userService.registerWithProvider(gitUser);
+	}
 
+	private void persistGithubTokenIfPresent(String githubId, OAuth2AuthorizedClient client) {
+		if (client == null || client.getAccessToken() == null)
+			return;
+		try {
+			githubTokenDao.saveOrUpdateByGithubId(githubId, client.getAccessToken().getTokenValue());
+		} catch (Exception e) {
+			log.warn("GitHub 토큰 저장 실패: {}", e.getMessage());
+		}
+	}
+
+	private void issueJwtCookies(HttpServletResponse response, String githubId) {
 		String accessToken = jwtProvider.createAccessToken(githubId);
 		String refreshToken = jwtProvider.createRefreshToken(githubId);
 		refreshTokenDao.rotateRefreshToken(githubId, refreshToken, REFRESH_TOKEN_TTL);
 
-		cookieUtils.addAccessTokenCookie(response, accessToken, DOMAIN, ACCESS_TOKEN_TTL);
-		cookieUtils.addRefreshTokenCookie(response, refreshToken, DOMAIN, REFRESH_TOKEN_TTL);
+		cookieUtils.addAccessTokenCookie(response, accessToken, COOKIE_DOMAIN, ACCESS_TOKEN_TTL);
+		cookieUtils.addRefreshTokenCookie(response, refreshToken, COOKIE_DOMAIN, REFRESH_TOKEN_TTL);
+	}
 
-		response.sendRedirect("https://app.gamzatech.site");
+	private String resolveRedirectUrl(HttpServletRequest request) {
+		String loc = request.getParameter("location");
+		if (loc != null) {
+			loc = loc.trim().toLowerCase();
+		}
+		if (loc == null || !ALLOWED_LOCATIONS.contains(loc)) {
+			loc = DEFAULT_LOCATION;
+			log.debug("location 파라미터가 없거나 허용되지 않아 기본값으로 리다이렉트: {}", loc);
+		}
+		return "https://" + loc + ".gamzatech.site";
 	}
 }
