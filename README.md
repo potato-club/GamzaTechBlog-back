@@ -146,7 +146,7 @@
 
 ## 디자인
 
-디자인 샘플입니다 : https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0
+디자인 : https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0
 
 ![img_2.png](images/img_2.png)
 
@@ -156,8 +156,7 @@
 
 ## ERD
 
-![img_4.png](images/img_4.png)
-
+![img_2.png](images/erd.png)
 ---
 
 ## FAQ
