@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.admission.service.validator;
+package org.gamja.gamzatechblog.domain.admission.validator;
 
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
