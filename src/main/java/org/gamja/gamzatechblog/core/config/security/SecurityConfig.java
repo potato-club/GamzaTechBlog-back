@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -94,8 +94,8 @@ public class SecurityConfig {
 				.anyRequest()
 				.hasAnyRole("USER", "ADMIN")
 			)
-			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+			.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
+		
 		return http.build();
 	}
 }
