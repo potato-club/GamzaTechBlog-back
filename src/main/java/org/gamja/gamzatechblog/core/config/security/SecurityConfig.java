@@ -68,6 +68,9 @@ public class SecurityConfig {
 				.requestMatchers(PUBLIC_MISC)
 				.permitAll()
 
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/me")
+				.hasAnyRole("USER", "ADMIN")
+
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/tags",
 					"/api/v1/posts",
@@ -78,8 +81,6 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/admissions/lookup")
 				.permitAll()
 
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/me")
-				.hasAnyRole("USER", "ADMIN")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
 				.hasAnyRole("USER", "PRE_REGISTER", "PENDING", "ADMIN")
 				.requestMatchers(HttpMethod.POST, "/api/v1/users/me/complete")
@@ -94,7 +95,7 @@ public class SecurityConfig {
 				.hasAnyRole("USER", "ADMIN")
 			)
 			.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
-
+		
 		return http.build();
 	}
 }
