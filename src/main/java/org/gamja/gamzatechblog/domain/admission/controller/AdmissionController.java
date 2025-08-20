@@ -14,12 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -27,19 +24,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Validated
 public class AdmissionController {
-	//여기있는 모든 코드는 리팩토링 예정입니다.
-
 	private final AdmissionService admissionService;
 
 	@Operation(summary = "합격/불합격 조회 (공개 GET)", tags = "합격/불합격")
 	@GetMapping("/lookup")
-	public ResponseDto<LookupResponse> lookup(
-		@RequestParam @NotBlank String name,
-		@RequestParam @NotBlank @Pattern(regexp = "^01[016789]\\d{7,8}$") String phone
-	) {
-		LookupResponse result = admissionService.getAdmissionStatusByNameAndPhone(
-			new LookupRequest(name, phone)
-		);
+	public ResponseDto<LookupResponse> lookup(@Valid LookupRequest request) {
+		LookupResponse result = admissionService.getAdmissionStatusByNameAndPhone(request);
 		return ResponseDto.of(HttpStatus.OK, "합격/불합격 조회 성공", result);
 	}
 
@@ -56,6 +46,6 @@ public class AdmissionController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseDto<Void> delete(@PathVariable("admissionId") @Positive Long admissionId) {
 		admissionService.deleteAdmissionResultById(admissionId);
-		return ResponseDto.of(HttpStatus.OK, "합격/불합격 결과 삭제 완료", null);
+		return ResponseDto.of(HttpStatus.NO_CONTENT, "합격/불합격 결과 삭제 완료", null);
 	}
 }
