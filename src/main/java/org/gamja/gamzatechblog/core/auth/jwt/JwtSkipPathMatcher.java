@@ -29,8 +29,14 @@ public class JwtSkipPathMatcher {
 	public boolean shouldSkip(HttpServletRequest request) {
 		String path = request.getRequestURI();
 		String method = request.getMethod();
+		if (path != null && path.endsWith("/")) {
+			path = path.substring(0, path.length() - 1);
+		}
 
 		if ("GET".equalsIgnoreCase(method) && path.equals("/api/v1/projects")) {
+			return true;
+		}
+		if ("GET".equalsIgnoreCase(method) && (path.equals("/api/admissions/lookup"))) {
 			return true;
 		}
 		if (SKIP_PREFIXES.stream().anyMatch(path::startsWith)) {

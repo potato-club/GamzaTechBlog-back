@@ -16,7 +16,7 @@ public enum ErrorCode {
 	// JWT
 	EXPIRED_JWT(403, "J001", "만료된 JWT 토큰입니다."),
 	UNSUPPORTED_JWT(403, "J002", "지원되지 않는 JWT 토큰입니다."),
-	SIGNATURE_INVALID_JWT(403, "JOO3", "사용중인 시그니처키입니다."),
+	SIGNATURE_INVALID_JWT(403, "J003", "사용중인 시그니처키입니다."),
 	JWT_NOT_FOUND(403, "J004", "JWT 토큰을 찾을 수 없습니다."),
 	AUTHENTICATION_FAILED(403, "J005", "인증에 실패했습니다."),
 
@@ -66,7 +66,13 @@ public enum ErrorCode {
 	PROJECT_NOT_OWNER(403, "PR004", "프로젝트 소유자가 아닙니다."),
 
 	// ADMIN
-	ADMIN_ACCESS_FORBIDDEN(403, "A001", "어드민 권한이 필요합니다.");
+	ADMIN_ACCESS_FORBIDDEN(403, "A001", "어드민 권한이 필요합니다."),
+
+	// Admission
+	ADMISSION_RESULT_DUPLICATED(409, "AD001", "이미 등록된 합격/불합격 결과입니다."),
+	ADMISSION_RESULT_NOT_FOUND(404, "AD002", "합격/불합격 결과를 찾을 수 없습니다."),
+	ADMISSION_INVALID_PHONE(400, "AD003", "유효하지 않은 전화번호 형식입니다."),
+	ADMISSION_INVALID_STATUS(400, "AD004", "유효하지 않은 상태 값입니다.");
 
 	private final String code;
 	private final String message;
