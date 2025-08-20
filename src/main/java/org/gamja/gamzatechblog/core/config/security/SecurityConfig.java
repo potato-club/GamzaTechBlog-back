@@ -24,18 +24,24 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-	private static final String[] PUBLIC = {
+	private static final String[] PUBLIC_OAUTH = {
 		"/oauth2/**",
-		"/api/auth/reissue",
+		"/login/oauth2/code/**",
+		"/api/auth/reissue"
+	};
+
+	private static final String[] PUBLIC_DOCS_STATIC = {
 		"/v3/api-docs/**",
 		"/swagger-ui/**",
-		"/webjars/**",
-		"/login/oauth2/code/**",
+		"/webjars/**"
+	};
+
+	// 기타 퍼블릭 API
+	private static final String[] PUBLIC_MISC = {
 		"/api/v1/posts/tags/**",
 		"/api/v1/posts/popular",
-		"/jenkins/**",
 		"/api/v1/posts/search",
-		"/api/admissions/lookup"
+		"/jenkins/**"
 	};
 
 	@Bean
@@ -43,40 +49,51 @@ public class SecurityConfig {
 		http
 			.cors(Customizer.withDefaults())
 			.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.csrf(csrf -> csrf.disable())
+			.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.oauth2Login(o -> o
 				.loginPage("/oauth2/authorization/github")
 				.successHandler(oAuth2LoginSuccessHandler)
 			)
-
-			.exceptionHandling(e -> e
-				.authenticationEntryPoint(authenticationEntryPoint)
-			)
+			.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.requestMatchers(PUBLIC).permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/v1/users/me/complete")
-				.hasRole("PRE_REGISTER")
+				.requestMatchers(HttpMethod.OPTIONS, "/**")
+				.permitAll()
+
+				.requestMatchers(PUBLIC_OAUTH)
+				.permitAll()
+				.requestMatchers(PUBLIC_DOCS_STATIC)
+				.permitAll()
+				.requestMatchers(PUBLIC_MISC)
+				.permitAll()
+
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/tags",
 					"/api/v1/posts",
 					"/api/v1/posts/{id:[0-9]+}",
 					"/api/v1/projects"
-				).permitAll()
-				.requestMatchers(HttpMethod.GET,
-					"/api/v1/posts/me")
+				)
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/admissions/lookup")
+				.permitAll()
+
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/me")
 				.hasAnyRole("USER", "ADMIN")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
 				.hasAnyRole("USER", "PRE_REGISTER", "PENDING", "ADMIN")
-				.requestMatchers("/api/admin/**").hasRole("ADMIN")
-				.anyRequest().hasAnyRole("USER", "ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/v1/users/me/complete")
+				.hasRole("PRE_REGISTER")
+
+				.requestMatchers("/api/admin/**")
+				.hasRole("ADMIN")
+				.requestMatchers("/api/admissions/admin/**")
+				.hasRole("ADMIN")
+
+				.anyRequest()
+				.hasAnyRole("USER", "ADMIN")
 			)
-			.addFilterAfter(
-				jwtAuthenticationFilter,
-				ExceptionTranslationFilter.class
-			);
+			.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
 
 		return http.build();
 	}
