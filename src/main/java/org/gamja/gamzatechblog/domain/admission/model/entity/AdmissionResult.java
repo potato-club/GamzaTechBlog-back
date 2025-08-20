@@ -57,7 +57,7 @@ public class AdmissionResult extends BaseTime {
 	@PreUpdate
 	private void applyNormalization() {
 		this.nameNormalized = AdmissionNormalizer.normalizeName(this.name);
-		this.phoneDigits = AdmissionNormalizer.normalizePhone(this.phoneDigits);
+		this.phoneDigits = this.phoneDigits == null ? null : this.phoneDigits.trim();
 	}
 
 	public boolean isPassed() {

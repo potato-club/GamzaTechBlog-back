@@ -3,7 +3,6 @@ package org.gamja.gamzatechblog.domain.admission.model.mapper;
 import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
-import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +23,6 @@ public interface AdmissionMapper {
 		String normalizedPhone);
 
 	default LookupResponse toLookupResponse(AdmissionResult entity) {
-		AdmissionStatus status = entity.getStatus();
-		return new LookupResponse(status);
+		return new LookupResponse(entity.getStatus());
 	}
 }
