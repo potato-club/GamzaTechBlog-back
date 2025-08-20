@@ -1,11 +1,13 @@
 # 🥔 GamzaTechBlog (감자테크 블로그)
 
+![img.png](images/img8.png)
+
 > 동아리 구성원들이 **개발 지식**과 **프로젝트 경험**을 공유하는 기술 블로그 플랫폼.  
 > 글은 **개인 GitHub 저장소와 자동 동기화**되어 포트폴리오 자산으로 축적됩니다.
 
-- 홍보 사이트: https://www.gamzatech.site/
-- 블로그 앱: https://app.gamzatech.site/
-- 백엔드 스웨거: https://gamzatech.site/swagger-ui/index.html
+- [홍보 사이트](https://www.gamzatech.site/)
+- [블로그](https://app.gamzatech.site/)
+- [Swagger](https://gamzatech.site/swagger-ui/index.html)
 
 ---
 
@@ -146,7 +148,7 @@
 
 ## 디자인
 
-디자인 : https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0
+[피그마 디자인](https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0)
 
 ![img_2.png](images/img_2.png)
 
