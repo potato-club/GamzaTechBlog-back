@@ -65,6 +65,7 @@ public class PostController {
 	@Operation(summary = "최신순 게시물 목록 조회", tags = "게시물 조회 기능")
 	@GetMapping
 	public ResponseDto<PagedResponse<PostListResponse>> getPosts(
+		@ParameterObject
 		@PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
 		@RequestParam(name = "tags", required = false) List<String> filterTags) {
 
