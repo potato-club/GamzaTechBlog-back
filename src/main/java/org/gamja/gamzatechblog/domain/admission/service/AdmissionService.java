@@ -1,8 +1,11 @@
 package org.gamja.gamzatechblog.domain.admission.service;
 
-import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupResponse;
+import java.util.List;
+
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
+import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 
 public interface AdmissionService {
 	Long createAdmissionResult(CreateAdmissionResultRequest request);
@@ -10,4 +13,7 @@ public interface AdmissionService {
 	LookupResponse getAdmissionStatusByNameAndPhone(LookupRequest request);
 
 	void deleteAdmissionResultById(Long admissionId);
+
+	List<AdmissionResultResponse> getAllAdmissionResults();
+
 }

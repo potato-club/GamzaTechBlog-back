@@ -1,7 +1,10 @@
 package org.gamja.gamzatechblog.domain.admission.model.mapper;
 
-import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupResponse;
+import java.util.List;
+
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
+import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -21,6 +24,8 @@ public interface AdmissionMapper {
 	AdmissionResult toEntity(CreateAdmissionResultRequest request,
 		String normalizedName,
 		String normalizedPhone);
+
+	List<AdmissionResultResponse> toResultResponses(List<AdmissionResult> entities);
 
 	default LookupResponse toLookupResponse(AdmissionResult entity) {
 		return new LookupResponse(entity.getStatus());
