@@ -39,4 +39,9 @@ public class RefreshTokenDao {
 		redis.opsForValue().set(TOKEN_PREFIX + newToken, userId, ttl);
 		redis.opsForValue().set(USER_TOKEN_KEY + userId, newToken, ttl);
 	}
+
+	public void touchTtl(String refreshToken, Duration ttl) {
+		String key = "refresh:" + refreshToken;
+		redis.expire(key, ttl);
+	}
 }
