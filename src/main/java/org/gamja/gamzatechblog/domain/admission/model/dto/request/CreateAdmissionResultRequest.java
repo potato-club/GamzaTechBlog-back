@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.admission.model.dto;
+package org.gamja.gamzatechblog.domain.admission.model.dto.request;
 
 import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
 

@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.admission.model.dto;
+package org.gamja.gamzatechblog.domain.admission.model.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

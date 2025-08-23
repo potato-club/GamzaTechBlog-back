@@ -1,7 +1,7 @@
 package org.gamja.gamzatechblog.support.admission;
 
-import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
 import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
 import org.gamja.gamzatechblog.domain.admission.util.AdmissionNormalizer;

@@ -9,9 +9,9 @@ import java.util.Optional;
 
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
-import org.gamja.gamzatechblog.domain.admission.model.dto.CreateAdmissionResultRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupRequest;
-import org.gamja.gamzatechblog.domain.admission.model.dto.LookupResponse;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
 import org.gamja.gamzatechblog.domain.admission.model.mapper.AdmissionMapper;
 import org.gamja.gamzatechblog.domain.admission.model.type.AdmissionStatus;
