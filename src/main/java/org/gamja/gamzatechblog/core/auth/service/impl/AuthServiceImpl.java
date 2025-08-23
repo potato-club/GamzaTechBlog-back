@@ -46,7 +46,11 @@ public class AuthServiceImpl implements AuthService {
 	public TokenResponse reissueRefreshToken(String oldRefreshToken) {
 		String userId = refreshTokenDao.findUserIdByRefreshToken(oldRefreshToken)
 			.orElseThrow(() -> new OAuthException(ErrorCode.JWT_NOT_FOUND));
-		return issueTokens(userId);
+
+		String accessToken = jwtProvider.createAccessToken(userId);
+		refreshTokenDao.touchTtl(oldRefreshToken, REFRESH_TOKEN_TTL);
+
+		return new TokenResponse(accessToken, oldRefreshToken);
 	}
 
 	@Override
