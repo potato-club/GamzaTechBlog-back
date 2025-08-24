@@ -109,13 +109,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	private String resolveRedirectUrl(HttpServletRequest request) {
 		String loc = request.getParameter("location");
+
 		if (loc != null) {
 			loc = loc.trim().toLowerCase();
 		}
+
 		if (loc == null || !ALLOWED_LOCATIONS.contains(loc)) {
 			loc = DEFAULT_LOCATION;
 			log.debug("location 파라미터가 없거나 허용되지 않아 기본값으로 리다이렉트: {}", loc);
 		}
-		return "https://" + loc + ".gamzatech.site";
+
+		return String.format("https://%s.gamzatech.site", loc);
 	}
 }
