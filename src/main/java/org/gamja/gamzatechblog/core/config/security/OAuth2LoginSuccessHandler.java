@@ -42,7 +42,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private static final Duration ACCESS_TOKEN_TTL = Duration.ofHours(1);
 	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
 
-	private static final Set<String> ALLOWED_LOCATIONS = Set.of("app", "dev");
+	private static final Set<String> ALLOWED_LOCATIONS = Set.of("app", "dev", "preview");
 	private static final String DEFAULT_LOCATION = "app";
 
 	@Override
