@@ -67,4 +67,20 @@ public class AdmissionResult extends BaseTime {
 	public boolean isFailed() {
 		return this.status == AdmissionStatus.FAIL;
 	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setNameNormalized(String nameNormalized) {
+		this.nameNormalized = nameNormalized;
+	}
+
+	public void setPhoneDigits(String phoneDigits) {
+		this.phoneDigits = phoneDigits;
+	}
+
+	public void setStatus(AdmissionStatus status) {
+		this.status = status;
+	}
 }

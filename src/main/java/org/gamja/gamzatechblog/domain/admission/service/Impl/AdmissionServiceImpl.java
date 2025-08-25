@@ -6,6 +6,7 @@ import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.UpdateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
@@ -67,6 +68,24 @@ public class AdmissionServiceImpl implements AdmissionService {
 	public List<AdmissionResultResponse> getAllAdmissionResults() {
 		return admissionMapper.toResultResponses(
 			admissionResultRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")));
+	}
+
+	@Override
+	public Long updateAdmissionResult(Long admissionId, UpdateAdmissionResultRequest request) {
+		AdmissionResult entity = admissionResultRepository.findById(admissionId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.ADMISSION_RESULT_NOT_FOUND));
+
+		String nameNorm = request.name() != null ? normalizeName(request.name()) : null;
+		String phoneNorm = request.phone() != null ? normalizePhone(request.phone()) : null;
+
+		admissionMapper.updateEntity(entity, request, nameNorm, phoneNorm);
+
+		try {
+			admissionResultRepository.saveAndFlush(entity);
+			return entity.getId();
+		} catch (DataIntegrityViolationException e) {
+			throw new BusinessException(ErrorCode.ADMISSION_RESULT_DUPLICATED);
+		}
 	}
 
 	private String normalizeName(String name) {

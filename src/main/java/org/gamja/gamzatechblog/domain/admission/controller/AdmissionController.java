@@ -6,6 +6,7 @@ import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.UpdateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.service.AdmissionService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +52,17 @@ public class AdmissionController {
 	public ResponseDto<List<AdmissionResultResponse>> getAll() {
 		List<AdmissionResultResponse> results = admissionService.getAllAdmissionResults();
 		return ResponseDto.of(HttpStatus.OK, "합격/불합격 전체 목록 조회 성공", results);
+	}
+
+	@Operation(summary = "합격/불합격 결과 수정 (ADMIN)", tags = "관리자 기능")
+	@PutMapping("/admin/{admissionId}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseDto<Long> update(
+		@PathVariable("admissionId") @Positive Long admissionId,
+		@RequestBody @Valid UpdateAdmissionResultRequest request
+	) {
+		Long updatedId = admissionService.updateAdmissionResult(admissionId, request);
+		return ResponseDto.of(HttpStatus.OK, "합격/불합격 결과 수정 완료", updatedId);
 	}
 
 	@Operation(summary = "합격/불합격 결과 삭제 (ADMIN)", tags = "관리자 기능")
