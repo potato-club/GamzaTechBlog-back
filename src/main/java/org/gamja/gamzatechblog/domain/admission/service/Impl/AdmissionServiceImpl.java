@@ -81,7 +81,8 @@ public class AdmissionServiceImpl implements AdmissionService {
 		admissionMapper.updateEntity(entity, request, nameNorm, phoneNorm);
 
 		try {
-			return admissionResultRepository.save(entity).getId();
+			admissionResultRepository.saveAndFlush(entity);
+			return entity.getId();
 		} catch (DataIntegrityViolationException e) {
 			throw new BusinessException(ErrorCode.ADMISSION_RESULT_DUPLICATED);
 		}
