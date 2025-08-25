@@ -3,12 +3,16 @@ package org.gamja.gamzatechblog.domain.admission.model.mapper;
 import java.util.List;
 
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.UpdateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 import org.gamja.gamzatechblog.domain.admission.model.entity.AdmissionResult;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
 	componentModel = "spring",
@@ -22,6 +26,14 @@ public interface AdmissionMapper {
 	@Mapping(target = "phoneDigits", source = "normalizedPhone")
 	@Mapping(target = "status", source = "request.status")
 	AdmissionResult toEntity(CreateAdmissionResultRequest request,
+		String normalizedName,
+		String normalizedPhone);
+
+	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+	@Mapping(target = "nameNormalized", source = "normalizedName")
+	@Mapping(target = "phoneDigits", source = "normalizedPhone")
+	void updateEntity(@MappingTarget AdmissionResult entity,
+		UpdateAdmissionResultRequest request,
 		String normalizedName,
 		String normalizedPhone);
 
