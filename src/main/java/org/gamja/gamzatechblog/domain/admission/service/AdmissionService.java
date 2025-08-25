@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.CreateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.request.LookupRequest;
+import org.gamja.gamzatechblog.domain.admission.model.dto.request.UpdateAdmissionResultRequest;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.AdmissionResultResponse;
 import org.gamja.gamzatechblog.domain.admission.model.dto.response.LookupResponse;
 
@@ -16,4 +17,5 @@ public interface AdmissionService {
 
 	List<AdmissionResultResponse> getAllAdmissionResults();
 
+	Long updateAdmissionResult(Long admissionId, UpdateAdmissionResultRequest request);
 }
