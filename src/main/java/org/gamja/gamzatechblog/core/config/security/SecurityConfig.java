@@ -78,7 +78,7 @@ public class SecurityConfig {
 					"/api/v1/projects"
 				)
 				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/admissions/lookup")
+				.requestMatchers(HttpMethod.POST, "/api/admissions/lookup")
 				.permitAll()
 
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/me/role")
@@ -95,7 +95,7 @@ public class SecurityConfig {
 				.hasAnyRole("USER", "ADMIN")
 			)
 			.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
-		
+
 		return http.build();
 	}
 }

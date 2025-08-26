@@ -31,9 +31,9 @@ import lombok.RequiredArgsConstructor;
 public class AdmissionController {
 	private final AdmissionService admissionService;
 
-	@Operation(summary = "합격/불합격 조회 (공개 GET)", tags = "합격/불합격")
-	@GetMapping("/lookup")
-	public ResponseDto<LookupResponse> lookup(@Valid LookupRequest request) {
+	@Operation(summary = "합격/불합격 조회 (공개 POST)", tags = "합격/불합격")
+	@PostMapping("/lookup")
+	public ResponseDto<LookupResponse> lookup(@Valid @RequestBody LookupRequest request) {
 		LookupResponse result = admissionService.getAdmissionStatusByNameAndPhone(request);
 		return ResponseDto.of(HttpStatus.OK, "합격/불합격 조회 성공", result);
 	}
