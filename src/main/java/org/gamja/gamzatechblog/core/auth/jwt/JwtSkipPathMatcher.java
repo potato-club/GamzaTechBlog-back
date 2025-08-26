@@ -36,7 +36,7 @@ public class JwtSkipPathMatcher {
 		if ("GET".equalsIgnoreCase(method) && path.equals("/api/v1/projects")) {
 			return true;
 		}
-		if ("GET".equalsIgnoreCase(method) && (path.equals("/api/admissions/lookup"))) {
+		if ("POST".equalsIgnoreCase(method) && (path.equals("/api/admissions/lookup"))) {
 			return true;
 		}
 		if (SKIP_PREFIXES.stream().anyMatch(path::startsWith)) {
