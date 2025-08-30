@@ -134,6 +134,16 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	@Override
+	@Transactional
+	public void updateEmailIfEmpty(String githubId, String email) {
+		User user = userValidator.validateAndGetUserByGithubId(githubId);
+		if (user.getEmail() == null || user.getEmail().isBlank()) {
+			user.setEmail(email);
+			userRepository.saveUser(user);
+		}
+	}
+
 	private void deleteAllPostImagesSafely(User user) {
 		if (user.getPosts() == null)
 			return;

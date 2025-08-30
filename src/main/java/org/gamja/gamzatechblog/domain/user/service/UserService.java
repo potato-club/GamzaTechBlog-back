@@ -18,6 +18,8 @@ public interface UserService {
 
 	User registerWithProvider(OAuthUserInfo info);
 
+	void updateEmailIfEmpty(String githubId, String email);
+
 	UserProfileResponse getCurrentUserProfile(User currentUser);
 
 	UserProfileResponse setupUserProfile(String githubId, UserProfileRequest userProfileRequest);
