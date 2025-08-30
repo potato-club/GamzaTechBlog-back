@@ -28,6 +28,18 @@ public class AsyncConfig implements AsyncConfigurer {
 		return ex;
 	}
 
+	//깃허브 전용
+	@Bean(name = "postLoginExecutor")
+	public ThreadPoolTaskExecutor postLoginExecutor() {
+		var ex = new ThreadPoolTaskExecutor();
+		ex.setThreadNamePrefix("post-login-");
+		ex.setCorePoolSize(4);
+		ex.setMaxPoolSize(8);
+		ex.setQueueCapacity(1000);
+		ex.initialize();
+		return ex;
+	}
+
 	@Override
 	public Executor getAsyncExecutor() {
 		return postExecutor();
