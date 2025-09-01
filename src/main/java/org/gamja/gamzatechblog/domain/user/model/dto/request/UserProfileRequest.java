@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public record UserProfileRequest(
 
 	@Schema(description = "이메일", example = "jihun@example.com")
-	@NotBlank @Email
+	@Email
 	String email,
 
 	@Schema(description = "학번", example = "20231234")

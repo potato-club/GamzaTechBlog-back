@@ -42,7 +42,6 @@ public class UserValidator {
 	}
 
 	public void validateProfileRequest(UserProfileRequest dto) {
-		validateDuplicateEmail(dto.email());
 		validateDuplicateStudentNumber(dto.studentNumber());
 	}
 
