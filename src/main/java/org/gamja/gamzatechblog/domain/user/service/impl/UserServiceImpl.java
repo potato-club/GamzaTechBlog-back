@@ -109,6 +109,7 @@ public class UserServiceImpl implements UserService {
 	public void withdraw(User currentUser) {
 		User user = userValidator.validateAndGetUserByGithubId(currentUser.getGithubId());
 
+		postRepository.deleteAllByUser(user);
 		deleteAllPostImagesSafely(user);
 		unlinkAndDeleteProfileImageSafely(user);
 

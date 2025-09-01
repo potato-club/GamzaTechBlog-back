@@ -47,4 +47,8 @@ public class PostRepositoryImpl implements PostRepository {
 		postJpaRepository.flush();
 	}
 
+	@Override
+	public void deleteAllByUser(User user) {
+		postJpaRepository.deleteAllByUser(user);
+	}
 }
