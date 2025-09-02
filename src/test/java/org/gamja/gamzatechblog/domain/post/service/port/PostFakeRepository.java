@@ -68,6 +68,14 @@ public class PostFakeRepository implements PostRepository {
 	public void flush() {
 	}
 
+	@Override
+	public void deleteAllByUser(User user) {
+		store.entrySet().removeIf(e ->
+			e.getValue().getUser() != null &&
+				e.getValue().getUser().getId().equals(user.getId())
+		);
+	}
+
 	// 테스트 편의
 	public void clear() {
 		store.clear();
