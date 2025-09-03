@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.HomeFeedResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
@@ -29,4 +30,6 @@ public interface PostService {
 	PagedResponse<PostListResponse> getPostsByTag(String tagName, Pageable pageable);
 
 	PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword);
+
+	HomeFeedResponse getHomeFeed(Pageable pageable, List<String> filterTags);
 }
