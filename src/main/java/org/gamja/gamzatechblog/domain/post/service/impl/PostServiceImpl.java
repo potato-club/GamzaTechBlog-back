@@ -12,6 +12,7 @@ import org.gamja.gamzatechblog.domain.comment.model.dto.response.CommentResponse
 import org.gamja.gamzatechblog.domain.comment.service.CommentService;
 import org.gamja.gamzatechblog.domain.commithistory.repository.CommitHistoryRepository;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.HomeFeedResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
@@ -31,6 +32,7 @@ import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
 import org.gamja.gamzatechblog.domain.tag.model.entity.Tag;
+import org.gamja.gamzatechblog.domain.tag.service.TagService;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.cache.Cache;
@@ -69,6 +71,7 @@ public class PostServiceImpl implements PostService {
 	private final PostProcessingService postProcessingService;
 	private final CommitHistoryRepository commitHistoryRepository;
 	private final CacheManager cacheManager;
+	private final TagService tagService;
 
 	@Override
 	@CacheEvict(value = {"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts",
@@ -206,6 +209,19 @@ public class PostServiceImpl implements PostService {
 	public PagedResponse<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword) {
 		Page<PostListResponse> pageData = postQueryPort.searchPostsByTitle(pageable, keyword);
 		return PagedResponse.pagedFrom(pageData);
+	}
+
+	@Cacheable(
+		value = "homeFeed",
+		key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + (#filterTags != null ? #filterTags.toString() : 'all')",
+		unless = "#result.latest.content.isEmpty()"
+	)
+	public HomeFeedResponse getHomeFeed(Pageable pageable, List<String> filterTags) {
+		List<PostPopularResponse> popular = getWeeklyPopularPosts();
+		PagedResponse<PostListResponse> latest = getPosts(pageable, filterTags);
+		List<String> tags = tagService.getAllTags();
+
+		return new HomeFeedResponse(popular, latest, tags);
 	}
 
 	private GitHubRepo ensureRepo(User user) {

@@ -7,6 +7,7 @@ import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.post.model.dto.request.PostRequest;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.HomeFeedResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostDetailResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
 import org.gamja.gamzatechblog.domain.post.model.dto.response.PostPopularResponse;
@@ -116,5 +117,16 @@ public class PostController {
 		@RequestParam("keyword") @NotBlank(message = "검색 키워드는 필수입니다") String keyword) {
 		PagedResponse<PostListResponse> page = postService.searchPostsByTitle(pageable, keyword);
 		return ResponseDto.of(HttpStatus.OK, "게시물 검색 조회 성공", page);
+	}
+
+	@Operation(summary = "홈 피드 조회", tags = "게시물 조회 기능")
+	@GetMapping("/feed")
+	public ResponseDto<HomeFeedResponse> getHomeFeed(
+		@ParameterObject
+		@PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable,
+		@RequestParam(name = "tags", required = false) List<String> filterTags
+	) {
+		HomeFeedResponse feed = postService.getHomeFeed(pageable, filterTags);
+		return ResponseDto.of(HttpStatus.OK, "홈 피드 조회 성공", feed);
 	}
 }
