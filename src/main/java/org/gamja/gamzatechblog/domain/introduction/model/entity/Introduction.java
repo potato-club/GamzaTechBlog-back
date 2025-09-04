@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.introduction;
+package org.gamja.gamzatechblog.domain.introduction.model.entity;
 
 import org.gamja.gamzatechblog.common.entity.BaseTime;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -42,8 +42,4 @@ public class Introduction extends BaseTime {
 	@JdbcTypeCode(SqlTypes.LONGVARCHAR)
 	@Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")
 	private String content;
-
-	public void updateContent(String content) {
-		this.content = content;
-	}
 }

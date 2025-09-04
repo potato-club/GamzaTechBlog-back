@@ -1,8 +1,9 @@
-package org.gamja.gamzatechblog.domain.introduction;
+package org.gamja.gamzatechblog.domain.introduction.infrastructure;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.gamja.gamzatechblog.domain.introduction.model.entity.Introduction;
+import org.gamja.gamzatechblog.domain.introduction.service.port.IntroductionRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,16 +30,6 @@ public class IntroductionRepositoryImpl implements IntroductionRepository {
 	@Override
 	public Optional<Introduction> findById(Long introId) {
 		return introductionJpaRepository.findById(introId);
-	}
-
-	@Override
-	public Optional<Introduction> findByUserId(Long userId) {
-		return introductionJpaRepository.findByUser_Id(userId);
-	}
-
-	@Override
-	public List<Introduction> findAllOrderByCreatedDesc() {
-		return introductionJpaRepository.findAllOrderByCreatedDesc();
 	}
 
 	@Override

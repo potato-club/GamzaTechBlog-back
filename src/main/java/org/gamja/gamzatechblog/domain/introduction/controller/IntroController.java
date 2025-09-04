@@ -1,9 +1,12 @@
-package org.gamja.gamzatechblog.domain.introduction;
+package org.gamja.gamzatechblog.domain.introduction.controller;
 
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
+import org.gamja.gamzatechblog.domain.introduction.model.dto.request.IntroCreateRequest;
+import org.gamja.gamzatechblog.domain.introduction.model.dto.response.IntroResponse;
+import org.gamja.gamzatechblog.domain.introduction.service.IntroService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +34,8 @@ public class IntroController {
 
 	@Operation(summary = "자기소개 작성", tags = "텃밭인사")
 	@PostMapping
-	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER','ADMIN')")
-	public ResponseDto<IntroResponse> create(
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
+	public ResponseDto<IntroResponse> createIntro(
 		@CurrentUser User currentUser,
 		@Valid @RequestBody IntroCreateRequest request
 	) {
@@ -42,7 +45,7 @@ public class IntroController {
 
 	@Operation(summary = "자기소개 목록 조회(페이지네이션)", tags = "텃밭인사")
 	@GetMapping
-	public ResponseDto<PagedResponse<IntroResponse>> list(
+	public ResponseDto<PagedResponse<IntroResponse>> getIntroList(
 		@ParameterObject
 		@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
@@ -50,24 +53,10 @@ public class IntroController {
 			introService.list(pageable));
 	}
 
-	@Operation(summary = "내 자기소개 조회", tags = "텃밭인사")
-	@GetMapping("/me")
-	public ResponseDto<IntroResponse> getMine(@CurrentUser User currentUser) {
-		return ResponseDto.of(HttpStatus.OK, "내 자기소개 조회 성공",
-			introService.getMine(currentUser));
-	}
-
-	@Operation(summary = "특정 유저의 자기소개 조회", tags = "텃밭인사")
-	@GetMapping("/users/{userId}")
-	public ResponseDto<IntroResponse> getByUser(@PathVariable Long userId) {
-		return ResponseDto.of(HttpStatus.OK, "자기소개 조회 성공",
-			introService.getByUserId(userId));
-	}
-
 	@Operation(summary = "자기소개 삭제(본인만)", tags = "텃밭인사")
 	@DeleteMapping("/{introId}")
 	@PreAuthorize("hasAnyRole('USER','ADMIN')")
-	public ResponseDto<Void> delete(
+	public ResponseDto<Void> deleteIntro(
 		@PathVariable Long introId,
 		@CurrentUser User currentUser
 	) {

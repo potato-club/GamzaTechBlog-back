@@ -1,7 +1,8 @@
-package org.gamja.gamzatechblog.domain.introduction;
+package org.gamja.gamzatechblog.domain.introduction.model.mapper;
 
-import java.util.List;
-
+import org.gamja.gamzatechblog.domain.introduction.model.dto.response.IntroResponse;
+import org.gamja.gamzatechblog.domain.introduction.model.entity.Introduction;
+import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,5 +17,10 @@ public interface IntroMapper {
 	@Mapping(source = "createdAt", target = "createdAt")
 	IntroResponse toResponse(Introduction intro);
 
-	List<IntroResponse> toResponseList(List<Introduction> list);
+	default Introduction newIntroduction(User user, String content) {
+		return Introduction.builder()
+			.user(user)
+			.content(content)
+			.build();
+	}
 }

@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.domain.introduction;
+package org.gamja.gamzatechblog.domain.introduction.model.dto.response;
 
 import java.time.LocalDateTime;
 
