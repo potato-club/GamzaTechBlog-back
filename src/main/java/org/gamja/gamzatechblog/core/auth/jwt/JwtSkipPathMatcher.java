@@ -42,6 +42,9 @@ public class JwtSkipPathMatcher {
 		if (SKIP_PREFIXES.stream().anyMatch(path::startsWith)) {
 			return true;
 		}
+		if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/v1/intros")) {
+			return true;
+		}
 		if ("GET".equalsIgnoreCase(method)
 			&& path.startsWith("/api/v1/posts")
 			&& !path.equals("/api/v1/posts/me")) {

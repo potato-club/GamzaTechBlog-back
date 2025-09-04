@@ -75,7 +75,8 @@ public class SecurityConfig {
 					"/api/v1/tags",
 					"/api/v1/posts",
 					"/api/v1/posts/*",
-					"/api/v1/projects"
+					"/api/v1/projects",
+					"/api/v1/intros"
 				)
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/admissions/lookup")
