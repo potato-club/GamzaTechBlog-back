@@ -23,8 +23,7 @@ public class JwtSkipPathMatcher {
 		"/api/v1/tags",
 		"/api/v1/posts/tags",
 		"/jenkins",
-		"/api/v1/posts/search",
-		"/api/v1/intros"
+		"/api/v1/posts/search"
 	);
 
 	public boolean shouldSkip(HttpServletRequest request) {
@@ -41,6 +40,9 @@ public class JwtSkipPathMatcher {
 			return true;
 		}
 		if (SKIP_PREFIXES.stream().anyMatch(path::startsWith)) {
+			return true;
+		}
+		if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/v1/intros")) {
 			return true;
 		}
 		if ("GET".equalsIgnoreCase(method)
