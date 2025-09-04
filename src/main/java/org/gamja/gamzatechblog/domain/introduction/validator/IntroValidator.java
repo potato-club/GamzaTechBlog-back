@@ -1,5 +1,7 @@
 package org.gamja.gamzatechblog.domain.introduction.validator;
 
+import java.util.Objects;
+
 import org.gamja.gamzatechblog.domain.introduction.exception.IntroException;
 import org.gamja.gamzatechblog.domain.introduction.model.entity.Introduction;
 import org.gamja.gamzatechblog.domain.introduction.service.port.IntroductionRepository;
@@ -29,7 +31,8 @@ public class IntroValidator {
 
 	// 삭제 권한 확인
 	public void validateOwner(Introduction intro, User user) {
-		if (!intro.getUser().getId().equals(user.getId())) {
+		User introUser = intro.getUser();
+		if (introUser == null || !Objects.equals(introUser.getId(), user.getId())) {
 			throw IntroException.deleteForbidden();
 		}
 	}
