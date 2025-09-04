@@ -8,6 +8,8 @@ import org.gamja.gamzatechblog.domain.introduction.service.IntroService;
 import org.gamja.gamzatechblog.domain.introduction.service.port.IntroductionRepository;
 import org.gamja.gamzatechblog.domain.introduction.validator.IntroValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class IntroServiceImpl implements IntroService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "introsList", allEntries = true)
 	public IntroResponse create(User user, String content) {
 		introValidator.validateNotExists(user);
 		Introduction saved = introductionRepository.save(introMapper.newIntroduction(user, content));
@@ -33,6 +36,10 @@ public class IntroServiceImpl implements IntroService {
 	}
 
 	@Override
+	@Cacheable(
+		value = "introsList",
+		key = "'p:' + #pageable.pageNumber + ':s:' + #pageable.pageSize + ':sort:' + #pageable.sort"
+	)
 	public PagedResponse<IntroResponse> list(Pageable pageable) {
 		Page<Introduction> page = introductionRepository.findAll(pageable);
 		return PagedResponse.of(page, introMapper::toResponse);
@@ -40,6 +47,7 @@ public class IntroServiceImpl implements IntroService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "introsList", allEntries = true)
 	public void delete(Long introId, User user) {
 		Introduction intro = introValidator.validateExists(introId);
 		introValidator.validateOwner(intro, user);
