@@ -72,7 +72,12 @@ public enum ErrorCode {
 	ADMISSION_RESULT_DUPLICATED(409, "AD001", "이미 등록된 합격/불합격 결과입니다."),
 	ADMISSION_RESULT_NOT_FOUND(404, "AD002", "합격/불합격 결과를 찾을 수 없습니다."),
 	ADMISSION_INVALID_PHONE(400, "AD003", "유효하지 않은 전화번호 형식입니다."),
-	ADMISSION_INVALID_STATUS(400, "AD004", "유효하지 않은 상태 값입니다.");
+	ADMISSION_INVALID_STATUS(400, "AD004", "유효하지 않은 상태 값입니다."),
+
+	// Introduction
+	INTRO_ALREADY_EXISTS(409, "IN001", "이미 자기소개가 존재합니다."),
+	INTRO_NOT_FOUND(404, "IN002", "자기소개가 없습니다."),
+	INTRO_DELETE_FORBIDDEN(403, "IN003", "본인만 자기소개를 삭제할 수 있습니다.");
 
 	private final String code;
 	private final String message;
