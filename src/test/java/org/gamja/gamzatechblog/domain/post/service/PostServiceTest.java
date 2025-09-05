@@ -31,6 +31,7 @@ import org.gamja.gamzatechblog.domain.postimage.service.PostImageService;
 import org.gamja.gamzatechblog.domain.posttag.util.PostTagUtil;
 import org.gamja.gamzatechblog.domain.repository.model.entity.GitHubRepo;
 import org.gamja.gamzatechblog.domain.repository.port.GitHubRepoRepository;
+import org.gamja.gamzatechblog.domain.tag.service.TagService;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.support.post.PostFixtures;
@@ -63,6 +64,8 @@ class PostServiceTest {
 	private PostProcessingService postProcessingService;
 	private CommitHistoryRepository commitHistoryRepository;
 
+	private TagService tagService;
+
 	private CacheManager cacheManager;
 
 	private PostServiceImpl service;
@@ -86,6 +89,7 @@ class PostServiceTest {
 		postImageService = mock(PostImageService.class);
 		postProcessingService = mock(PostProcessingService.class);
 		commitHistoryRepository = mock(CommitHistoryRepository.class);
+		tagService = mock(TagService.class);
 
 		cacheManager = new ConcurrentMapCacheManager(
 			"hotPosts", "postDetail", "postsList", "myPosts", "searchPosts", "postsByTag", "allTags"
@@ -95,7 +99,7 @@ class PostServiceTest {
 			postRepository, postMapper, postValidator, githubTokenValidator,
 			gitHubRepoRepository, postTagUtil, tagRepository, commentService,
 			postDetailMapper, postQueryPort, postPopularMapper, postImageService,
-			postProcessingService, commitHistoryRepository, cacheManager
+			postProcessingService, commitHistoryRepository, cacheManager, tagService
 		);
 
 		user = PostFixtures.user(1L);
