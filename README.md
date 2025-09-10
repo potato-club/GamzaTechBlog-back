@@ -1,6 +1,6 @@
 # 🥔 GamzaTechBlog (감자테크 블로그)
 
-![img.png](images/img8.png)
+![mainpage.png](images/mainpage.png)
 
 > 동아리 구성원들이 **개발 지식**과 **프로젝트 경험**을 공유하는 기술 블로그 플랫폼.  
 > 글은 **개인 GitHub 저장소와 자동 동기화**되어 포트폴리오 자산으로 축적됩니다.
