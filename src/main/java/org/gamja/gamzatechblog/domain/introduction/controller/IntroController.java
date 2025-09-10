@@ -43,7 +43,7 @@ public class IntroController {
 		return ResponseDto.of(HttpStatus.CREATED, "자기소개 작성 성공", dto);
 	}
 
-	@Operation(summary = "자기소개 목록 조회(페이지네이션)", tags = "텃밭인사")
+	@Operation(summary = "자기소개 목록 조회", tags = "텃밭인사")
 	@GetMapping
 	public ResponseDto<PagedResponse<IntroResponse>> getIntroList(
 		@ParameterObject
@@ -53,7 +53,7 @@ public class IntroController {
 			introService.list(pageable));
 	}
 
-	@Operation(summary = "자기소개 삭제(본인만)", tags = "텃밭인사")
+	@Operation(summary = "자기소개 삭제", tags = "텃밭인사")
 	@DeleteMapping("/{introId}")
 	@PreAuthorize("hasAnyRole('USER','ADMIN')")
 	public ResponseDto<Void> deleteIntro(
