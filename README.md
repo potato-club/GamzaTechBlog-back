@@ -146,6 +146,12 @@
 
 ---
 
+## 서버 구성도
+
+![img_5.png](images/img_5.png)
+
+---
+
 ## 디자인
 
 [피그마 디자인](https://www.figma.com/design/of5OcgQXWW3gnDLtVNz3Yk/Untitled?node-id=0-1&p=f&t=Q0LQnmoAtvx4tU5i-0)
