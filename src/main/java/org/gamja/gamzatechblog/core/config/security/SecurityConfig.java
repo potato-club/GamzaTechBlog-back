@@ -41,6 +41,7 @@ public class SecurityConfig {
 		"/api/v1/posts/tags/**",
 		"/api/v1/posts/popular",
 		"/api/v1/posts/search",
+		"/api/v1/ai/chat",
 		"/jenkins/**"
 	};
 
