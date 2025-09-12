@@ -34,8 +34,18 @@ public class GamzaChatService {
 	}
 
 	public ChatMessageResponse getReply(ChatMessageRequest request) {
+		// 방어적 가드(컨트롤러 @Valid와 중복이지만 비용 보호용)
+		String userMsg = request.getMessage();
+		if (userMsg == null || userMsg.isBlank()) {
+			throw new IllegalArgumentException("메시지는 비어 있을 수 없습니다.");
+		}
+		if (userMsg.length() > 2000) {
+			throw new IllegalArgumentException("길이가 너무 깁니다.");
+		}
+		userMsg = userMsg.strip();
+
 		String system = buildSystemInstruction();
-		String user = buildUserMessage(request.getMessage());
+		String user = buildUserMessage(userMsg);
 
 		long ttlSeconds = chatbotProperties.getCacheTtlSeconds();
 		if (ttlSeconds > 0) {
@@ -44,7 +54,6 @@ public class GamzaChatService {
 			if (cached != null && !cached.isBlank()) {
 				return new ChatMessageResponse(cached);
 			}
-
 			String generated = geminiApiClient.generateTextWithSystem(system, user);
 			writeCache(cacheKey, generated, Duration.ofSeconds(ttlSeconds));
 			return new ChatMessageResponse(generated);
