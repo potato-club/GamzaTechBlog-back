@@ -5,10 +5,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @ToString(exclude = "key")
 @Component
 @ConfigurationProperties(prefix = "gemini.api")
