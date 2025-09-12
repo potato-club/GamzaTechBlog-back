@@ -12,24 +12,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GeminiReqDto {
+public class GeminiRequest {
 
 	@JsonProperty("system_instruction")
 	private Content systemInstruction;
 
 	private List<Content> contents = new ArrayList<>();
 
-	public static GeminiReqDto fromSystemAndUser(String system, String userText) {
-		GeminiReqDto dto = new GeminiReqDto();
-		dto.systemInstruction = Content.fromText(system);
-		dto.contents.add(Content.fromText(userText));
-		return dto;
-	}
-
-	public static GeminiReqDto fromText(String text) {
-		GeminiReqDto dto = new GeminiReqDto();
-		dto.contents.add(Content.fromText(text));
-		return dto;
+	public static GeminiRequest fromSystemAndUser(String system, String userText) {
+		GeminiRequest geminiRequest = new GeminiRequest();
+		geminiRequest.systemInstruction = Content.fromText(system);
+		geminiRequest.contents.add(Content.fromText(userText));
+		return geminiRequest;
 	}
 
 	@Getter
@@ -38,9 +32,9 @@ public class GeminiReqDto {
 		private List<Part> parts = new ArrayList<>();
 
 		public static Content fromText(String text) {
-			Content c = new Content();
-			c.parts.add(new Part(text));
-			return c;
+			Content content = new Content();
+			content.parts.add(new Part(text));
+			return content;
 		}
 	}
 

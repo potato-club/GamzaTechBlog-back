@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.gamja.gamzatechblog.core.config.ai.GeminiProperties;
-import org.gamja.gamzatechblog.core.gemini.dto.GeminiReqDto;
-import org.gamja.gamzatechblog.core.gemini.dto.GeminiResDto;
+import org.gamja.gamzatechblog.core.gemini.dto.GeminiRequest;
+import org.gamja.gamzatechblog.core.gemini.dto.GeminiResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -39,25 +39,26 @@ public class GeminiApiClient {
 			.build()
 			.toUri();
 
-		GeminiReqDto body = GeminiReqDto.fromSystemAndUser(systemInstruction, userText);
+		GeminiRequest body = GeminiRequest.fromSystemAndUser(systemInstruction, userText);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-		ResponseEntity<GeminiResDto> response;
+		ResponseEntity<GeminiResponse> response;
 		try {
-			response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(body, headers), GeminiResDto.class);
+			response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(body, headers),
+				GeminiResponse.class);
 		} catch (HttpStatusCodeException e) {
 			String err = e.getResponseBodyAsString(StandardCharsets.UTF_8);
 			throw new IllegalStateException("Gemini API 호출 실패: HTTP " + e.getStatusCode() + " / " + err);
 		}
 
-		GeminiResDto res = response.getBody();
+		GeminiResponse res = response.getBody();
 		if (Objects.isNull(res) || res.getCandidates() == null || res.getCandidates().isEmpty()) {
 			throw new IllegalStateException("Gemini API 응답이 비어 있습니다.");
 		}
-		GeminiResDto.Candidate cand = res.getCandidates().get(0);
+		GeminiResponse.Candidate cand = res.getCandidates().get(0);
 		if (cand.getContent() == null || cand.getContent().getParts() == null || cand.getContent()
 			.getParts()
 			.isEmpty()) {

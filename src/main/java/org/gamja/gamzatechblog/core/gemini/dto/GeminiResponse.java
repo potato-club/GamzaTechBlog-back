@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GeminiResDto {
+public class GeminiResponse {
 
 	private List<Candidate> candidates;
 
