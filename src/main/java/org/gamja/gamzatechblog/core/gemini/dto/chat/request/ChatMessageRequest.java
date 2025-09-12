@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.gemini.dto;
+package org.gamja.gamzatechblog.core.gemini.dto.chat.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

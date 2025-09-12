@@ -1,4 +1,4 @@
-package org.gamja.gamzatechblog.core.gemini.dto;
+package org.gamja.gamzatechblog.core.gemini.dto.gemini.response;
 
 import java.util.List;
 

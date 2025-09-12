@@ -7,8 +7,8 @@ import java.util.Base64;
 
 import org.gamja.gamzatechblog.core.config.ai.ChatbotProperties;
 import org.gamja.gamzatechblog.core.gemini.client.GeminiApiClient;
-import org.gamja.gamzatechblog.core.gemini.dto.ChatMessageRequest;
-import org.gamja.gamzatechblog.core.gemini.dto.ChatMessageResponse;
+import org.gamja.gamzatechblog.core.gemini.dto.chat.request.ChatMessageRequest;
+import org.gamja.gamzatechblog.core.gemini.dto.chat.response.ChatMessageResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -68,7 +68,8 @@ public class GamzaChatService {
 			
 			[사용자 질문]
 			%s
-			""".formatted(chatbotProperties.getBlogBrief(), userMessage);
+			"""
+			.formatted(chatbotProperties.getBlogBrief(), userMessage);
 	}
 
 	private String buildCacheKey(String text) {

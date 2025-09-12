@@ -1,8 +1,8 @@
 package org.gamja.gamzatechblog.core.gemini.controller;
 
 import org.gamja.gamzatechblog.core.annotation.ApiController;
-import org.gamja.gamzatechblog.core.gemini.dto.ChatMessageRequest;
-import org.gamja.gamzatechblog.core.gemini.dto.ChatMessageResponse;
+import org.gamja.gamzatechblog.core.gemini.dto.chat.request.ChatMessageRequest;
+import org.gamja.gamzatechblog.core.gemini.dto.chat.response.ChatMessageResponse;
 import org.gamja.gamzatechblog.core.gemini.service.GamzaChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.gamja.gamzatechblog.core.config.ai.GeminiProperties;
-import org.gamja.gamzatechblog.core.gemini.dto.GeminiRequest;
-import org.gamja.gamzatechblog.core.gemini.dto.GeminiResponse;
+import org.gamja.gamzatechblog.core.gemini.dto.gemini.request.GeminiRequest;
+import org.gamja.gamzatechblog.core.gemini.dto.gemini.response.GeminiResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
