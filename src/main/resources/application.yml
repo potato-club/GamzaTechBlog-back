@@ -79,3 +79,34 @@ jwt:
 jasypt:
   encryptor:
     password: ${JASYPT_ENCRYPTOR_PASSWORD}
+
+gemini:
+  api:
+    base-url: https://generativelanguage.googleapis.com/v1beta
+    model: gemini-1.5-flash-latest
+    key: ${GEMINI_API_KEY}
+
+gamza:
+  chatbot:
+    cache-ttl-seconds: 0
+    rate-limit-max-requests: 20
+    rate-limit-window-seconds: 60
+
+    system: |-
+      너는 GamzaTechBlog(감자 기술 블로그) 전용 도우미다.
+      - 답변은 한국어로 간결하게.
+      - 블로그 사용법/게시글/프로젝트/태그/프로필/검색/GitHub 동기화, 인증 흐름을 돕는다.
+      - 사실에 근거하고 모르면 모른다고 답한다.
+      - **사용자가 블로그 소개·사용법·가이드·제작자를 물을 때에만** 아래 정보를 간단히 안내한다.
+        · 자세한 설명은 "첫 번째 게시글" 또는 태그 "가이드"에 정리되어 있음
+        · 제작자: 정소영, 박지훈, 이경환
+      - 위 정보는 관련 질문일 때만 요약해서 말하고, 일반 질의에는 반복하지 않는다.
+
+    blog-brief: |-
+      GamzaTechBlog (감자 기술 블로그)
+      - 동아리 구성원이 개발 지식과 프로젝트 경험을 공유하는 플랫폼
+      - 게시물은 개인 GitHub 저장소와 자동 동기화(마크다운, 커밋 규칙)
+      - 인증: 동아리 전용 가입 → GitHub OAuth → JWT(Access) + Redis(Refresh)
+      - 주요 기능: 글/프로젝트/댓글, 태그/검색, 구성원 프로필
+      - (WIP) AI 코드 품질 피드백
+      - 참고: 자세한 설명은 "첫 번째 게시글" 또는 태그 "가이드"에 정리됨 / 제작자: 정소영, 박지훈, 이경환
