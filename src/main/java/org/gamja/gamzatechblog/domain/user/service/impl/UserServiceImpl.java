@@ -154,6 +154,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	@Cacheable(
 		value = "publicProfileAggregate",
 		key = "#nickname + '-' + #pageable.pageNumber + '-' + #pageable.pageSize",

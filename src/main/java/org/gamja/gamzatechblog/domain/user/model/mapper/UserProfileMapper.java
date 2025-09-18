@@ -22,7 +22,6 @@ public interface UserProfileMapper {
 
 	@Mapping(source = "nickname", target = "nickname")
 	@Mapping(source = "gamjaBatch", target = "gamjaBatch")
-	@Mapping(source = "email", target = "email")
 	@Mapping(source = "profileImage.profileImageUrl", target = "profileImageUrl")
 	UserMiniProfileResponse toUserMiniProfileResponse(User user);
 
