@@ -1,16 +1,21 @@
 package org.gamja.gamzatechblog.domain.user.service.impl;
 
+import org.gamja.gamzatechblog.common.dto.PagedResponse;
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
+import org.gamja.gamzatechblog.domain.post.model.dto.response.PostListResponse;
+import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.model.entity.ProfileImage;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
+import org.gamja.gamzatechblog.domain.user.controller.response.UserMiniProfileResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.controller.response.UserPublicProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -22,6 +27,8 @@ import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -43,6 +50,7 @@ public class UserServiceImpl implements UserService {
 	private final CommentRepository commentRepository;
 	private final S3ImageStorage s3ImageStorage;
 	private final TagRepository tagRepository;
+	private final PostQueryPort postQueryPort;
 
 	private final ProfileImageValidator profileImageValidator;
 	private static final String PROFILE_IMAGES_PREFIX = "profile-images";
@@ -143,6 +151,25 @@ public class UserServiceImpl implements UserService {
 			user.setEmail(email);
 			userRepository.saveUser(user);
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	@Cacheable(
+		value = "publicProfileAggregate",
+		key = "#nickname + '-' + #pageable.pageNumber + '-' + #pageable.pageSize",
+		unless = "#result == null"
+	)
+	public UserPublicProfileResponse getPublicProfileByNickname(String nickname, Pageable pageable) {
+		User target = userValidator.validateAndGetUserByNickname(nickname);
+
+		UserMiniProfileResponse profile = userProfileMapper.toUserMiniProfileResponse(target);
+
+		UserActivityResponse activity = getActivitySummary(target);
+		Page<PostListResponse> page = postQueryPort.findPostsByUser(pageable, target);
+		PagedResponse<PostListResponse> posts = PagedResponse.pagedFrom(page);
+
+		return new UserPublicProfileResponse(profile, activity, posts);
 	}
 
 	private void deleteAllPostImagesSafely(User user) {
