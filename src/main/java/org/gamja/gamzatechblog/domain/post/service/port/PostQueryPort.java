@@ -17,4 +17,6 @@ public interface PostQueryPort {
 	Page<PostListResponse> findMyPosts(Pageable pageable, User currentUser);
 
 	Page<PostListResponse> searchPostsByTitle(Pageable pageable, String keyword);
+
+	Page<PostListResponse> findPostsByUser(Pageable pageable, User user);
 }

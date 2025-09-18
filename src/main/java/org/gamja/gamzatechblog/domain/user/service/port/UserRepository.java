@@ -24,4 +24,6 @@ public interface UserRepository {
 	List<User> findAllByRole(UserRole role);
 
 	Optional<User> findById(Long id);
+
+	Optional<User> findByNickname(String nickname);
 }

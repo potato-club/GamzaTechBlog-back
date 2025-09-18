@@ -55,6 +55,12 @@ public class PostQueryAdapter implements PostQueryPort {
 	}
 
 	@Override
+	public Page<PostListResponse> findPostsByUser(Pageable pageable, User userEntity) {
+		BooleanExpression where = post.user.eq(userEntity);
+		return fetchPosts(pageable, where);
+	}
+
+	@Override
 	public Page<PostListResponse> findMyPosts(Pageable pageable, User currentUser) {
 		BooleanExpression where = post.user.eq(currentUser);
 		return fetchPosts(pageable, where);

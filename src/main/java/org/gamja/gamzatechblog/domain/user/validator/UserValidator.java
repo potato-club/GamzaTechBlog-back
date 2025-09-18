@@ -30,6 +30,11 @@ public class UserValidator {
 		}
 	}
 
+	public User validateAndGetUserByNickname(String nickname) {
+		return userRepository.findByNickname(nickname)
+			.orElseThrow(UserNotFoundException::new);
+	}
+
 	public void validateDuplicateEmail(String email) {
 		if (userRepository.existsByEmail(email)) {
 			throw new DuplicateValueException(ErrorCode.EMAIL_ALREADY_EXISTS);

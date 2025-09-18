@@ -59,6 +59,11 @@ public class UserRepositoryImpl implements UserRepository {
 	}
 
 	@Override
+	public Optional<User> findByNickname(String nickname) {
+		return userJpaRepository.findByNickname(nickname);
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public List<User> findAllByRole(UserRole role) {
 		return userJpaRepository.findAllByRole(role);
