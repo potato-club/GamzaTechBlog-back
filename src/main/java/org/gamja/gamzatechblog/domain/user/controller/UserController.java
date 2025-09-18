@@ -5,14 +5,18 @@ import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserActivityResponse;
 import org.gamja.gamzatechblog.domain.user.controller.response.UserProfileResponse;
+import org.gamja.gamzatechblog.domain.user.controller.response.UserPublicProfileResponse;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,5 +76,16 @@ public class UserController {
 	public ResponseDto<String> getCurrentUserRole(@CurrentUser User currentUser) {
 		String role = currentUser.getRole().name();
 		return ResponseDto.of(HttpStatus.OK, "역할 조회 성공", role);
+	}
+
+	@Operation(summary = "상대방 공개 프로필 조회", tags = "유저 기능")
+	@GetMapping("/{nickname}")
+	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER','ADMIN','PENDING')")
+	public ResponseDto<UserPublicProfileResponse> getPublicProfileByNickname(
+		@PathVariable String nickname,
+		@PageableDefault(size = 10) Pageable pageable
+	) {
+		UserPublicProfileResponse body = userService.getPublicProfileByNickname(nickname, pageable);
+		return ResponseDto.of(HttpStatus.OK, "공개 프로필 조회 성공", body);
 	}
 }
