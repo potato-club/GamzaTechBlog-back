@@ -79,8 +79,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "상대방 공개 프로필 조회", tags = "유저 기능")
-	@GetMapping("/{nickname}")
-	@PreAuthorize("hasAnyRole('USER','PRE_REGISTER','ADMIN','PENDING')")
+	@GetMapping("/public/profile/{nickname}")
 	public ResponseDto<UserPublicProfileResponse> getPublicProfileByNickname(
 		@PathVariable String nickname,
 		@PageableDefault(size = 10) Pageable pageable

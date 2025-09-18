@@ -42,7 +42,8 @@ public class SecurityConfig {
 		"/api/v1/posts/popular",
 		"/api/v1/posts/search",
 		"/api/v1/ai/chat",
-		"/jenkins/**"
+		"/jenkins/**",
+		"/api/v1/users/public/profile/**"
 	};
 
 	@Bean
