@@ -10,8 +10,8 @@ import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileReques
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -82,7 +82,7 @@ public class UserController {
 	@GetMapping("/public/profile/{nickname}")
 	public ResponseDto<UserPublicProfileResponse> getPublicProfileByNickname(
 		@PathVariable String nickname,
-		@PageableDefault(size = 10) Pageable pageable
+		@ParameterObject Pageable pageable
 	) {
 		UserPublicProfileResponse body = userService.getPublicProfileByNickname(nickname, pageable);
 		return ResponseDto.of(HttpStatus.OK, "공개 프로필 조회 성공", body);
