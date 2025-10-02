@@ -13,7 +13,7 @@ public class ResponseDto<T> {
 	private final int status;
 	private final String message;
 
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private final T data;
 	private final long timestamp;
 
