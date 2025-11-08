@@ -83,7 +83,7 @@ jasypt:
 gemini:
   api:
     base-url: https://generativelanguage.googleapis.com/v1beta
-    model: gemini-1.5-flash-latest
+    model: gemini-2.5-flash
     key: ${GEMINI_API_KEY}
 
 gamza:

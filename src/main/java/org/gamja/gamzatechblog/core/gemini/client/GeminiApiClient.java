@@ -20,6 +20,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class GeminiApiClient {
+	/**
+	 * 관련 코드 모두 리팩토링 예정입니다.
+	 */
 
 	private static final String PATH_TEMPLATE = "/models/%s:generateContent";
 
