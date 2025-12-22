@@ -64,4 +64,10 @@ public class UserFakeUserRepository implements UserRepository {
 			.findFirst();
 	}
 
+	@Override
+	public Optional<User> findByNickname(String nickname) {
+		return userHashMap.values().stream()
+			.filter(u -> nickname.equals(u.getNickname()))
+			.findFirst();
+	}
 }
