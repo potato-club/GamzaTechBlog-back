@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import org.gamja.gamzatechblog.common.port.s3.S3ImageStorage;
 import org.gamja.gamzatechblog.domain.comment.service.port.CommentRepository;
 import org.gamja.gamzatechblog.domain.like.service.port.LikeRepository;
+import org.gamja.gamzatechblog.domain.post.service.port.PostQueryPort;
 import org.gamja.gamzatechblog.domain.post.service.port.PostRepository;
 import org.gamja.gamzatechblog.domain.profileimage.validator.ProfileImageValidator;
 import org.gamja.gamzatechblog.domain.tag.service.port.TagRepository;
@@ -37,6 +38,7 @@ class UserServiceTest {
 	private TagRepository tagRepository;
 	private ProfileImageValidator profileImageValidator;
 	private UserProfileMapper userProfileMapper;
+	private PostQueryPort postQueryPort;
 
 	@BeforeEach
 	void setUp() {
@@ -61,6 +63,7 @@ class UserServiceTest {
 			commentRepository,
 			s3ImageStorage,
 			tagRepository,
+			postQueryPort,
 			profileImageValidator
 		);
 	}
