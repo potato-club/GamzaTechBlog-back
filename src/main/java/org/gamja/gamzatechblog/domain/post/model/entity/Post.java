@@ -21,6 +21,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
@@ -37,7 +38,10 @@ import lombok.NoArgsConstructor;
  * Post: 작성자(User), 제목, 내용, 커밋 메시지 등을 저장하고 이미지·댓글·좋아요·태그와 연관된 게시물 엔티티
  */
 @Entity
-@Table(name = "posts")
+@Table(
+	name = "posts",
+	indexes = @Index(name = "idx_post_created_at", columnList = "created_at DESC")
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
