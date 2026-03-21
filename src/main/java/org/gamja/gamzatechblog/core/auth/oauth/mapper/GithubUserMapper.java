@@ -12,19 +12,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GithubUserMapper {
 
-    private final GithubApiClient githubApiClient;
+	private final GithubApiClient githubApiClient;
 
-    public OAuthUserInfo toOAuthUserInfo(String code) {
-        String token = githubApiClient.loginAndGetAccessToken(code);
+	public OAuthUserInfo toOAuthUserInfo(String code) {
+		String token = githubApiClient.loginAndGetAccessToken(code);
 
-        Map<String, Object> profile = githubApiClient.fetchProfile(code);
+		Map<String, Object> profile = githubApiClient.fetchProfile(token);
 
-        GithubUser user = new GithubUser(profile);
-        if (user.getEmail() == null) {
-            String primary = githubApiClient.fetchPrimaryEmail(token);
-            user.setEmail(primary);
-        }
+		GithubUser user = new GithubUser(profile);
+		if (user.getEmail() == null) {
+			String primary = githubApiClient.fetchPrimaryEmail(token);
+			user.setEmail(primary);
+		}
 
-        return user;
-    }
+		return user;
+	}
 }
