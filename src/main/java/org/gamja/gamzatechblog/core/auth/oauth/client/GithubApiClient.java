@@ -70,9 +70,7 @@ public class GithubApiClient {
 		return body.get("access_token").asText();
 	}
 
-	public Map<String, Object> fetchProfile(String code) {
-		String token = loginAndGetAccessToken(code);
-
+	public Map<String, Object> fetchProfile(String token) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token);
 		headers.setAccept(List.of(MediaType.APPLICATION_JSON));

@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
 	public User registerWithProvider(OAuthUserInfo info) {
 		userValidator.validateDuplicateProviderId(info.getGithubId());
 		User user = userMapper.toEntity(info);
-		maybeAttachProfileImageFromGithub(user, info.getProfileImageUrl());
 		return userRepository.saveUser(user);
 	}
 
@@ -151,6 +150,22 @@ public class UserServiceImpl implements UserService {
 			user.setEmail(email);
 			userRepository.saveUser(user);
 		}
+	}
+
+	@Override
+	@Transactional
+	public void attachProfileImageIfAbsent(String githubId, String profileImageUrl) {
+		if (!StringUtils.hasText(profileImageUrl)) {
+			return;
+		}
+
+		User user = userValidator.validateAndGetUserByGithubId(githubId);
+		if (user.getProfileImage() != null) {
+			return;
+		}
+
+		maybeAttachProfileImageFromGithub(user, profileImageUrl);
+		userRepository.saveUser(user);
 	}
 
 	@Override

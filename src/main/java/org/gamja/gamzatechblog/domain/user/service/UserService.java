@@ -22,6 +22,8 @@ public interface UserService {
 
 	void updateEmailIfEmpty(String githubId, String email);
 
+	void attachProfileImageIfAbsent(String githubId, String profileImageUrl);
+
 	UserProfileResponse getCurrentUserProfile(User currentUser);
 
 	UserProfileResponse setupUserProfile(String githubId, UserProfileRequest userProfileRequest);
