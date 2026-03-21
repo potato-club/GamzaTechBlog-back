@@ -1,5 +1,7 @@
 package org.gamja.gamzatechblog.core.auth.oauth.handler;
 
+import java.util.Map;
+
 import org.gamja.gamzatechblog.core.auth.oauth.client.GithubApiClient;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.GithubOAuthTokenDao;
 import org.gamja.gamzatechblog.core.auth.oauth.event.GithubPostLoginEvent;
@@ -24,6 +26,14 @@ public class GithubPostLoginHandler {
 	@EventListener
 	public void handle(GithubPostLoginEvent postLoginEvent) {
 		try {
+			try {
+				Map<String, Object> profile = githubApiClient.fetchProfile(postLoginEvent.accessToken());
+				String profileImageUrl = (String)profile.get("avatar_url");
+				userService.attachProfileImageIfAbsent(postLoginEvent.githubId(), profileImageUrl);
+			} catch (Exception ex) {
+				log.debug("깃허브 프로필 이미지 보정을 건너뜀 githubId={} 사유={}", postLoginEvent.githubId(), ex.toString());
+			}
+
 			// 이메일 보정
 			try {
 				String email = githubApiClient.fetchPrimaryEmail(postLoginEvent.accessToken());
