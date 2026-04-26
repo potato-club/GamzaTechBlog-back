@@ -111,3 +111,13 @@ gamza:
       - 주요 기능: 글/프로젝트/댓글, 태그/검색, 구성원 프로필
       - (WIP) AI 코드 품질 피드백
       - 참고: 자세한 설명은 "첫 번째 게시글" 또는 태그 "가이드"에 정리됨 / 제작자: 정소영, 박지훈, 이경환
+
+app:
+  auth:
+    github-login:
+      cookie-domain: ${AUTH_COOKIE_DOMAIN:.gamzatech.site}
+      access-token-ttl: ${AUTH_ACCESS_TOKEN_TTL:1h}
+      refresh-token-ttl: ${AUTH_REFRESH_TOKEN_TTL:30d}
+      redirect-domain-suffix: ${AUTH_REDIRECT_DOMAIN_SUFFIX:gamzatech.site}
+      default-location: ${AUTH_DEFAULT_LOCATION:app}
+      allowed-locations: ${AUTH_ALLOWED_LOCATIONS:app,dev,preview}

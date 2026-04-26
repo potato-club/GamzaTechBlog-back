@@ -23,6 +23,7 @@ import org.gamja.gamzatechblog.domain.user.model.mapper.UserMapper;
 import org.gamja.gamzatechblog.domain.user.model.mapper.UserProfileMapper;
 import org.gamja.gamzatechblog.domain.user.model.type.UserRole;
 import org.gamja.gamzatechblog.domain.user.service.UserService;
+import org.gamja.gamzatechblog.domain.user.service.model.GithubEnrichmentState;
 import org.gamja.gamzatechblog.domain.user.service.port.UserRepository;
 import org.gamja.gamzatechblog.domain.user.validator.UserValidator;
 import org.springframework.cache.annotation.CacheEvict;
@@ -166,6 +167,44 @@ public class UserServiceImpl implements UserService {
 
 		maybeAttachProfileImageFromGithub(user, profileImageUrl);
 		userRepository.saveUser(user);
+	}
+
+	@Override
+	@Transactional
+	public void enrichGithubDataIfMissing(String githubId, String email, String profileImageUrl) {
+		User user = userValidator.validateAndGetUserByGithubId(githubId);
+		boolean changed = false;
+
+		if (!StringUtils.hasText(user.getEmail()) && StringUtils.hasText(email)) {
+			user.setEmail(email);
+			changed = true;
+		}
+
+		boolean needsProfileImage = user.getProfileImage() == null
+			|| !StringUtils.hasText(user.getProfileImage().getProfileImageUrl());
+		if (needsProfileImage && StringUtils.hasText(profileImageUrl)) {
+			boolean hadProfileImage = user.getProfileImage() != null;
+			maybeAttachProfileImageFromGithub(user, profileImageUrl);
+			boolean hasProfileImageNow = user.getProfileImage() != null
+				&& StringUtils.hasText(user.getProfileImage().getProfileImageUrl());
+			if (!hadProfileImage && hasProfileImageNow) {
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			userRepository.saveUser(user);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GithubEnrichmentState getGithubEnrichmentState(String githubId) {
+		User user = userValidator.validateAndGetUserByGithubId(githubId);
+		boolean needsProfileImage = user.getProfileImage() == null
+			|| !StringUtils.hasText(user.getProfileImage().getProfileImageUrl());
+		boolean needsEmail = !StringUtils.hasText(user.getEmail());
+		return new GithubEnrichmentState(needsProfileImage, needsEmail);
 	}
 
 	@Override

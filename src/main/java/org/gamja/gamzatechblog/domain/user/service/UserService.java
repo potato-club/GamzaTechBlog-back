@@ -7,6 +7,7 @@ import org.gamja.gamzatechblog.domain.user.controller.response.UserPublicProfile
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UpdateProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.dto.request.UserProfileRequest;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.gamja.gamzatechblog.domain.user.service.model.GithubEnrichmentState;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
@@ -23,6 +24,10 @@ public interface UserService {
 	void updateEmailIfEmpty(String githubId, String email);
 
 	void attachProfileImageIfAbsent(String githubId, String profileImageUrl);
+
+	void enrichGithubDataIfMissing(String githubId, String email, String profileImageUrl);
+
+	GithubEnrichmentState getGithubEnrichmentState(String githubId);
 
 	UserProfileResponse getCurrentUserProfile(User currentUser);
 

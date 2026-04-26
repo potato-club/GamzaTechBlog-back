@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.crypto.SecretKey;
 
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
+import org.gamja.gamzatechblog.core.config.security.GithubLoginProperties;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.core.error.exception.UnauthorizedException;
@@ -47,6 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtProvider {
 	private final UserRepository userRepository;
+	private final GithubLoginProperties githubLoginProperties;
 
 	@Value("${jwt.secret}")
 	private String secretKeyString;
@@ -56,9 +58,6 @@ public class JwtProvider {
 	private static final String CLAIM_GITHUB_ID = "githubId";
 	private static final String TOKEN_SUBJECT = "GamjaTech";
 
-	private static final long ACCESS_TOKEN_VALIDITY_MS = 30 * 60 * 1000L;
-	private static final long REFRESH_TOKEN_VALIDITY_MS = 7L * 24 * 60 * 60 * 1000L;
-
 	@PostConstruct
 	public void init() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKeyString);
@@ -67,24 +66,26 @@ public class JwtProvider {
 
 	public String createAccessToken(String githubId) {
 		Date now = new Date();
+		long accessTokenValidityMs = githubLoginProperties.getAccessTokenTtl().toMillis();
 		return Jwts.builder()
 			.setSubject(TOKEN_SUBJECT)
 			.claim(CLAIM_GITHUB_ID, githubId)
 			.setId(UUID.randomUUID().toString())
 			.setIssuedAt(now)
-			.setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALIDITY_MS))
+			.setExpiration(new Date(now.getTime() + accessTokenValidityMs))
 			.signWith(secretKey, SignatureAlgorithm.HS256)
 			.compact();
 	}
 
 	public String createRefreshToken(String githubId) {
 		Date now = new Date();
+		long refreshTokenValidityMs = githubLoginProperties.getRefreshTokenTtl().toMillis();
 		return Jwts.builder()
 			.setSubject(TOKEN_SUBJECT)
 			.claim(CLAIM_GITHUB_ID, githubId)
 			.setId(UUID.randomUUID().toString())
 			.setIssuedAt(now)
-			.setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALIDITY_MS))
+			.setExpiration(new Date(now.getTime() + refreshTokenValidityMs))
 			.signWith(secretKey, SignatureAlgorithm.HS256)
 			.compact();
 	}

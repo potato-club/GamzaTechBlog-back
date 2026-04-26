@@ -1,7 +1,5 @@
 package org.gamja.gamzatechblog.core.auth.service.impl;
 
-import java.time.Duration;
-
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.auth.jwt.JwtProvider;
 import org.gamja.gamzatechblog.core.auth.oauth.dao.RefreshTokenDao;
@@ -9,6 +7,7 @@ import org.gamja.gamzatechblog.core.auth.oauth.model.OAuthUserInfo;
 import org.gamja.gamzatechblog.core.auth.oauth.service.OAuthService;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
 import org.gamja.gamzatechblog.core.auth.service.BlacklistService;
+import org.gamja.gamzatechblog.core.config.security.GithubLoginProperties;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.gamja.gamzatechblog.core.error.exception.OAuthException;
@@ -22,13 +21,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
-
 	private final OAuthService oAuthService;
 	private final UserServiceImpl userAuthService;
 	private final JwtProvider jwtProvider;
 	private final RefreshTokenDao refreshTokenDao;
 	private final BlacklistService blacklistService;
+	private final GithubLoginProperties githubLoginProperties;
 
 	@Override
 	public TokenResponse loginWithGithub(String code) {
@@ -48,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
 			.orElseThrow(() -> new OAuthException(ErrorCode.JWT_NOT_FOUND));
 
 		String accessToken = jwtProvider.createAccessToken(userId);
-		refreshTokenDao.touchTtl(oldRefreshToken, REFRESH_TOKEN_TTL);
+		refreshTokenDao.touchTtl(oldRefreshToken, githubLoginProperties.getRefreshTokenTtl());
 
 		return new TokenResponse(accessToken, oldRefreshToken);
 	}
@@ -61,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
 	private TokenResponse issueTokens(String userId) {
 		String accessToken = jwtProvider.createAccessToken(userId);
 		String refreshToken = jwtProvider.createRefreshToken(userId);
-		refreshTokenDao.rotateRefreshToken(userId, refreshToken, REFRESH_TOKEN_TTL);
+		refreshTokenDao.rotateRefreshToken(userId, refreshToken, githubLoginProperties.getRefreshTokenTtl());
 		return new TokenResponse(accessToken, refreshToken);
 	}
 }
