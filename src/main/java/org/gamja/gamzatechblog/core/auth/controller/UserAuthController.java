@@ -1,12 +1,11 @@
 package org.gamja.gamzatechblog.core.auth.controller;
 
-import java.time.Duration;
-
 import org.gamja.gamzatechblog.common.annotation.CurrentUser;
 import org.gamja.gamzatechblog.common.dto.ResponseDto;
 import org.gamja.gamzatechblog.core.annotation.ApiController;
 import org.gamja.gamzatechblog.core.auth.dto.AccessTokenResponse;
 import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
+import org.gamja.gamzatechblog.core.config.security.GithubLoginProperties;
 import org.gamja.gamzatechblog.core.auth.oauth.util.CookieUtils;
 import org.gamja.gamzatechblog.core.auth.service.AuthService;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
@@ -24,9 +23,7 @@ public class UserAuthController {
 
 	private final AuthService authService;
 	private final CookieUtils cookieUtils;
-	private static final String DOMAIN = ".gamzatech.site";
-	private static final Duration ACCESS_TOKEN_TTL = Duration.ofHours(1);
-	private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
+	private final GithubLoginProperties githubLoginProperties;
 
 	//소셜로그인 API를 따로 받지않고 url입력시 내부에서 자동으로 처리해 토큰 발급합니다.
 
@@ -42,7 +39,12 @@ public class UserAuthController {
 			);
 		}
 		TokenResponse tokens = authService.reissueRefreshToken(oldRefresh);
-		cookieUtils.addAccessTokenCookie(response, tokens.getAccessToken(), DOMAIN, ACCESS_TOKEN_TTL);
+		cookieUtils.addAccessTokenCookie(
+			response,
+			tokens.getAccessToken(),
+			githubLoginProperties.getCookieDomain(),
+			githubLoginProperties.getAccessTokenTtl()
+		);
 		AccessTokenResponse body = new AccessTokenResponse(tokens.getAccessToken());
 		return ResponseDto.of(HttpStatus.OK, "토큰 재발급 성공", body);
 	}
@@ -51,8 +53,8 @@ public class UserAuthController {
 	@PostMapping("/me/logout")
 	public ResponseDto<String> logout(@CurrentUser User user, HttpServletResponse response) {
 		authService.logout(user.getGithubId());
-		cookieUtils.expireAccessTokenCookie(response, DOMAIN);
-		cookieUtils.expireRefreshTokenCookie(response, DOMAIN);
+		cookieUtils.expireAccessTokenCookie(response, githubLoginProperties.getCookieDomain());
+		cookieUtils.expireRefreshTokenCookie(response, githubLoginProperties.getCookieDomain());
 
 		return ResponseDto.of(HttpStatus.OK, "로그아웃되었습니다.");
 	}

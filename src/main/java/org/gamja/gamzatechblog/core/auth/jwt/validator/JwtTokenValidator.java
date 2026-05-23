@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,15 +25,7 @@ public class JwtTokenValidator {
 	}
 
 	public String resolveAndValidate(HttpServletRequest request) {
-		String token = null;
-		if (request.getCookies() != null) {
-			for (Cookie c : request.getCookies()) {
-				if ("accessToken".equals(c.getName())) {
-					token = c.getValue();
-					break;
-				}
-			}
-		}
+		String token = resolveAccessTokenFromCookies(request);
 
 		if (token == null) {
 			token = jwtProvider.resolveAccessToken(request);
@@ -55,4 +48,20 @@ public class JwtTokenValidator {
 
 		return token;
 	}
+
+	private String resolveAccessTokenFromCookies(HttpServletRequest request) {
+		if (request.getCookies() == null) {
+			return null;
+		}
+		for (Cookie c : request.getCookies()) {
+			if ("accessToken".equals(c.getName()) || "authorization".equals(c.getName())) {
+				String cookieToken = c.getValue();
+				if (StringUtils.hasText(cookieToken)) {
+					return cookieToken;
+				}
+			}
+		}
+		return null;
+	}
+
 }
