@@ -152,6 +152,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	@Cacheable(
 		value = "postDetail",
 		key = "#postId",
@@ -211,6 +212,7 @@ public class PostServiceImpl implements PostService {
 		return PagedResponse.pagedFrom(pageData);
 	}
 
+	@Transactional(readOnly = true)
 	@Cacheable(
 		value = "homeFeed",
 		key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + (#filterTags != null ? #filterTags.toString() : 'all')",

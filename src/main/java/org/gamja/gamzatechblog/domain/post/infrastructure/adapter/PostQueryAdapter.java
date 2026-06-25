@@ -1,11 +1,9 @@
 package org.gamja.gamzatechblog.domain.post.infrastructure.adapter;
 
-import static org.gamja.gamzatechblog.core.auth.oauth.model.entity.QGithubOauthToken.*;
 import static org.gamja.gamzatechblog.domain.post.model.entity.QPost.*;
 import static org.gamja.gamzatechblog.domain.postimage.model.entity.QPostImage.*;
 import static org.gamja.gamzatechblog.domain.posttag.model.entity.QPostTag.*;
 import static org.gamja.gamzatechblog.domain.profileimage.model.entity.QProfileImage.*;
-import static org.gamja.gamzatechblog.domain.repository.model.entity.QGitHubRepo.*;
 import static org.gamja.gamzatechblog.domain.tag.model.entity.QTag.*;
 import static org.gamja.gamzatechblog.domain.user.model.entity.QUser.*;
 
@@ -169,13 +167,12 @@ public class PostQueryAdapter implements PostQueryPort {
 	}
 
 	private JPAQuery<Post> applyFetchJoins(JPAQuery<Post> base) {
+		// 목록/인기글 응답은 작성자 닉네임·프로필 이미지·태그만 사용하므로 그 범위만 fetch join.
 		return base
 			.leftJoin(post.postTags, postTag).fetchJoin()
 			.leftJoin(postTag.tag, tag).fetchJoin()
 			.leftJoin(post.user, user).fetchJoin()
-			.leftJoin(user.profileImage, profileImage).fetchJoin()
-			.leftJoin(user.githubRepo, gitHubRepo).fetchJoin()
-			.leftJoin(user.oauthToken, githubOauthToken).fetchJoin();
+			.leftJoin(user.profileImage, profileImage).fetchJoin();
 	}
 }
 
