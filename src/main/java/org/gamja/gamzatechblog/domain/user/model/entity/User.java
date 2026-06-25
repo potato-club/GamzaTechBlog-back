@@ -83,14 +83,16 @@ public class User extends BaseTime {
 	@Builder.Default
 	private List<Like> likes = new ArrayList<>();
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	// ponytail: 역방향(mappedBy) OneToOne의 LAZY는 Hibernate 바이트코드 인핸스먼트가 있어야 완전히 동작.
+	// 미적용 시 EAGER로 남을 수 있으나, 모든 사용처가 트랜잭션 안이라 안전
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private GitHubRepo githubRepo;
 
 	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<Project> projects = new ArrayList<>();
 
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private ProfileImage profileImage;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
