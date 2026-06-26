@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-// 캐시 제거는 나중에
 @Service
 @RequiredArgsConstructor
 @Transactional

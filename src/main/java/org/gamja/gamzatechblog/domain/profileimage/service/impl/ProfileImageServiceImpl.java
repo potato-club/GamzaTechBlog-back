@@ -20,9 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 리팩토링 예정
- */
 @Service
 @Transactional
 @RequiredArgsConstructor

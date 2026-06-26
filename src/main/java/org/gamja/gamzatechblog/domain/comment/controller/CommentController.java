@@ -54,7 +54,6 @@ public class CommentController {
 		return ResponseDto.of(HttpStatus.OK, "댓글이 삭제되었습니다.");
 	}
 
-	//코드 수정예정
 	@Operation(summary = "내가 단 댓글 목록 조회", tags = "댓글 기능")
 	@GetMapping("/me/comments")
 	public ResponseDto<PagedResponse<CommentListResponse>> getMyComments(

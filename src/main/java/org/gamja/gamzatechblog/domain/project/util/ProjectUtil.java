@@ -11,8 +11,4 @@ public class ProjectUtil {
 		}
 		return description.substring(0, maxLength) + "…";
 	}
-
-	public String formatDuration(String duration) {
-		return duration;
-	}
 }

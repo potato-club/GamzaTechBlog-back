@@ -29,20 +29,6 @@ public class ProfileImageController {
 	private final ProfileImageService profileImageService;
 	private final ProfileImageMapper profileImageMapper;
 
-	// @Operation(summary = "프로필 사진 업로드")
-	// @PostMapping(
-	// 	consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-	// 	produces = MediaType.APPLICATION_JSON_VALUE
-	// )
-	// public ResponseDto<ProfileImageResponse> uploadProfileImage(
-	// 	@RequestPart("file") MultipartFile file,
-	// 	@CurrentUser User user
-	// ) {
-	// 	ProfileImage saved = profileImageService.uploadProfileImage(file, user);
-	// 	ProfileImageResponse body = profileImageMapper.toProfileImageResponse(saved);
-	// 	return ResponseDto.of(HttpStatus.CREATED, "프로필 이미지 업로드 성공", body);
-	// }
-
 	@Operation(summary = "프로필 사진 확인")
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseDto<ProfileImageResponse> getProfileImage(
