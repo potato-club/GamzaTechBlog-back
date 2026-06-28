@@ -10,6 +10,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 
@@ -23,6 +28,8 @@ public class SecurityConfig {
 	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> githubTokenResponseClient;
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> githubOAuth2UserService;
 
 	private static final String[] PUBLIC_OAUTH = {
 		"/oauth2/**",
@@ -57,6 +64,8 @@ public class SecurityConfig {
 			.oauth2Login(o -> o
 				.loginPage("/oauth2/authorization/github")
 				.successHandler(oAuth2LoginSuccessHandler)
+				.tokenEndpoint(t -> t.accessTokenResponseClient(githubTokenResponseClient))
+				.userInfoEndpoint(u -> u.userService(githubOAuth2UserService))
 			)
 			.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint))
 			.authorizeHttpRequests(auth -> auth
