@@ -41,8 +41,7 @@ public class PostUtil {
 		if (cmd.action() == GitAction.DELETE) {
 			return githubApiClient.deleteFile(cmd.token(), owner, REPO_NAME, path, msg);
 		} else {
-			String markdown = buildMarkdownWithFrontmatter(post, cmd.tags());
-			return githubApiClient.createOrUpdateFile(cmd.token(), owner, REPO_NAME, path, msg, markdown);
+			return githubApiClient.createOrUpdateFile(cmd.token(), owner, REPO_NAME, path, msg, post.getContent());
 		}
 	}
 
@@ -58,6 +57,7 @@ public class PostUtil {
 	}
 
 	private boolean isEffectivelyBlank(String s) {
+		// "string"은 Swagger UI가 채워 보내는 기본 placeholder라 빈 값으로 취급한다.
 		return s == null || s.isBlank() || s.equalsIgnoreCase("string");
 	}
 
@@ -99,9 +99,5 @@ public class PostUtil {
 	public String makeSnippet(String markdown, int length) {
 		String noImages = stripAllImages(markdown).trim();
 		return (noImages.length() <= length) ? noImages : noImages.substring(0, length) + "...";
-	}
-
-	private String buildMarkdownWithFrontmatter(Post post, List<String> tags) {
-		return post.getContent();
 	}
 }

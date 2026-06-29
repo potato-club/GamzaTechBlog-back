@@ -97,6 +97,7 @@ public class GamzaChatService {
 		try {
 			cacheStringRedisTemplate.opsForValue().set(key, value, ttl);
 		} catch (DataAccessException e) {
+			// 캐시 쓰기 실패는 응답에 영향이 없으므로 무시한다
 		}
 	}
 
