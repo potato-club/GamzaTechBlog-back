@@ -31,16 +31,6 @@ public class TagRepositoryImpl implements TagRepository {
 	}
 
 	@Override
-	public void delete(Tag tag) {
-		tagJpaRepository.delete(tag);
-	}
-
-	@Override
-	public Tag saveAndFlush(Tag tag) {
-		return tagJpaRepository.saveAndFlush(tag);
-	}
-
-	@Override
 	public void deleteOrphanTags() {
 		tagJpaRepository.deleteOrphanTags();
 	}

@@ -26,10 +26,6 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 		return projectJpaRepository.save(p);
 	}
 
-	public void deleteById(Long id) {
-		projectJpaRepository.deleteById(id);
-	}
-
 	@Override
 	public void delete(Project project) {
 		projectJpaRepository.delete(project);

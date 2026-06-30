@@ -12,9 +12,5 @@ public interface TagRepository {
 
 	Tag save(Tag tag);
 
-	void delete(Tag tag);
-
-	Tag saveAndFlush(Tag tag);
-
 	void deleteOrphanTags();
 }
