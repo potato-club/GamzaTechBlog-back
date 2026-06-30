@@ -20,28 +20,8 @@ public class ProfileImageRepositoryImpl implements ProfileImageRepository {
 	}
 
 	@Override
-	public Optional<ProfileImage> findProfileImageById(Long id) {
-		return profileImageJpaRepository.findById(id);
-	}
-
-	@Override
-	public void deleteProfileImageById(Long id) {
-		profileImageJpaRepository.deleteById(id);
-	}
-
-	@Override
 	public Optional<ProfileImage> findByUser(User user) {
 		return profileImageJpaRepository.findByUser(user);
-	}
-
-	@Override
-	public void delete(ProfileImage profileImage) {
-		profileImageJpaRepository.delete(profileImage);
-	}
-
-	@Override
-	public long deleteByUser(User user) {
-		return profileImageJpaRepository.deleteByUser(user);
 	}
 
 	@Override

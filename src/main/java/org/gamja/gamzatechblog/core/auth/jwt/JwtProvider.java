@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
-import org.gamja.gamzatechblog.core.auth.dto.TokenResponse;
 import org.gamja.gamzatechblog.core.config.security.GithubLoginProperties;
 import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
@@ -27,7 +26,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -39,7 +37,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,27 +62,21 @@ public class JwtProvider {
 	}
 
 	public String createAccessToken(String githubId) {
-		Date now = new Date();
-		long accessTokenValidityMs = githubLoginProperties.getAccessTokenTtl().toMillis();
-		return Jwts.builder()
-			.setSubject(TOKEN_SUBJECT)
-			.claim(CLAIM_GITHUB_ID, githubId)
-			.setId(UUID.randomUUID().toString())
-			.setIssuedAt(now)
-			.setExpiration(new Date(now.getTime() + accessTokenValidityMs))
-			.signWith(secretKey, SignatureAlgorithm.HS256)
-			.compact();
+		return createToken(githubId, githubLoginProperties.getAccessTokenTtl().toMillis());
 	}
 
 	public String createRefreshToken(String githubId) {
+		return createToken(githubId, githubLoginProperties.getRefreshTokenTtl().toMillis());
+	}
+
+	private String createToken(String githubId, long validityMs) {
 		Date now = new Date();
-		long refreshTokenValidityMs = githubLoginProperties.getRefreshTokenTtl().toMillis();
 		return Jwts.builder()
 			.setSubject(TOKEN_SUBJECT)
 			.claim(CLAIM_GITHUB_ID, githubId)
 			.setId(UUID.randomUUID().toString())
 			.setIssuedAt(now)
-			.setExpiration(new Date(now.getTime() + refreshTokenValidityMs))
+			.setExpiration(new Date(now.getTime() + validityMs))
 			.signWith(secretKey, SignatureAlgorithm.HS256)
 			.compact();
 	}
@@ -125,11 +116,7 @@ public class JwtProvider {
 
 	private boolean validateToken(String token, String type) {
 		try {
-			Jws<Claims> claims = Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token);
-			return !claims.getBody().getExpiration().before(new Date());
+			return !parseClaims(token).getExpiration().before(new Date());
 		} catch (ExpiredJwtException e) {
 			log.info("{} Token 만료: {}", type, e.getMessage());
 		} catch (JwtException | IllegalArgumentException e) {
@@ -139,39 +126,12 @@ public class JwtProvider {
 	}
 
 	public String getGithubId(String token) {
-		Claims body = Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getBody();
-		return body.get(CLAIM_GITHUB_ID, String.class);
-	}
-
-	public String setInvalidAuthenticationMessage(String token) {
-		try {
-			Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token);
-			return "Logic Error : Backend 확인 필요";
-		} catch (UnsupportedJwtException | MalformedJwtException e) {
-			return ErrorCode.UNSUPPORTED_JWT.getMessage();
-		} catch (ExpiredJwtException e) {
-			return ErrorCode.EXPIRED_JWT.getMessage();
-		} catch (SignatureException e) {
-			return ErrorCode.SIGNATURE_INVALID_JWT.getMessage();
-		} catch (IllegalArgumentException e) {
-			return ErrorCode.JWT_NOT_FOUND.getMessage();
-		}
+		return parseClaims(token).get(CLAIM_GITHUB_ID, String.class);
 	}
 
 	public Claims parseClaimsOrThrow(String token) {
 		try {
-			return Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token)
-				.getBody();
+			return parseClaims(token);
 		} catch (ExpiredJwtException e) {
 			throw new BusinessException(ErrorCode.EXPIRED_JWT);
 		} catch (UnsupportedJwtException | MalformedJwtException e) {
@@ -181,6 +141,14 @@ public class JwtProvider {
 		} catch (IllegalArgumentException e) {
 			throw new BusinessException(ErrorCode.JWT_NOT_FOUND);
 		}
+	}
+
+	private Claims parseClaims(String token) {
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(token)
+			.getPayload();
 	}
 
 	public Authentication getAuthentication(String token) {
@@ -196,13 +164,7 @@ public class JwtProvider {
 		if (!validateRefreshToken(refreshToken)) {
 			throw new UnauthorizedException(ErrorCode.AUTHENTICATION_FAILED);
 		}
-		Claims claims = parseClaimsOrThrow(refreshToken);
-		return claims.get(CLAIM_GITHUB_ID, String.class);
-	}
-
-	public void addTokenHeaders(HttpServletResponse res, TokenResponse tokens) {
-		String bearer = BEARER_PREFIX + tokens.getAccessToken();
-		res.setHeader("Authorization", bearer);
+		return parseClaimsOrThrow(refreshToken).get(CLAIM_GITHUB_ID, String.class);
 	}
 
 	public String resolveAccessTokenFromHeader() {
@@ -211,20 +173,11 @@ public class JwtProvider {
 			return null;
 		HttpServletRequest req = attrs.getRequest();
 		String raw = Optional.ofNullable(req.getHeader("ACCESS")).orElse(req.getHeader("Authorization"));
-		if (raw != null && raw.startsWith("Bearer ")) {
-			return raw.substring(7);
-		}
-		return null;
+		return resolveToken(raw);
 	}
 
 	public long getRemainingAccessTokenValidity(String token) {
-		Claims body = Jwts.parser()
-			.setSigningKey(secretKey)
-			.build()
-			.parseClaimsJws(token)
-			.getBody();
-
-		Date exp = body.getExpiration();
+		Date exp = parseClaims(token).getExpiration();
 		long secondsLeft = (exp.getTime() - System.currentTimeMillis()) / 1000;
 		return Math.max(secondsLeft, 0L);
 	}

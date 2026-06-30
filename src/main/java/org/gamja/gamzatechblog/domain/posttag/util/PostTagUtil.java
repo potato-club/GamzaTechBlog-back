@@ -27,9 +27,9 @@ public class PostTagUtil {
 			return;
 		}
 
-		for (String tagName : tagNames) {
+		for (String tagName : tagNames.stream().distinct().toList()) {
 			Tag tag = tagRepository.findByTagName(tagName)
-				.orElseGet(() -> tagRepository.saveAndFlush(
+				.orElseGet(() -> tagRepository.save(
 					Tag.builder().tagName(tagName).build()
 				));
 

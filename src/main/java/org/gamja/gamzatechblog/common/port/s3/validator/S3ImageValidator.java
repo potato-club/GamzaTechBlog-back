@@ -10,9 +10,6 @@ import org.gamja.gamzatechblog.core.error.ErrorCode;
 import org.gamja.gamzatechblog.core.error.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
-/**
- * 찐~~~ 하게 리팩토링 할 예정 진짜 해라 빨리
- */
 @Component
 public class S3ImageValidator {
 

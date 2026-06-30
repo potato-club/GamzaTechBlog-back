@@ -34,7 +34,7 @@ public class BlacklistServiceImpl implements BlacklistService {
 		String accessToken = jwtProvider.resolveAccessTokenFromHeader();
 		if (accessToken != null) {
 			long remainingSec = jwtProvider.getRemainingAccessTokenValidity(accessToken);
-			String blackKey = "blacklist:access:" + accessToken;
+			String blackKey = BLACKLIST_ACCESS_PREFIX + accessToken;
 			stringRedisTemplate.opsForValue().set(blackKey, "true", remainingSec, TimeUnit.SECONDS);
 		}
 	}

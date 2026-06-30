@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-//변경 예정
 @Component
 @RequiredArgsConstructor
 public class AdminUserValidator {

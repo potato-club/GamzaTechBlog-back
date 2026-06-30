@@ -12,6 +12,7 @@ import org.gamja.gamzatechblog.domain.project.service.ProjectService;
 import org.gamja.gamzatechblog.domain.project.service.port.ProjectRepository;
 import org.gamja.gamzatechblog.domain.project.validator.ProjectValidator;
 import org.gamja.gamzatechblog.domain.user.model.entity.User;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-// 캐시 제거는 나중에
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -44,6 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@CacheEvict(value = {"projectsListContent", "projectsTotal"}, allEntries = true)
 	public ProjectListResponse createProject(User currentUser, ProjectRequest request, MultipartFile thumbnail) {
 
 		projectValidator.validateThumbnail(thumbnail);
@@ -55,6 +56,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@CacheEvict(value = {"projectsListContent", "projectsTotal"}, allEntries = true)
 	public ProjectListResponse updateProject(User currentUser,
 		Long projectId,
 		ProjectRequest request,
@@ -79,6 +81,7 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@CacheEvict(value = {"projectsListContent", "projectsTotal"}, allEntries = true)
 	public void deleteProject(User currentUser, Long projectId) {
 
 		Project project = projectValidator.validateAndGetProject(projectId);

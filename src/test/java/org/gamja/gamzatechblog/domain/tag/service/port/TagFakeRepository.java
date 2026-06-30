@@ -29,16 +29,6 @@ public class TagFakeRepository implements TagRepository {
 	}
 
 	@Override
-	public void delete(Tag tag) {
-		inMemoryTagStore.remove(tag.getTagName());
-	}
-
-	@Override
-	public Tag saveAndFlush(Tag tag) {
-		return save(tag);
-	}
-
-	@Override
 	public void deleteOrphanTags() {
 	}
 
