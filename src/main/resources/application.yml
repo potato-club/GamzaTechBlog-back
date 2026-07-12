@@ -1,5 +1,5 @@
 openapi:
-  server-url: https://gamzatech.site
+  server-url: https://gamza.site
 
 like:
   in-clause-limit: 500
@@ -54,7 +54,7 @@ spring:
           github:
             client-id: ENC(QH8tNKQ5kr4GfpPzZ2ySbScdv+/mwfy46uy57iggQjA=)
             client-secret: ENC(jfo489NWg4wh3OFQZQq0bwV6S44ZmrQ5Tc4xP0UnOvQoQ/ULy8mG1zNy2XiTefOxm2zxb7EQn4M=)
-            redirect-uri: ENC(V01W8yfdFGbGpdgNOZ4MH5Kaiv1r/wsL2S5FJhQd+4Y/Ke4qc2bnC/qaVMGEb0gdWsiJ7CsOPEo=)
+            redirect-uri: ENC(Wp6mJtklDSLwevKmqgTenMroXjy5CZ+EnJ4bICvBAygPlEuYX78x+nAQEV0Y1V7qPeGY7n3ZVr4=)
             authorization-grant-type: ENC(SXz2VlgX1PMd1fqPSOvSveQBpZoD0eHFJoOQWS4YeUw=)
             scope: ENC(AFDNpXI3FLzrpYrT254eP1xjp4TavPENBTIV1zLvRVl+Jrl5Mh0ELg==)
 
@@ -115,9 +115,9 @@ gamza:
 app:
   auth:
     github-login:
-      cookie-domain: ${AUTH_COOKIE_DOMAIN:.gamzatech.site}
+      cookie-domain: ${AUTH_COOKIE_DOMAIN:.gamza.site}
       access-token-ttl: ${AUTH_ACCESS_TOKEN_TTL:1h}
       refresh-token-ttl: ${AUTH_REFRESH_TOKEN_TTL:30d}
-      redirect-domain-suffix: ${AUTH_REDIRECT_DOMAIN_SUFFIX:gamzatech.site}
+      redirect-domain-suffix: ${AUTH_REDIRECT_DOMAIN_SUFFIX:gamza.site}
       default-location: ${AUTH_DEFAULT_LOCATION:app}
       allowed-locations: ${AUTH_ALLOWED_LOCATIONS:app,dev,preview}

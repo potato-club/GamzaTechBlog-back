@@ -22,20 +22,20 @@ public class WebConfig implements WebMvcConfigurer {
 			.allowedOrigins(
 				"http://localhost:3000",
 				"https://localhost:3000",
-				"https://gamzatech.site",
-				"https://www.gamzatech.site",
-				"http://gamzatech.site",
-				"http://www.gamzatech.site",
-				"https://dev.gamzatech.site:3000",
-				"http://dev.gamzatech.site:3000",
-				"https://app.gamzatech.site",
-				"http://app.gamzatech.site",
+				"https://gamza.site",
+				"https://www.gamza.site",
+				"http://gamza.site",
+				"http://www.gamza.site",
+				"https://app.gamza.site",
+				"http://app.gamza.site",
+				"https://dev.gamza.site",
+				"http://dev.gamza.site",
+				"https://dev.gamza.site:3000",
+				"http://dev.gamza.site:3000",
+				"https://preview.gamza.site",
+				"http://preview.gamza.site",
 				"https://gamza-tech-blog-front.vercel.app",
-				"http://gamza-tech-blog-front.vercel.app",
-				"https://dev.gamzatech.site",
-				"http://dev.gamzatech.site",
-				"https://preview.gamzatech.site",
-				"http://preview.gamzatech.site"
+				"http://gamza-tech-blog-front.vercel.app"
 			)
 			.allowedMethods("*")
 			.allowedHeaders("*")
